@@ -1,3 +1,9 @@
+#idea配置文件过滤
+.idea/
+
+#编译文件过滤
+*/target
+
 # Compiled class file
 *.class
 
