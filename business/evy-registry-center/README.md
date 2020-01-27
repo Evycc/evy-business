@@ -1,0 +1,1 @@
+SpringCloud注册中心,提供单一eurekeServer服务注册功能
