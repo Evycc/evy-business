@@ -2,7 +2,7 @@
 .idea/
 
 #编译文件过滤
-*/target
+**/target
 
 # Compiled class file
 *.class
