@@ -2,7 +2,8 @@ package com.evy.common.infrastructure.common.batch;
 
 import com.evy.common.domain.repository.db.DBUtils;
 import com.evy.common.domain.repository.mq.MqSender;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
+import com.evy.common.domain.repository.mq.basic.BaseBatchRabbitMqConsumer;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
 import com.evy.common.infrastructure.common.log.CommandLog;
 import org.springframework.util.CollectionUtils;
@@ -51,7 +52,8 @@ public class BatchUtils {
     }
 
     /**
-     * 产生批次MQ
+     * 产生批次MQ<br/>
+     * 批次消费者{@link BaseBatchRabbitMqConsumer}
      * @param batchName 批次名
      * @param cid   消费者tag
      * @return  0成功，1失败
@@ -61,7 +63,8 @@ public class BatchUtils {
     }
 
     /**
-     * 产生批次MQ
+     * 产生批次MQ<br/>
+     * 批次消费者{@link BaseBatchRabbitMqConsumer}
      * @param batchName 批次名
      * @param cid   消费者tag
      * @param msg   message
@@ -80,10 +83,6 @@ public class BatchUtils {
         }
 
         rs = MQ_SENDER.sendAndConfirm(map.get(BATCH_TOPIC), map.get(BATCH_TAG), cid, msg);
-//
-//        if (updateDateSql(batchName, UPDATE_END_DATE) == BusinessConstant.FAILED) {
-//            CommandLog.error("更新批次时间失败");
-//        }
 
         return rs;
     }
@@ -95,16 +94,11 @@ public class BatchUtils {
      * @return  0成功，1失败
      */
     private static int updateDateSql(String batchName, String sql) {
-        return DBUtils.executeUpdateSql(preparedStatement -> {
-            try {
-                preparedStatement.setString(1, batchName);
-                preparedStatement.execute();
-                return BusinessConstant.SUCESS;
-            } catch (SQLException e) {
-                CommandLog.errorThrow("更新Batch执行时间异常", e);
-                return BusinessConstant.FAILED;
-            }
-        }, sql);
+        int result = DBUtils.executeUpdateSql(sql, new ArrayList<>(){{add(batchName);}});
+        if (result != BusinessConstant.SUCESS) {
+            CommandLog.error("更新Batch执行时间异常");
+        }
+        return result;
     }
 
     /**

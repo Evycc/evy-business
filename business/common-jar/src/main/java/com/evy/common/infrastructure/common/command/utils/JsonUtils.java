@@ -1,15 +1,18 @@
-package com.evy.common.infrastructure.common.command;
+package com.evy.common.infrastructure.common.command.utils;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
+
 /**
+ * JSON工具类
  * @Author: EvyLiuu
  * @Date: 2020/1/24 11:18
  */
 public class JsonUtils {
     private static final Gson FINAL_GSON = new Gson();
 
-    public static String convertToJson(Object object, Class cls) {
+    public static String convertToJson(Object object, Type cls) {
         return FINAL_GSON.toJson(object, cls);
     }
 

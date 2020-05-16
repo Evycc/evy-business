@@ -1,17 +1,13 @@
 package com.evy.linlin;
 
-import com.evy.common.infrastructure.common.context.AppContextUtils;
 import com.google.gson.Gson;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
@@ -20,20 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.*;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(SpringRunner.class)
@@ -50,7 +45,7 @@ public class EvyGatewayApplicationTests {
 //	RedisTemplate<String, RouteDefinition> redisTemplate;
 
     @Test
-    public void testRedis() {
+    public void testRedis() throws InterruptedException {
 //		System.out.println("start");
 //		redisTemplate.<String,String>opsForHash()
 //				.put("a","b","redistest")
@@ -70,6 +65,17 @@ public class EvyGatewayApplicationTests {
 //				});
 //		String modifyTime = redisTemplate.<String, String>opsForHash().get("a", "b");
 //		System.out.println(StringUtils.isEmpty(modifyTime));
+
+
+        reactiveRedisTemplate
+                .listenTo(ChannelTopic.of("__keyevent@0__:expired"))
+                .subscribe(consumer -> {
+                    System.out.println(consumer);
+                    System.out.println(consumer.getMessage());
+                    System.out.println(consumer.getChannel());
+                });
+
+        TimeUnit.SECONDS.sleep(1000);
 
         reactiveRedisTemplate.opsForHash()
                 .remove("a", "bb")

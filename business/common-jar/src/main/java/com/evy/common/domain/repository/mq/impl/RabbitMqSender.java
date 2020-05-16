@@ -1,21 +1,23 @@
 package com.evy.common.domain.repository.mq.impl;
 
+import com.evy.common.domain.repository.factory.CreateFactory;
 import com.evy.common.domain.repository.factory.MqFactory;
-import com.evy.common.domain.repository.mq.model.MqSendMessage;
 import com.evy.common.domain.repository.mq.MqSender;
-import com.evy.common.infrastructure.common.command.CommandUtils;
+import com.evy.common.domain.repository.mq.model.MqSendMessage;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
+import com.evy.common.infrastructure.common.command.utils.DateUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
 import com.evy.common.infrastructure.common.log.CommandLog;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConfirmListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.SerializationUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component("RabbitMqSender")
 public class RabbitMqSender implements MqSender {
-    private static final ExecutorService EXECUTOR_SERVICE = MqFactory.returnExecutorService("RabbitMqSender-ExecutorService");
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("RabbitMqSender-ExecutorService");
     /**
      * 存放需要异步confirm的消息标签MAP
      * K: deliveryTag V: 消息体
@@ -95,11 +97,12 @@ public class RabbitMqSender implements MqSender {
                     //b=true    表示nack了l之前所有的消息
                     if (b) {
                         SortedMap<Long, MqSendMessage> tempMap = ACK_MAP.headMap(l - 1);
-                        if (tempMap != null){
+                        if (!CollectionUtils.isEmpty(tempMap)){
                             tempMap.entrySet().forEach(key -> {
                                 MqSendMessage tempMsg = tempMap.get(key);
-
-                                sendAndConfirm(tempMsg, true, initChannelConfirm());
+                                if (tempMsg != null) {
+                                    sendAndConfirm(tempMsg, true, initChannelConfirm());
+                                }
                             });
                         } else {
                             CommandLog.warn("MQ not found Nack deliveryTag: {}", l);
@@ -128,16 +131,7 @@ public class RabbitMqSender implements MqSender {
                 .message(msg)
                 .build();
 
-        CommandLog.info("Start MQ Send param: {}", mqSendMessage);
-        int result = sendAndConfirm(mqSendMessage, false, initChannelGeneral());
-        if (result == BusinessConstant.SUCESS) {
-            CommandLog.info("MQ发送成功");
-        }
-        else {
-            CommandLog.warn("MQ发送失败");
-        }
-
-        CommandLog.info("End MQ Send result: {}", result);
+        sendAndConfirm(mqSendMessage, false, initChannelGeneral());
     }
 
     @Override
@@ -149,16 +143,16 @@ public class RabbitMqSender implements MqSender {
                 .message(msg)
                 .build();
 
+        return sendAndConfirm(mqSendMessage, true, initChannelConfirm());
+    }
 
-        int result = sendAndConfirm(mqSendMessage, true, initChannelConfirm());
-        if (result == BusinessConstant.SUCESS) {
-            CommandLog.info("MQ发送成功");
-        }
-        else {
-            CommandLog.warn("MQ发送失败");
-        }
-
-        return result;
+    /**
+     * 发送confirm类型的mq
+     * @param mqSendMessage com.evy.common.domain.repository.mq.model.MqSendMessage
+     * @return  0发送成功   1发送失败
+     */
+    public int sendAndConfirm(MqSendMessage mqSendMessage) {
+        return sendAndConfirm(mqSendMessage, true, initChannelConfirm());
     }
 
     /**
@@ -173,6 +167,7 @@ public class RabbitMqSender implements MqSender {
             String deliveryTag = mqSendMessage.getRbDeliveryTag();
 
             if (StringUtils.isEmpty(msgId)){
+                //TODO 唯一序列
                 msgId = String.valueOf(UUID.randomUUID());
                 mqSendMessage.setMessageId(msgId);
             }
@@ -183,8 +178,7 @@ public class RabbitMqSender implements MqSender {
             }
 
             if (StringUtils.isEmpty(mqSendMessage.getSendTime())){
-                mqSendMessage.setSendTime(LocalDateTime.now().format(
-                        DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ss")));
+                mqSendMessage.setSendTime(DateUtils.now().format(DateUtils.PATTERN1));
             }
 
             //MessageProperties
@@ -198,10 +192,12 @@ public class RabbitMqSender implements MqSender {
 
             if (isConfirm){
                 ACK_MAP.put(Long.valueOf(deliveryTag), mqSendMessage);
+                //开启异步消息确认机制
                 channel.confirmSelect();
             }
 
             CommandLog.info("发送MQ\ttopic:{}\tmessageId:{}", mqSendMessage.getTopic(), msgId);
+
             channel.basicPublish(mqSendMessage.getTopic(), mqSendMessage.getTag(), basicProperties,
                     SerializationUtils.serialize(mqSendMessage));
 
@@ -211,9 +207,11 @@ public class RabbitMqSender implements MqSender {
             }
 
             CommandLog.info("End Start MQ Send Service");
+            CommandLog.info("MQ发送成功");
             return BusinessConstant.SUCESS;
         } catch (IOException e) {
             CommandLog.errorThrow("{}", e);
+            CommandLog.warn("MQ发送失败");
             return BusinessConstant.FAILED;
         }
     }
@@ -240,20 +238,18 @@ public class RabbitMqSender implements MqSender {
                     .dlxQueue(dlxqueue)
                     .build();
 
-            sendAndConfirm(mqSendMessage, true, channel);
+            return sendAndConfirm(mqSendMessage, true, channel);
         } catch (IOException e) {
             CommandLog.errorThrow("发送延时MQ失败", e);
             return BusinessConstant.FAILED;
         }
-
-        return BusinessConstant.SUCESS;
     }
 
     @Override
     public int sendTiming(String topic, String tag, String consumerTag, Object msg, TimeUnit timeUnit, long intervalTime, String startTime, String pattern) {
         try {
-            LocalDateTime startDate = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern(pattern));
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startDate = DateUtils.parse(startTime, pattern);
+            LocalDateTime now = DateUtils.now();
 
             if (startDate.compareTo(now) < 0) {
                 CommandLog.error("Usage: MQ发送时间必须大于等于当前时间，startTime={}", startTime);
@@ -261,17 +257,18 @@ public class RabbitMqSender implements MqSender {
             }
 
             //定时发送时间
-            long st = Duration.between(now, startDate).getSeconds() - intervalTime;
+            long st = DateUtils.between(now, startDate).getSeconds() - intervalTime;
 
             EXECUTOR_SERVICE.submit(() -> {
                 try {
                     TimeUnit.SECONDS.sleep(st);
-                    now.plusSeconds(st);
-                    CommandLog.info("定时MQ发送 topic:{} tag: {} 发送MQ时间:{}", topic, tag,
-                            now.format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss")));
 
                     String flag = AppContextUtils.getForEnv(topic + BusinessConstant.POINT + tag);
                     do {
+                        CommandLog.info("定时MQ发送 topic:{} tag: {} 发送MQ时间:{}",
+                                topic,
+                                tag,
+                                DateUtils.plus(now, st, DateUtils.DATE_TYPE.SECONDS, DateUtils.YYYY_MM_DD_HH_MM_SS));
                         sendDelay(topic, tag, consumerTag, msg, timeUnit, intervalTime);
                         TimeUnit.SECONDS.sleep(intervalTime);
 

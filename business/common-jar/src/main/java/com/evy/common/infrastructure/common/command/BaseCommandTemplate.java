@@ -1,8 +1,10 @@
 package com.evy.common.infrastructure.common.command;
 
 import com.evy.common.app.validator.ValidatorDTO;
-import com.evy.common.domain.repository.factory.MqFactory;
+import com.evy.common.domain.repository.factory.CreateFactory;
 import com.evy.common.domain.repository.mq.MqSender;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.JsonUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.inceptor.BaseCommandInceptor;
@@ -10,8 +12,6 @@ import com.evy.common.infrastructure.common.log.CommandLog;
 import com.evy.common.infrastructure.common.log.anno.TraceLog;
 import com.evy.common.infrastructure.tunnel.InputDTO;
 import com.evy.common.infrastructure.tunnel.OutDTO;
-import com.google.gson.Gson;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
@@ -26,8 +26,6 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,27 +35,24 @@ import java.util.stream.Collectors;
  * @Date: 2019/10/23 0:12
  */
 public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R extends OutDTO> implements CommandTemplate<T, R> {
-    private final String START_METHOD_NAME = "start";
     /**
      * AnnoCommandInceptor Command拦截器列表
      */
-    private static final Map<Class, List<? extends BaseCommandInceptor>> COMMAND_INCEPTORS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, List<? extends BaseCommandInceptor>> COMMAND_INCEPTORS = new ConcurrentHashMap<>();
     /**
      * 实例对应的拦截器列表
      */
     private List<? extends BaseCommandInceptor> tempInceptor;
-    private static final ExecutorService EXECUTOR_SERVICE = MqFactory.returnExecutorService();
-//    private static final Gson GSON_FINAL = new Gson();
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("BaseCommandTemplate");
+
     /**
      * 记录日志流水topic
      */
-    @Getter
-    private static final String TRACELOG_TOPIC = "topic-tracelog";
+    public static final String TRACELOG_TOPIC = "topic-tracelog";
     /**
      * 记录日志流水tag
      */
-    @Getter
-    private static final String TRACELOG_TAG = "tag-tracelog";
+    public static final String TRACELOG_TAG = "tag-tracelog";
     @Autowired
     @Qualifier("RabbitMqSender")
     private MqSender mqSender;
@@ -89,29 +84,6 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
         String className = cls.getName();
         methodDescMap.put(className, desc);
     }
-
-    /**
-     * 执行自定义组件，并返回
-     * @param t 入参
-     * @param function  具体执行逻辑
-     * @param <T>   入参类型
-     * @param <R>   出参类型
-     * @return  返回指定类型出参
-     */
-    public static <T, R> R executeAssembly(T t, Function<T, R> function) {
-        return function.apply(t);
-    }
-
-    /**
-     * 执行自定义组件
-     * @param t 入参
-     * @param consumer  具体执行逻辑
-     * @param <T>   入参类型
-     */
-    public static <T> void executeAssembly(T t, Consumer<T> consumer) {
-        consumer.accept(t);
-    }
-
 
     /**
      * 初始化
@@ -335,17 +307,18 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
         }
 
         String invokeMethodName = StringUtils.isEmpty(methodName) ?
-                new Exception().getStackTrace()[1].getMethodName() : methodName;
+                Thread.currentThread().getStackTrace()[1].getMethodName() : methodName;
         String mapKey = invokeMethodName + Thread.currentThread().getId();
         Long v = printTimeMap.get(mapKey);
 
+        String start = "start";
         if (BusinessConstant.SUCESS == se) {
             long startTime = v != null ? v : 0L;
 
             if (startTime == 0L) {
                 printTimeMap.put(mapKey, System.currentTimeMillis());
             }
-            if (START_METHOD_NAME.equalsIgnoreCase(invokeMethodName)) {
+            if (start.equalsIgnoreCase(invokeMethodName)) {
                 CommandLog.info("Start Service Flow...", invokeMethodName);
             }
             else {
@@ -364,7 +337,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
                 String param = CommandUtils.returnDtoParam(obj);
                 CommandLog.info("{} return: {}", invokeMethodName, param);
             }
-            if (START_METHOD_NAME.equalsIgnoreCase(invokeMethodName)) {
+            if (start.equalsIgnoreCase(invokeMethodName)) {
                 CommandLog.info("End Service Flow ({})--[{}ms]", methodDescMap.getOrDefault(invokeMethodName, invokeMethodName), (endTime - startTime));   
             }
             else {
@@ -382,7 +355,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      */
     public <E> R convertDto(R r, E e){
         try {
-            if (r.getClass().getName().equals(e.getClass().getName())) {
+            if (r.getClass().equals(e.getClass())) {
                 return (R) e;   
             }
 

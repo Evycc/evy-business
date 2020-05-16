@@ -1,7 +1,7 @@
 package com.evy.linlin;
 
-import com.evy.common.infrastructure.common.command.CommandUtils;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
 import com.evy.common.infrastructure.tunnel.InputDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;

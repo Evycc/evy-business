@@ -1,8 +1,9 @@
 package com.evy.common.infrastructure.common.batch;
 
 import com.evy.common.infrastructure.common.command.BusinessPrpoties;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
 import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.infrastructure.config.CommandInitialize;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -25,6 +26,10 @@ public class FtpUtils {
     private static int SFTP_TIMEOUT;
 
     static {
+        CommandInitialize.addStaticInitEvent(FtpUtils.class, CommandInitialize.INIT_STATIC_METHOD);
+    }
+
+    private static void init(){
         //获取sftp连接超时时间
         BusinessPrpoties prpoties = AppContextUtils.getPrpo();
         SFTP_TIMEOUT = prpoties.getFtp().getLoginTimeout();

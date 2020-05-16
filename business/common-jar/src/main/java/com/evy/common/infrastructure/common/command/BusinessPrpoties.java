@@ -131,11 +131,23 @@ public class BusinessPrpoties {
             @Setter
             private boolean autoRecovery = true;
             /**
-             * 重试次数
+             * 连接重试次数，默认3
              */
             @Getter
             @Setter
-            private int retryCount = 3;
+            private int connRetryCount = 3;
+            /**
+             * 重试消费次数，默认5
+             */
+            @Getter
+            @Setter
+            private int consumerRetryCount = 5;
+            /**
+             * 重试消费时间间隔，单位s，默认5分钟
+             */
+            @Getter
+            @Setter
+            private int consumerRetryTime = 300;
             /**
              * rabbitmq最多消费数量，默认不限制
              */

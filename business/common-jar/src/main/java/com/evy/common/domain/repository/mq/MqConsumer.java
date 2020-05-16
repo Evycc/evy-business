@@ -1,12 +1,13 @@
 package com.evy.common.domain.repository.mq;
 
-import com.evy.common.app.event.TraceLogEvent;
+import com.evy.common.app.event.log.TraceLogEvent;
+import com.evy.common.domain.repository.factory.CreateFactory;
 import com.evy.common.domain.repository.factory.MqFactory;
 import com.evy.common.domain.repository.mq.basic.BasicMqConsumer;
 import com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer;
 import com.evy.common.domain.repository.mq.model.MqConsumerModel;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
 import com.evy.common.infrastructure.common.command.BaseCommandTemplate;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
 import com.evy.common.infrastructure.common.log.CommandLog;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
@@ -62,8 +63,7 @@ public class MqConsumer {
      * 统一发布消费信息
      */
     private void executeConsumer() {
-        MQ_CONSUMERS.stream()
-                .forEach(BasicMqConsumer::consumer);
+        MQ_CONSUMERS.forEach(BasicMqConsumer::consumer);
     }
 
     /**
@@ -96,7 +96,9 @@ public class MqConsumer {
      *
      * @param consumer consumer
      * @param models   queue，tag
+     * @deprecated com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer 通过统一消息监听器进行监听
      */
+    @Deprecated
     public static void addRabbitMqConsumer(DefaultConsumer consumer, List<MqConsumerModel> models) {
         R_LIST.put(consumer, models);
     }
@@ -108,8 +110,8 @@ public class MqConsumer {
         try {
             TraceLogEvent traceLogEvent = AppContextUtils.getBean(TraceLogEvent.class);
             Channel channel = traceLogEvent.getChannel();
-            String topic = BaseCommandTemplate.getTRACELOG_TOPIC();
-            String tag = BaseCommandTemplate.getTRACELOG_TAG();
+            String topic = BaseCommandTemplate.TRACELOG_TOPIC;
+            String tag = BaseCommandTemplate.TRACELOG_TAG;
             String queue = MqFactory.dlxBind(channel, topic, tag, null);
             CommandLog.info("创建TraceLog临时消费队列:{}", queue);
             MqConsumerModel mqConsumerModel = new MqConsumerModel();
@@ -126,9 +128,12 @@ public class MqConsumer {
 
     /**
      * 将消费者列表分发到线程监听
+     *
+     * @deprecated com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer 通过统一消息监听器进行监听
      */
+    @Deprecated
     public void rabbitmqExecute() {
-        ExecutorService es = MqFactory.returnExecutorService();
+        ExecutorService es = CreateFactory.returnExecutorService();
         R_LIST.forEach((consumer, list) -> list.forEach(model -> {
             String queue = model.getQueue();
             String tag = model.getTag();

@@ -1,7 +1,7 @@
 package com.evy.common.domain.repository.factory;
 
 import com.evy.common.infrastructure.common.command.BusinessPrpoties;
-import com.evy.common.infrastructure.common.command.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
 import com.evy.common.infrastructure.common.log.CommandLog;
 import com.rabbitmq.client.Channel;
@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * MQ配置类
@@ -45,9 +46,9 @@ public class MqFactory {
      */
     public static boolean AUTO_RECOVERY;
     /**
-     * 重试次数
+     * 连接重试次数
      */
-    private static int RETRY_COUNT;
+    private static int CONN_RETRY_COUNT;
     /**
      * rabbitmq最多消费数量，默认不限制
      */
@@ -88,7 +89,7 @@ public class MqFactory {
         PRIORITY = businessPrpoties.getMq().getRabbitmq().getPriority();
         AUTO_ACK = businessPrpoties.getMq().getRabbitmq().isAutoAck();
         AUTO_RECOVERY = businessPrpoties.getMq().getRabbitmq().isAutoRecovery();
-        RETRY_COUNT = businessPrpoties.getMq().getRabbitmq().getRetryCount();
+        CONN_RETRY_COUNT = businessPrpoties.getMq().getRabbitmq().getConnRetryCount();
         BASICEQOS = businessPrpoties.getMq().getRabbitmq().getBasicQos();
     }
 
@@ -102,6 +103,8 @@ public class MqFactory {
             rabbitmqConnFactory.setPassword(rabbitmqPassword);
             rabbitmqConnFactory.setHost(rabbitmqHost);
             rabbitmqConnFactory.setPort(rabbitmqPort);
+            //TODO RabbitMQ调优
+            //启用自动连接恢复
             rabbitmqConnFactory.setAutomaticRecoveryEnabled(AUTO_RECOVERY);
         }
     }
@@ -127,7 +130,7 @@ public class MqFactory {
             CommandLog.errorThrow("RabbitMQ IO异常", e);
         } catch (TimeoutException e) {
             CommandLog.errorThrow("RabbitMQ connection连接异常", e);
-            for (int i =0; i < RETRY_COUNT; i++){
+            for (int i = 0; i < CONN_RETRY_COUNT; i++){
                 CommandLog.error("尝试重连... {}次", i);
 
                 try {
@@ -139,9 +142,7 @@ public class MqFactory {
                     if (channel != null && channel.isOpen()) {
                         break;
                     }
-                } catch (IOException ex) {
-                    CommandLog.error("尝试重连... {}次失败 [errorMsg:{}]", i+1, e.getClass().getName());
-                } catch (TimeoutException ex) {
+                } catch (IOException | TimeoutException ex) {
                     CommandLog.error("尝试重连... {}次失败 [errorMsg:{}]", i+1, e.getClass().getName());
                 } catch (InterruptedException ex) {
                     CommandLog.errorThrow("尝试重连时异常{}", ex);
@@ -150,57 +151,6 @@ public class MqFactory {
 
         }
         return channel;
-    }
-
-    /**
-     * 返回基于CPU核心数的线程池
-     * @return java.util.concurrent.ExecutorService
-     */
-    @Deprecated
-    public static ExecutorService returnExecutorService(){
-        ExecutorService es = new ThreadPoolExecutor(
-                //核心线程数
-                BusinessConstant.CORE_CPU_COUNT + 1,
-                //最大线程数
-                BusinessConstant.CORE_CPU_COUNT * 2 + 1,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<>(1000),
-                Executors.defaultThreadFactory(),
-                //拒绝策略  抛出RejectedExecutionException
-                new ThreadPoolExecutor.AbortPolicy());
-
-        //停止线程，不可submit，等待已执行的线程
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> es.shutdown()));
-        return es;
-    }
-
-    /**
-     * 返回基于CPU核心数的线程池
-     * @param name 线程池名称
-     * @return java.util.concurrent.ExecutorService
-     */
-    public static ExecutorService returnExecutorService(String name){
-        //参照com.google.common.util.concurrent.ThreadFactoryBuilder.build(com.google.common.util.concurrent.ThreadFactoryBuilder)
-        ThreadFactory threadFactory = runnable -> {
-            ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
-            Thread thread = defaultThreadFactory.newThread(runnable);
-            thread.setName(name);
-            return thread;
-        };
-        ExecutorService es = new ThreadPoolExecutor(
-                //核心线程数
-                BusinessConstant.CORE_CPU_COUNT + 1,
-                //最大线程数
-                BusinessConstant.CORE_CPU_COUNT * 2 + 1,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<>(1000),
-                threadFactory,
-                //拒绝策略  抛出RejectedExecutionException
-                new ThreadPoolExecutor.AbortPolicy());
-
-        //停止线程，不可submit，等待已执行的线程
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> es.shutdown()));
-        return es;
     }
 
     /**

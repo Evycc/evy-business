@@ -6,14 +6,13 @@ import com.evy.common.infrastructure.common.log.CommandLog;
 import com.rabbitmq.client.DefaultConsumer;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-
 /**
  * RabbitMQ消费者监听器
  * @Author: EvyLiuu
  * @Date: 2020/1/5 19:33
  */
 public class RabbitBaseMqConsumer extends BaseMqConsumerAdapter {
+
     @Override
     public void consumer() {
         execute((es, m) -> m.forEach((consumer, list) ->
@@ -30,7 +29,7 @@ public class RabbitBaseMqConsumer extends BaseMqConsumerAdapter {
                             else {
                                 defaultConsumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, tag, defaultConsumer);
                             }
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             CommandLog.errorThrow("RabbitMQ 消费者IO异常", e);
                         }
                     });

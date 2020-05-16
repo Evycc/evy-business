@@ -1,8 +1,6 @@
 package com.evy.common.infrastructure.common.inceptor;
 
-import com.evy.common.app.validator.ValidatorDTO;
 import com.evy.common.infrastructure.tunnel.InputDTO;
-import com.evy.common.infrastructure.tunnel.OutDTO;
 import lombok.Getter;
 import lombok.Setter;
 

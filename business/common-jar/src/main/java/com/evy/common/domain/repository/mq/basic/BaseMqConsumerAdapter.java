@@ -1,6 +1,6 @@
 package com.evy.common.domain.repository.mq.basic;
 
-import com.evy.common.domain.repository.factory.MqFactory;
+import com.evy.common.domain.repository.factory.CreateFactory;
 import com.evy.common.domain.repository.mq.model.MqConsumerModel;
 import org.apache.logging.log4j.util.BiConsumer;
 
@@ -10,11 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
- * MQ消费者监听适配器
+ * MQ消费者统一监听适配器
  * @Author: EvyLiuu
  * @Date: 2020/1/5 19:55
  */
 public abstract class BaseMqConsumerAdapter implements BasicMqConsumer {
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("BaseMqConsumerAdapter");
+
     /**
      * 存储MQ消费者实例及对应topic，tag
      */
@@ -28,9 +30,8 @@ public abstract class BaseMqConsumerAdapter implements BasicMqConsumer {
     }
 
     public void execute(BiConsumer<ExecutorService, Map<Object, List<MqConsumerModel>>> consumer) {
-        ExecutorService es = MqFactory.returnExecutorService();
-        es.submit(() -> consumer.accept(es, CONSUMER_LIST));
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> es.shutdown()));
+        EXECUTOR_SERVICE.submit(() -> consumer.accept(EXECUTOR_SERVICE, CONSUMER_LIST));
+        Runtime.getRuntime().addShutdownHook(new Thread(EXECUTOR_SERVICE::shutdown));
     }
 
     public Map<Object, List<MqConsumerModel>> getConsumerList() {

@@ -1,10 +1,9 @@
 package com.evy.linlin;
 
 import com.evy.common.domain.repository.db.DBUtils;
-import com.evy.common.infrastructure.common.command.JsonUtils;
+import com.evy.common.infrastructure.common.command.utils.JsonUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
 import com.evy.common.infrastructure.common.log.CommandLog;
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -49,15 +48,22 @@ public class DynamicRouteService implements CommandLineRunner {
     public DynamicRouteService(@Qualifier("reactiveRedisRouteDefinitionRepository") ReactiveRedisRouteDefinitionRepository definitionRepository, @Qualifier("reactiveRedisTemplate") ReactiveRedisTemplate<String, String> template) {
         this.definitionRepository = definitionRepository;
         this.template = template;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> executorService.shutdown()));
+        Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
     }
 
+    @Override
+    public void run(String... args) {
+        submit();
+        initRouteForRedis();
+    }
 
+    /**
+     * 执行定时调度，检测路由表
+     */
     private void submit() {
         executorService.setMaximumPoolSize(1);
         executorService.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executorService.setKeepAliveTime(0L, TimeUnit.MILLISECONDS);
-        executorService.setThreadFactory(Executors.defaultThreadFactory());
 
         executorService.scheduleWithFixedDelay(() -> {
 //            executeForRedis();
@@ -69,44 +75,46 @@ public class DynamicRouteService implements CommandLineRunner {
      * 使用org.springframework.data.redis.core.StringRedisTemplate进行redis操作
      */
     private void executeForRedis() {
-//        DBUtils.executeQuerySql(resultSet -> {
-//            try {
-//                CommandLog.info("异步线程检测动态路由表...");
-//                while (resultSet.next()) {
-//                    String routerId = resultSet.getString(TR_ROUTER_ID);
-//                    String gmtModify = resultSet.getString(GMT_MODIFY);
-//
-//                    Object modifyTime = template.opsForHash().get(ROUTE_MAP_KEYS, routerId);
-//                    if (StringUtils.isEmpty(modifyTime) || (gmtModify.compareTo(String.valueOf(modifyTime)) > 0)) {
-//                        String routerUri = resultSet.getString(TR_ROUTER_URI);
-//                        String predicateName = resultSet.getString(TR_PREDICATE_NAME);
-//                        String flitersName = resultSet.getString(TR_FILTERS_NAME);
-//                        String pargs = resultSet.getString(TR_PREDICATE_ARGS);
-//                        String fargs = resultSet.getString(TR_FILTERS_ARGS);
-//                        String routerOrder = resultSet.getString(TR_ORDER);
-//
-//                        RouteDefinition routeDefinition = new RouteDefinition();
-//                        //路由断言器List
-//                        List<PredicateDefinition> plist = splitAndReturnPd(predicateName, pargs);
-//                        //过滤器List
-//                        List<FilterDefinition> flist = splitAndReturnFilter(flitersName, fargs);
-//                        routeDefinition.setId(routerId);
-//                        routeDefinition.setOrder(Integer.parseInt(routerOrder));
-//                        routeDefinition.setUri(URI.create(routerUri));
-//
-//                        if (plist != null && plist.size() > 0)
-//                            routeDefinition.setPredicates(plist);
-//                        if (flist != null && flist.size() > 0)
-//                            routeDefinition.setFilters(flist);
-//
-//                        updateRouter(routeDefinition);
-//                        template.opsForHash().put(ROUTE_MAP_KEYS, routerId, gmtModify);
-//                    }
-//                }
-//            } catch (SQLException e) {
-//                CommandLog.errorThrow("添加动态路由异常", e);
-//            }
-//        }, QUERY_ROUTERS_SQL);
+        DBUtils.executeQuerySql(resultSet -> {
+            try {
+                CommandLog.info("异步线程检测动态路由表...");
+                while (resultSet.next()) {
+                    String routerId = resultSet.getString(TR_ROUTER_ID);
+                    String gmtModify = resultSet.getString(GMT_MODIFY);
+
+                    Object modifyTime = template.opsForHash().get(ROUTE_MAP_KEYS, routerId);
+                    if (StringUtils.isEmpty(modifyTime) || (gmtModify.compareTo(String.valueOf(modifyTime)) > 0)) {
+                        String routerUri = resultSet.getString(TR_ROUTER_URI);
+                        String predicateName = resultSet.getString(TR_PREDICATE_NAME);
+                        String flitersName = resultSet.getString(TR_FILTERS_NAME);
+                        String pargs = resultSet.getString(TR_PREDICATE_ARGS);
+                        String fargs = resultSet.getString(TR_FILTERS_ARGS);
+                        String routerOrder = resultSet.getString(TR_ORDER);
+
+                        RouteDefinition routeDefinition = new RouteDefinition();
+                        //路由断言器List
+                        List<PredicateDefinition> plist = splitAndReturnPd(predicateName, pargs);
+                        //过滤器List
+                        List<FilterDefinition> flist = splitAndReturnFilter(flitersName, fargs);
+                        routeDefinition.setId(routerId);
+                        routeDefinition.setOrder(Integer.parseInt(routerOrder));
+                        routeDefinition.setUri(URI.create(routerUri));
+
+                        if (plist != null && plist.size() > 0) {
+                            routeDefinition.setPredicates(plist);
+                        }
+                        if (flist != null && flist.size() > 0) {
+                            routeDefinition.setFilters(flist);
+                        }
+
+                        updateRouter(routeDefinition);
+                        template.opsForHash().put(ROUTE_MAP_KEYS, routerId, gmtModify);
+                    }
+                }
+            } catch (SQLException e) {
+                CommandLog.errorThrow("添加动态路由异常", e);
+            }
+        }, QUERY_ROUTERS_SQL, null);
     }
 
     /**
@@ -142,10 +150,12 @@ public class DynamicRouteService implements CommandLineRunner {
                                     routeDefinition.setOrder(Integer.parseInt(routerOrder));
                                     routeDefinition.setUri(URI.create(routerUri));
 
-                                    if (plist != null && plist.size() > 0)
+                                    if (plist != null && plist.size() > 0) {
                                         routeDefinition.setPredicates(plist);
-                                    if (flist != null && flist.size() > 0)
+                                    }
+                                    if (flist != null && flist.size() > 0) {
                                         routeDefinition.setFilters(flist);
+                                    }
 
                                     updateRouter(routeDefinition);
                                     //K:路由id V:动态路由更新时间
@@ -190,8 +200,9 @@ public class DynamicRouteService implements CommandLineRunner {
         List<PredicateDefinition> plist = null;
         //路由断言器设置
         String[] pds = StringUtils.tokenizeToStringArray(predicateName, "|");
-        if (pds.length > 0)
+        if (pds.length > 0) {
             plist = new ArrayList<>();
+        }
         for (String pd : pds) {
             PredicateDefinition predicateDefinition = new PredicateDefinition();
             predicateDefinition.setName(pd);
@@ -222,8 +233,9 @@ public class DynamicRouteService implements CommandLineRunner {
         List<FilterDefinition> flist = null;
         //路由过滤器设置
         String[] fs = StringUtils.tokenizeToStringArray(flitersName, "|");
-        if (fs.length > 0)
+        if (fs.length > 0) {
             flist = new ArrayList<>();
+        }
         for (String f : fs) {
             FilterDefinition filterDefinition = new FilterDefinition();
             filterDefinition.setName(f);
@@ -241,12 +253,6 @@ public class DynamicRouteService implements CommandLineRunner {
         }
 
         return flist;
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-        submit();
-        initRouteForRedis();
     }
 
     /**

@@ -5,9 +5,9 @@
     <!-- 自定义%logger打印，打印其调用对象 -->
     <conversionRule conversionWord="evylogger" converterClass="com.evy.common.infrastructure.common.log.CommandLogPattern"/>
     <!-- 普通 -->
-    <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5level|[%t]|${hostname}|%replace(%replace(%caller{2}){'\s|\S|^.*|\t|\r|\n|[Caller.1]$',''}){'\t|\r|\n|(Caller.{1}[0-9]{1})+|\\(.*\\)| |at',''} => %logger - %msg%n"/>
+    <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%replace(%replace(%caller{2}){'\s|\S|^.*|\t|\r|\n|[Caller.1]$',''}){'\t|\r|\n|(Caller.{1}[0-9]{1})+|\\(.*\\)| |at',''} => %logger - %msg%n"/>
     <!-- TracrLog用 -->
-    <property name="TracrLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5level|[%t]|${hostname}|%evylogger - %msg%n"/>
+    <property name="TracrLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%evylogger - %msg%n"/>
     <!--日志存放目录-->
     <property name="logDir" value="/applog/current"/>
     <!--历史日志存放目录-->

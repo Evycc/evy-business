@@ -1,13 +1,13 @@
 package com.evy.common.infrastructure.config;
 
-import com.evy.common.domain.repository.mq.model.MqConsumerModel;
-import com.evy.common.infrastructure.common.inceptor.anno.AnnoCommandInceptor;
+import com.evy.common.domain.repository.mq.MqConsumer;
 import com.evy.common.domain.repository.mq.anno.AnnoMqConsumer;
 import com.evy.common.domain.repository.mq.anno.AnnoMqConsumer.AnnoMqConsumerModel;
+import com.evy.common.domain.repository.mq.model.MqConsumerModel;
 import com.evy.common.infrastructure.common.command.BaseCommandTemplate;
 import com.evy.common.infrastructure.common.inceptor.BaseCommandInceptor;
+import com.evy.common.infrastructure.common.inceptor.anno.AnnoCommandInceptor;
 import com.evy.common.infrastructure.common.log.CommandLog;
-import com.evy.common.domain.repository.mq.MqConsumer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
@@ -38,10 +38,6 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
      * @param bean
      */
     private void addMqConsumer(Object bean){
-        //rabbitmq consumer需要继承DefaultConsumer
-//        if (!(bean instanceof DefaultConsumer))
-//            return;
-
         AnnoMqConsumer mc = bean.getClass().getAnnotation(AnnoMqConsumer.class);
         try {
             if (mc != null){

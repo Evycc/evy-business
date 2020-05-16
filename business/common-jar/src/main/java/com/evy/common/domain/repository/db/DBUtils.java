@@ -1,11 +1,12 @@
 package com.evy.common.domain.repository.db;
 
 import com.evy.common.infrastructure.common.command.BusinessPrpoties;
-import com.evy.common.infrastructure.common.command.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.AppContextUtils;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.infrastructure.config.CommandInitialize;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,11 +22,13 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * db操作类
@@ -42,6 +45,10 @@ public class DBUtils {
     private static int BATCH_INSERT_COUNT;
 
     static {
+        CommandInitialize.addStaticInitEvent(DBUtils.class, CommandInitialize.INIT_STATIC_METHOD);
+    }
+
+    private static void init(){
         MYBATIS_CONF_XML = prpoties.getDb().getMybatisXmlPath();
         BATCH_INSERT_COUNT = prpoties.getDb().getBatchInsertCount();
         initDataSource();
@@ -56,16 +63,20 @@ public class DBUtils {
         CommandLog.info("DBUtils初始化Mybatis配置");
         try {
             SQL_SESSIONF_FACTORY = AppContextUtils.getBean(SqlSessionFactory.class);
+        } catch (Exception e) {
+            CommandLog.errorThrow("initMybatis error!", e);
             if (SQL_SESSIONF_FACTORY == null) {
-                //从配置文件初始化Mybatis
-                SQL_SESSIONF_FACTORY = initMyBatisForXml(MYBATIS_CONF_XML);
+                try {
+                    //从配置文件初始化Mybatis
+                    SQL_SESSIONF_FACTORY = initMyBatisForXml(MYBATIS_CONF_XML);
 
-                if (SQL_SESSIONF_FACTORY == null) {
-                    CommandLog.error("Mybatis SqlSessionFactory初始化失败，未找到Bean实例");
+                    if (SQL_SESSIONF_FACTORY == null) {
+                        CommandLog.error("Mybatis SqlSessionFactory初始化失败，未找到Bean实例");
+                    }
+                } catch (IOException ex) {
+                    CommandLog.errorThrow("initMyBatisForXml error!", e);
                 }
             }
-        } catch (IOException e) {
-            CommandLog.errorThrow("initMybatis error!", e);
         }
     }
 
@@ -130,13 +141,18 @@ public class DBUtils {
         return DATA_SOURCE;
     }
 
-    private static void proxyDataSource(DataSource dataSource){
+    /**
+     * 对ENC()的密码进行解密，并赋值到DataSource
+     *
+     * @param dataSource javax.sql.DataSource
+     */
+    private static void proxyDataSource(DataSource dataSource) {
         //对password进行解密
         if (DATA_SOURCE instanceof HikariDataSource) {
-            String pass1 = ((HikariDataSource)DATA_SOURCE).getPassword();
+            String pass1 = ((HikariDataSource) DATA_SOURCE).getPassword();
             if (pass1.startsWith(BusinessConstant.ENC_PRE_STR)) {
                 pass1 = CommandUtils.decodeEnc(pass1);
-                ((HikariDataSource)DATA_SOURCE).setPassword(pass1);
+                ((HikariDataSource) DATA_SOURCE).setPassword(pass1);
             }
         }
     }
@@ -577,10 +593,11 @@ public class DBUtils {
 
     /**
      * 执行sql方法
-     * @param consumer  执行具体操作
-     * @param sql   预执行的sql
+     *
+     * @param consumer 执行具体操作
+     * @param sql      预执行的sql
      */
-    public static void executeQuerySql(Consumer<ResultSet> consumer, String sql, List<String> params){
+    public static void executeQuerySql(Consumer<ResultSet> consumer, String sql, List<Object> params) {
         try (Connection connection = DBUtils.getDataSource().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = setParamForList(statement, params).executeQuery()) {
@@ -594,31 +611,32 @@ public class DBUtils {
 
     /**
      * 执行sql方法
-     * @param function  执行具体操作
-     * @param sql   预执行的sql
+     *
+     * @param sql      预执行的sql
      * @return 方法默认返回2，执行异常
      */
-    public static int executeUpdateSql(Function<PreparedStatement, Integer> function, String sql){
+    public static int executeUpdateSql(String sql, List<Object> params) {
         try (Connection connection = DBUtils.getDataSource().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            return function.apply(statement);
-
+            if (setParamForList(statement, params).execute()) {
+                return BusinessConstant.SUCESS;
+            }
         } catch (SQLException e) {
-            CommandLog.errorThrow("初始化PreparedStatement异常", e);
-            return BusinessConstant.UNKNOW;
+            CommandLog.errorThrow("executeUpdateSql执行异常", e);
         }
+        return BusinessConstant.FAILED;
     }
 
     /**
      * 为java.sql.Statement设置参数
+     *
      * @param statement java.sql.Statement
-     * @param list  参数集合
+     * @param params    参数集合
      */
-    private static PreparedStatement setParamForList(PreparedStatement statement, List<String> params) throws SQLException {
+    private static PreparedStatement setParamForList(PreparedStatement statement, List<Object> params) throws SQLException {
         if (params != null && !params.isEmpty()) {
             for (int i = 0; i < params.size(); i++) {
-                statement.setString(i, params.get(i));
+                statement.setObject(i + 1, params.get(i));
             }
         }
         return statement;
@@ -657,9 +675,10 @@ public class DBUtils {
 
     /**
      * 打印回滚异常日志
+     *
      * @param e 异常
      */
-    private static void printErrorRollback(Exception e){
+    private static void printErrorRollback(Exception e) {
         CommandLog.errorThrow("回滚事务异常", e);
     }
 

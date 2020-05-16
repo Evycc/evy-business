@@ -2,11 +2,11 @@ package com.evy.common.app.command;
 
 import com.evy.common.app.inceptor.TestInceptor;
 import com.evy.common.app.inceptor.TestInceptor1;
-import com.evy.common.infrastructure.common.inceptor.anno.AnnoCommandInceptor;
-import com.evy.common.infrastructure.common.log.anno.TraceLog;
 import com.evy.common.infrastructure.common.command.BaseCommandTemplate;
 import com.evy.common.infrastructure.common.exception.BasicException;
+import com.evy.common.infrastructure.common.inceptor.anno.AnnoCommandInceptor;
 import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.infrastructure.common.log.anno.TraceLog;
 import com.evy.common.infrastructure.tunnel.test.TestInput;
 import com.evy.common.infrastructure.tunnel.test.TestOutDTO;
 import org.slf4j.Logger;
@@ -37,11 +37,6 @@ public class CommandExecute extends BaseCommandTemplate<TestInput, TestOutDTO> {
         testCommandExecute.start(testInput);
 
         TestOutDTO outDTO = new TestOutDTO();
-
-        executeAssembly("HELLO", s -> {
-            String ss = executeAssembly(s, t -> t + "\tWORLD");
-            CommandLog.info(ss);
-        });
 
         return outDTO;
     }

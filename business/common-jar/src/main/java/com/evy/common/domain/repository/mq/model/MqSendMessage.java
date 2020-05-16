@@ -1,11 +1,9 @@
 package com.evy.common.domain.repository.mq.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,6 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class MqSendMessage implements Serializable {
     private static final String serialVersionUID = "qwertyuiopasdfghjklzxcvbnm1234567890";
     /**
@@ -54,7 +53,7 @@ public class MqSendMessage implements Serializable {
     /**
      * mq 参数
      */
-    private Map prpoMap;
+    private Map<String, String> prpoMap;
     /**
      * 死信队列
      */

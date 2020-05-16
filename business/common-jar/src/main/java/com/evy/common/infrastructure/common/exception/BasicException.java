@@ -17,9 +17,6 @@ public class BasicException extends Exception {
     @Setter
     private String errorMessage = "系统繁忙";
 
-    public BasicException() {
-    }
-
     public BasicException(Throwable throwable) {
         super(throwable);
     }

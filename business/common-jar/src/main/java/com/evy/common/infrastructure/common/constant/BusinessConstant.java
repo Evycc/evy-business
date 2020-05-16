@@ -1,14 +1,5 @@
 package com.evy.common.infrastructure.common.constant;
 
-import com.evy.common.infrastructure.common.command.CommandUtils;
-import com.evy.common.infrastructure.common.log.CommandLog;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * 常量字段及静态方法
  * @Author: EvyLiuu
@@ -22,6 +13,7 @@ public class BusinessConstant {
     public static final int FAILED = 1;
     public static final int UNKNOW = 2;
     public static final String EMPTY_STR = "";
+    public static final String WHITE_EMPTY_STR = " ";
     public static final String SPLIT_LINE = "\\|";
     public static final String LINE = "|";
     public static final String SPLIT_POINT = "\\.";

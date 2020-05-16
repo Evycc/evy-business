@@ -2,13 +2,11 @@ package com.evy.common;
 
 import com.evy.common.app.command.CommandExecute;
 import com.evy.common.app.command.TestLogCommand;
-import com.evy.common.app.validator.TestValidator;
 import com.evy.common.domain.repository.mq.basic.BasicMqConsumer;
 import com.evy.common.domain.repository.mq.model.MqConsumerModel;
 import com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer;
 import com.evy.common.infrastructure.common.command.CommandTemplate;
-import com.evy.common.infrastructure.common.command.CommandUtils;
-import com.evy.common.infrastructure.common.constant.BusinessConstant;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.inceptor.BaseCommandInceptor;
 import com.evy.common.infrastructure.common.log.CommandLog;
@@ -39,7 +37,6 @@ import static org.junit.Assert.assertTrue;
  * Unit test for simple App.
  */
 public class AppTest {
-
     @Test
     public void testPasswordEncodeAndDecode(){
         String pass1 = CommandUtils.encodeEnc("1q2w#E$R");
@@ -130,7 +127,7 @@ public class AppTest {
         //test BusinessConstant临时变量
         list.stream()
                 .forEach(c -> {
-                    CommandUtils.setTemp(c, c.getOrder());
+                    CommandUtils.setLambdaTemp(c, c.getOrder());
                 });
         System.out.println(CommandUtils.getTempObject());
 
@@ -216,23 +213,6 @@ public class AppTest {
     @Test
     public void testBasicException() {
         System.out.println(new BasicException(new RuntimeException("xx")).toString());
-    }
-
-    @Test
-    public void testValidator() throws BasicException {
-//        CommandExecute commandExecute = new CommandExecute();
-//        commandExecute.start(new TestInput());
-
-        User user = new User();
-        user.setWorking(true);
-        user.setAboutMe("Its all about me!");
-        user.setAge(50);
-        user.setSrcSendNo("1");
-        user.setClientIp("1");
-        user.setRequestTime("1");
-        user.setName("!");
-
-        TestValidator.validator(user);
     }
 
     @Test

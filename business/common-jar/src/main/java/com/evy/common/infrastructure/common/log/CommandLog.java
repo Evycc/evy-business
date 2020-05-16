@@ -47,9 +47,8 @@ public class CommandLog {
         //调用链路为 logger类->printLog()->getInvokeLogger()
         //所以getStackTrace()[2]获取实际logger类
         String cln = Thread.currentThread().getStackTrace()[2].getClassName();
-        Logger logger = getLoggerByClassName(cln);
 
-        return logger;
+        return getLoggerByClassName(cln);
     }
 
     public static void info(String msg, Object... obj){

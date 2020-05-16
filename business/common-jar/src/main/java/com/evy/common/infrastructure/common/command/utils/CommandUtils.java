@@ -1,8 +1,8 @@
-package com.evy.common.infrastructure.common.command;
+package com.evy.common.infrastructure.common.command.utils;
 
-import com.evy.common.domain.repository.factory.MqFactory;
+import com.evy.common.domain.repository.factory.CreateFactory;
+import com.evy.common.infrastructure.common.command.BusinessPrpoties;
 import com.evy.common.infrastructure.common.constant.BusinessConstant;
-import com.evy.common.infrastructure.common.context.AppContextUtils;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.log.CommandLog;
 import lombok.Getter;
@@ -11,7 +11,10 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -23,7 +26,7 @@ import java.util.function.Function;
  */
 public class CommandUtils {
     private static final StandardPBEStringEncryptor STANDARD_PBE_STRING_ENCRYPTOR = new StandardPBEStringEncryptor();
-    private static final ExecutorService EXECUTOR_SERVICE = MqFactory.returnExecutorService("CommandUtils- ExecutorService");
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("CommandUtils- ExecutorService");
     private static long EXECUTE_TIME_OUT = 30000;
     private static final String TIMEOUT_ERRORCODE = "TIMEOUT_ERR";
     private static final String TIMEOUT_ERRMSG = "接口调用超时";
@@ -45,11 +48,11 @@ public class CommandUtils {
     }
 
     /**
-     * 设置临时变量
+     * 设置临时变量，仅限同一个线程
      * @param objClass  获取临时变量的类对象
      * @param obj   临时变量
      */
-    public static void setTemp(Object objClass, Object obj){
+    public static void setLambdaTemp(Object objClass, Object obj){
         tempObject.put(Long.valueOf(Thread.currentThread().getId()).intValue() + objClass.hashCode(), obj);
     }
 
@@ -58,9 +61,9 @@ public class CommandUtils {
      * @param objClass  获取临时变量的类对象
      * @return  临时变量
      */
-    public static Object getTemp(Object objClass){
+    public static Object getLambdaTemp(Object objClass){
         int key = objClass.hashCode() + Long.valueOf(Thread.currentThread().getId()).intValue();
-        return getTemp(key);
+        return getLambdaTemp(key);
     }
 
     /**
@@ -68,7 +71,7 @@ public class CommandUtils {
      * @param objClass  获取临时变量的类对象
      * @return  临时变量
      */
-    public static Object getTempAndDel(Object objClass){
+    public static Object getLambdaTempAndDel(Object objClass){
         int key = objClass.hashCode() + Long.valueOf(Thread.currentThread().getId()).intValue();
         Object value = tempObject.get(key);
         tempObject.remove(key);
@@ -80,10 +83,9 @@ public class CommandUtils {
      * @param key   类对象的hasCode
      * @return  类对象对应临时变量
      */
-    private static Object getTemp(int key){
+    private static Object getLambdaTemp(int key){
         if (tempObject.containsKey(key)){
-            Object reObj = tempObject.get(key);
-            return reObj;
+            return tempObject.get(key);
         }
         return null;
     }
@@ -119,7 +121,7 @@ public class CommandUtils {
         long s = System.currentTimeMillis();
         try {
             if (timeout > 0) {
-                returnCode = Executors.newScheduledThreadPool(3).submit(() -> function.apply(obeject))
+                returnCode = Executors.newScheduledThreadPool(1).submit(() -> function.apply(obeject))
                         .get(timeout, TimeUnit.MILLISECONDS);
             }
             else {
@@ -157,8 +159,6 @@ public class CommandUtils {
             for (Field field : fields) {
                 String key = field.getName();
                 if (fromMap.containsKey(key)) {
-//                    field.setAccessible(true);
-//                    field.set(dto, fromMap.get(key));
                     fieldAccessSet(field, dto, fromMap.get(key));
                 }
             }
@@ -195,12 +195,10 @@ public class CommandUtils {
             Field[] fields = cls.getDeclaredFields();
             cls = cls.getSuperclass();
 
-            for (Field field : fields) {
-                fieldList.add(field);
-            }
+            fieldList.addAll(Arrays.asList(fields));
         }
 
-        return fieldList.toArray(new Field[fieldList.size()]);
+        return fieldList.toArray(new Field[0]);
     }
 
     /**
