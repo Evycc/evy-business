@@ -28,7 +28,7 @@ public class SequenceUtils {
     /**
      * 4095，限制sequence最大值，当sequence达到sequenceMask上限时，sequence取1
      */
-    private static final long SEQUENCE_MASK = ~(-1L << 12L);
+    private static final long SEQUENCE_MASK = ~(-1L << PID_LEFT_SHIFT);
 
     /**
      * 毫秒内序列(0~sequenceMask)
@@ -40,7 +40,10 @@ public class SequenceUtils {
      */
     private static long LAST_TEMP_STAMP = -1L;
 
-    private static long PID_HASHCODE = BusinessConstant.WORK_PID;
+    /**
+     * 机器ID
+     */
+    private static final long PID_HASHCODE = BusinessConstant.WORK_PID;
 
     /**
      * 获得下一个ID (该方法是线程安全的)
@@ -119,7 +122,7 @@ public class SequenceUtils {
         String val = String.valueOf(nextId());
         int n = val.length() - len;
         if (n <= 0) {
-            throw new RuntimeException("len长度大于序列 len:{}" +len);
+            throw new RuntimeException(String.format("len长度大于序列 len:{ %d }", len));
         }
         return prefix.concat(val.substring(n));
     }

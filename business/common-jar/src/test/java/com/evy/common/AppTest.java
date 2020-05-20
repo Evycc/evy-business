@@ -7,6 +7,7 @@ import com.evy.common.domain.repository.mq.model.MqConsumerModel;
 import com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer;
 import com.evy.common.infrastructure.common.command.CommandTemplate;
 import com.evy.common.infrastructure.common.command.utils.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.SequenceUtils;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.inceptor.BaseCommandInceptor;
 import com.evy.common.infrastructure.common.log.CommandLog;
@@ -18,6 +19,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,6 +28,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -43,6 +48,53 @@ public class AppTest {
         String enc = "ENC(" + pass1 + ")";
         System.out.println("加密:" + enc);
         System.out.println("解密:" + CommandUtils.decodeEnc(enc));
+    }
+
+    @Test
+    public void testSeq() throws BrokenBarrierException, InterruptedException {
+        //统计耗时
+//        long cur = System.currentTimeMillis();
+//        int i =0;
+//        while (i++ < 10000) {
+//            System.out.println(SequenceUtils.nextId());
+//        }
+//        System.out.println("耗时: " + (System.currentTimeMillis() - cur));
+//
+//        System.out.println(SequenceUtils.getPrefix("tradeId"));
+//        System.out.println(SequenceUtils.getPrefix("IBTC", 10));
+
+        //测试10000并发是否存在重复
+//        List<Long> longs = Collections.synchronizedList(new ArrayList<>(100));
+//        CyclicBarrier cyclicBarrier = new CyclicBarrier(10000);
+//        int i =0;
+//        while (i++ < 10000) {
+//            new Thread(() -> {
+//                try {
+//                    cyclicBarrier.await();
+//                    longs.add(SequenceUtils.nextId());
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (BrokenBarrierException e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
+//        }
+//        TimeUnit.SECONDS.sleep(10);
+//        System.out.println(longs.size());
+//        System.out.println(longs.stream()
+//                .distinct()
+//                .count());
+
+
+        //统计每秒生成数量
+//        List<Long> longs = Collections.synchronizedList(new ArrayList<>(100));
+//        long cur = System.currentTimeMillis();
+//        int i =0;
+//        while ((System.currentTimeMillis() - cur) < 1000) {
+//            longs.add(SequenceUtils.nextId());
+//        }
+//        System.out.println("耗时: " + (System.currentTimeMillis() - cur) + " 数量: " + longs.size() + " 是否存在重复: " +
+//                longs.stream().distinct().count());
     }
 
     /**

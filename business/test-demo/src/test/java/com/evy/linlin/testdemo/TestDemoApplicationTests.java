@@ -4,30 +4,27 @@ import com.evy.common.app.command.CommandExecute;
 import com.evy.common.domain.repository.db.DBUtils;
 import com.evy.common.domain.repository.mq.MqConsumer;
 import com.evy.common.domain.repository.mq.MqSender;
+import com.evy.common.domain.repository.mq.model.MqSendMessage;
 import com.evy.common.infrastructure.common.batch.BatchUtils;
 import com.evy.common.infrastructure.common.batch.FtpUtils;
-import com.evy.common.infrastructure.common.command.CommandUtils;
+import com.evy.common.infrastructure.common.command.utils.CommandUtils;
 import com.evy.common.infrastructure.common.exception.BasicException;
 import com.evy.common.infrastructure.common.log.CommandLog;
 import com.evy.common.infrastructure.tunnel.OutDTO;
 import com.evy.common.infrastructure.tunnel.test.TestInput;
 import com.evy.linlin.HelloDto;
 import com.evy.linlin.HelloOutDto;
-import com.evy.linlin.HelloService;
 import com.jcraft.jsch.SftpException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.SerializationUtils;
 
-import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
@@ -72,7 +69,7 @@ public class TestDemoApplicationTests {
         insertMap.put("name", "EVYliuu1");
         insertMap.put("age", "18");
         //insert
-        int ir1 = DBUtils.insert("com.evy.linlin.testdemo.TestMapper.insert", insertMap);
+//        int ir1 = DBUtils.insert("com.evy.linlin.testdemo.TestMapper.insert", insertMap);
 
         long startTime;
 //        startTime = System.currentTimeMillis();
@@ -88,8 +85,11 @@ public class TestDemoApplicationTests {
             put("name", "EvyLinlin");
             put("age", "18");
         }});
-        bl1.add(insertMap);
-        bl1.add(insertMap);
+        for (int i=0; i <100001; i++){
+            bl1.add(insertMap);
+        }
+//        bl1.add(insertMap);
+//        bl1.add(insertMap);
         System.out.println(DBUtils.insertBatch("com.evy.linlin.testdemo.TestMapper.insert", bl1, 0));
         System.out.printf("for批量insert耗时:%s(ms)\n", (System.currentTimeMillis() - startTime));
 //
@@ -176,6 +176,19 @@ public class TestDemoApplicationTests {
     }
 
     @Test
+    public void testEvent() throws InterruptedException {
+        MqSendMessage mqSendMessage = MqSendMessage.builder()
+                .topic("topic-command-test")
+                .tag("rk-command-test")
+                .consumerTag("queue-command-test")
+                .messageId(String.valueOf(UUID.randomUUID()))
+                .build();
+        mqSender.sendAndConfirm("topic-command-test", "rk-command-test",
+                "queue-command-test", "fuck");
+        TimeUnit.SECONDS.sleep(1000);
+    }
+
+    @Test
     public void contextLoads() throws InterruptedException {
         TestInput testInput = new TestInput();
         testInput.setSrcSendNo("1");
@@ -196,6 +209,10 @@ public class TestDemoApplicationTests {
 
         System.out.println(mqSender.sendAndConfirm("topic-command-test1", "rk-command-test", "", "Hello World"));
 
+//        System.out.println(mqSender.sendAndConfirm(
+//                "node2-exchange",
+//                "node2-rk1", "", "Hello World"));
+
 //        for (int i = 0; i < 10000; i++)
 //            System.out.println(mqSender.sendAndConfirm("topic-command-test", "rk-command-test", "", "Hello World"));
 
@@ -212,7 +229,7 @@ public class TestDemoApplicationTests {
 //                "Hello World", TimeUnit.SECONDS, 10L));
 
         System.out.println(mqSender.sendTiming("topic-command-test1", "rk-command-test", "",
-                "Hello World", TimeUnit.SECONDS, 10L, "20200126 23:33", "yyyyMMdd HH:mm"));
+                "Hello World", TimeUnit.SECONDS, 10L, "20200516 15:05", "yyyyMMdd HH:mm"));
 
         System.out.printf("耗时: %s(ms)\n", System.currentTimeMillis() - startTime);
         TimeUnit.SECONDS.sleep(1000);

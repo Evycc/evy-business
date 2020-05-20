@@ -1,5 +1,12 @@
 package com.evy.common.infrastructure.common.constant;
 
+import com.evy.common.infrastructure.common.log.CommandLog;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+
 /**
  * 常量字段及静态方法
  * @Author: EvyLiuu
@@ -24,68 +31,41 @@ public class BusinessConstant {
      * 可用cpu数量
      */
     public static final int CORE_CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    /**
+     * jvm管理Bean
+     */
+    private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
+    /**
+     * MAC地址，为空则取随机数
+     */
+    public static long MAC_ID;
 
-//    /**
-//     * 对应根据字段名从实例获取对应Field字段
-//     * @param target    实例
-//     * @param fieldName 字段名
-//     * @return 返回java.lang.reflect.Field类型，不存在返回null
-//     * @throws NoSuchFieldException
-//     */
-//    private static Field getFieldByObject(Object target, String fieldName) throws NoSuchFieldException {
-//        try {
-//            Field field = null;
-//            for (Class tclass = target.getClass(); tclass != Object.class; tclass = tclass.getSuperclass()) {
-//                field = tclass.getDeclaredField(fieldName);
-//                if (field != null) {
-//                    break;
-//                }
-//            }
-//            return field;
-//        } catch (NoSuchFieldException e) {
-//            CommandLog.errorThrow("反射获取字段异常:{}", e);
-//            throw e;
-//        }
-//    }
-//
-//    /**
-//     * 对应根据字段名从实例获取对应值
-//     * @param target    实例
-//     * @param fieldName 字段名
-//     * @return  字段值
-//     * @throws IllegalAccessException   反射字段获取异常
-//     * @throws NoSuchFieldException     不存在的字段
-//     */
-//    public static Object getValueByField(Object target, String fieldName) throws IllegalAccessException, NoSuchFieldException {
-//        try {
-//            Object value = null;
-//            Field field = getFieldByObject(target, fieldName);
-//
-//            value = getValueByField(target, field);
-//
-//            return value;
-//        } catch (IllegalAccessException | NoSuchFieldException e) {
-//            CommandLog.errorThrow("反射获取字段异常:{}", e);
-//            throw e;
-//        }
-//    }
-//
-//    /**
-//     * 从实例中获取字段对应值
-//     * @param target    实例
-//     * @param field java.lang.reflect.Field
-//     * @return  字段值，不存在返回null
-//     * @throws IllegalAccessException   获取字段值异常
-//     */
-//    public static Object getValueByField(Object target, Field field) throws IllegalAccessException {
-//        try {
-//            Object value = null;
-//            CommandUtils.fieldAccessSet(field, target, value);
-//
-//            return value;
-//        } catch (IllegalAccessException e) {
-//            CommandLog.errorThrow("反射获取字段异常:{}", e);
-//            throw e;
-//        }
-//    }
+    /**
+     * jvm进程PID
+     */
+    public static final long WORK_PID = RUNTIME_MX_BEAN.getPid();
+
+    /**
+     * jvm运行时间
+     * @return  jvm运行时间 long
+     */
+    public static long getVmUpTime() {
+        return RUNTIME_MX_BEAN.getUptime();
+    }
+
+    static {
+        Long val = getVmUpTime();
+        try {
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            byte[] bytes = networkInterface.getHardwareAddress();
+            if (bytes != null && bytes.length > 1) {
+                for (byte b : bytes) {
+                    val += (long)b;
+                }
+            }
+        } catch (Exception e) {
+            CommandLog.errorThrow("当前机器不存在网卡，获取MAC地址失败", e);
+        }
+        MAC_ID = val;
+    }
 }
