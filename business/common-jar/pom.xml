@@ -28,7 +28,7 @@
         <spring.version>5.1.9.RELEASE</spring.version>
         <rabbitmq.version>5.7.3</rabbitmq.version>
         <javax.el.version>3.0.0</javax.el.version>
-        <hibernate.validator.version>6.0.18.Final</hibernate.validator.version>
+        <hibernate.validator.version>6.1.0.Final</hibernate.validator.version>
         <validator.version>2.0.1.Final</validator.version>
         <mybatis.version>3.5.3</mybatis.version>
         <mysql.version>8.0.16</mysql.version>
