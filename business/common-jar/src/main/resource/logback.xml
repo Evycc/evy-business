@@ -3,7 +3,7 @@
     <!-- log随jvm退出 -->
     <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
     <!-- 自定义%logger打印，打印其调用对象 -->
-    <conversionRule conversionWord="evylogger" converterClass="com.evy.common.infrastructure.common.log.CommandLogPattern"/>
+    <conversionRule conversionWord="evylogger" converterClass="com.evy.common.log.infrastructure.config.CommandLogPattern"/>
     <!-- 普通 -->
     <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%replace(%replace(%caller{2}){'\s|\S|^.*|\t|\r|\n|[Caller.1]$',''}){'\t|\r|\n|(Caller.{1}[0-9]{1})+|\\(.*\\)| |at',''} => %logger - %msg%n"/>
     <!-- TracrLog用 -->
@@ -46,11 +46,41 @@
         </encoder>
     </appender>
 
+    <appender name="asny_roll_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="logfile"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="asny_history_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="log_history_file"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="asny_console" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
     <!--    屏蔽hibernate.validator-->
     <logger name="org.hibernate.validator" level="ERROR"/>
 
     <logger name="com" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="asny_console"/>
     </logger>
 
     <root level="INFO">

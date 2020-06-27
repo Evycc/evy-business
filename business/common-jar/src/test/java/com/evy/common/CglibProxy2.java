@@ -1,6 +1,5 @@
 package com.evy.common;
 
-import com.evy.common.infrastructure.common.constant.BusinessConstant;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 

@@ -1,6 +1,6 @@
 package com.evy.common;
 
-import com.evy.common.infrastructure.tunnel.InputDTO;
+import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import lombok.Data;
 
 import javax.validation.constraints.*;

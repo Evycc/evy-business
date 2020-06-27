@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.evy.common.trace.repository.mapper.TraceMapper">
+    <insert id="mqSendInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
+        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content, tmf_producer_start_timestamp)
+        VALUES(#{tmfTopic}, #{tmfReqIp}, #{tmfTag}, #{tmfMsgId}, #{tmfMsgContent} ,#{tmfProducerStartTimestamp});
+    </insert>
+
+    <insert id="mqConsumerInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
+        INSERT INTO trace_mq_flow(tmf_msg_id, tmf_resp_ip, tmf_consumer_end_timestamp, tmf_consumer_takeup_timestamp)
+        VALUES(#{tmfMsgId}, #{tmfRespIp}, #{tmfConsumerEndTimestamp}, #{tmfConsumerTakeUpTimestamp})
+        ON DUPLICATE KEY UPDATE
+        tmf_resp_ip=values(tmf_resp_ip),
+        tmf_consumer_end_timestamp=values(tmf_consumer_end_timestamp),
+        tmf_consumer_takeup_timestamp=values(tmf_consumer_takeup_timestamp);
+    </insert>
+
+    <insert id="mqSendListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO">
+        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content, tmf_producer_start_timestamp)
+        VALUES
+        <foreach collection="mqPoList" separator="," item="mqpo" index="i">
+            (#{mqpo.tmfTopic}, #{mqpo.tmfReqIp}, #{mqpo.tmfTag}, #{mqpo.tmfMsgId}, #{mqpo.tmfMsgContent} ,#{mqpo.tmfProducerStartTimestamp})
+        </foreach>
+    </insert>
+
+    <insert id="mqConsumerListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO">
+        INSERT INTO trace_mq_flow(tmf_msg_id, tmf_resp_ip, tmf_consumer_end_timestamp, tmf_consumer_takeup_timestamp)
+        VALUES
+        <foreach collection="mqPoList" separator="," item="mqpo" index="i">
+            (#{mqpo.tmfMsgId}, #{mqpo.tmfRespIp}, #{mqpo.tmfConsumerEndTimestamp}, #{mqpo.tmfConsumerTakeUpTimestamp})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        tmf_resp_ip=VALUES(tmf_resp_ip),
+        tmf_consumer_end_timestamp=VALUES(tmf_consumer_end_timestamp),
+        tmf_consumer_takeup_timestamp=VALUES(tmf_consumer_takeup_timestamp);
+    </insert>
+
+    <insert id="traceHttpInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceHttpPO">
+        INSERT INTO trace_http_flow(thf_req_ip, thf_url, thf_takeup_time, thf_req_timestamp,
+                                    thf_result_sucess, thf_input, thf_result)
+        VALUES (#{thfReqIp}, #{thfUrl}, #{thfTakeUpTime}, #{thfReqTimestamp}, #{thfResultSuccess}, #{thfInput}, #{thfResult});
+    </insert>
+
+    <insert id="traceHttpListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceHttpListPO">
+        INSERT INTO trace_http_flow(thf_req_ip, thf_url, thf_takeup_time, thf_req_timestamp,
+                                    thf_result_sucess, thf_input, thf_result)
+        VALUES
+        <foreach collection="httpsPos" separator="," item="po" index="i">
+            (#{po.thfReqIp}, #{po.thfUrl}, #{po.thfTakeUpTime}, #{po.thfReqTimestamp}, #{po.thfResultSuccess}, #{po.thfInput}, #{po.thfResult})
+        </foreach>
+    </insert>
+
+    <insert id="slowSqlInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceSqlPO">
+        INSERT INTO trace_slow_sql(tss_req_ip, tss_slow_sql, tss_take_time, tss_explain, tss_explain_content)
+        VALUES(#{tssReqIp}, #{tssSlowSql}, #{tssTakeTime}, #{tssExplain}, #{tssExplainContent});
+    </insert>
+
+    <insert id="redisInfoInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO">
+        INSERT INTO trace_redis_health(trh_redis_ip, trh_redis_flag, trh_slave_ip, trh_cluster_type, trh_rdb_open, trh_rdb_file, trh_rdb_save_type, trh_aof_open, trh_aof_file,
+                                       trh_aof_save_type, trh_aof_rdb_open, trh_memory_count, trh_memory_available_count, trh_memory_peak, trh_memory_fragmentation_ratio,
+                                       trh_keyspace_ratio, trh_keys_count, trh_last_rdb_status, trh_last_aof_status, trh_last_fork_usec, trh_conn_total_count,
+                                       trh_conn_cur_count, trh_conn_block_count, trh_log_path, trh_config_path, trh_sentinel_monitor, trh_sentinel_config_path)
+        VALUES (#{trhRedisIp}, #{trhRedisFlag}, #{trhSlaveIp}, #{trhClusterType}, #{trhRdbOpen}, #{trhRdbFile}, #{trhRdbSaveType}, #{trhAofOpen}, #{trhAofFile}, #{trhAofSaveType},
+                #{trhAofRdbOpen}, #{trhMemoryCount}, #{trhMemoryAvailableCount}, #{trhMemoryPeak}, #{trhMemoryFragmentationRatio}, #{trhKeyspaceRatio}, #{trhKeysCount}, #{trhLastRdbStatus},
+                #{trhLastAofStatus}, #{trhLastForkUsec}, #{trhConnTotalCount}, #{trhConnCurCount}, #{trhConnBlockCount}, #{trhLogPath}, #{trhConfigPath}, #{trhSentinelMonitor}, #{trhSentinelConfigPath})
+        ON DUPLICATE KEY UPDATE
+        trh_redis_ip=VALUES(trh_redis_ip), trh_redis_flag=VALUES(trh_redis_flag), trh_slave_ip=VALUES(trh_slave_ip), trh_cluster_type=VALUES(trh_cluster_type),
+        trh_rdb_open=VALUES(trh_rdb_open), trh_rdb_file=VALUES(trh_rdb_file), trh_rdb_save_type=VALUES(trh_rdb_save_type), trh_aof_open=VALUES(trh_aof_open),
+        trh_aof_file=VALUES(trh_aof_file), trh_aof_save_type=VALUES(trh_aof_save_type), trh_aof_rdb_open=VALUES(trh_aof_rdb_open), trh_memory_count=VALUES(trh_memory_count),
+        trh_memory_available_count=VALUES(trh_memory_available_count), trh_memory_peak=VALUES(trh_memory_peak), trh_memory_fragmentation_ratio=VALUES(trh_memory_fragmentation_ratio),
+        trh_keyspace_ratio=VALUES(trh_keyspace_ratio), trh_keys_count=VALUES(trh_keys_count), trh_last_rdb_status=VALUES(trh_last_rdb_status), trh_last_aof_status=VALUES(trh_last_aof_status),
+        trh_last_fork_usec=VALUES(trh_last_fork_usec), trh_conn_total_count=VALUES(trh_conn_total_count), trh_conn_cur_count=VALUES(trh_conn_cur_count),
+        trh_conn_block_count=VALUES(trh_conn_block_count), trh_log_path=VALUES(trh_log_path), trh_config_path=VALUES(trh_config_path), trh_sentinel_monitor=VALUES(trh_sentinel_monitor), trh_sentinel_config_path=VALUES(trh_sentinel_config_path);
+    </insert>
+</mapper>

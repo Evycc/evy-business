@@ -1,42 +1,43 @@
 package com.evy.common;
 
-import com.evy.common.app.command.CommandExecute;
-import com.evy.common.app.command.TestLogCommand;
-import com.evy.common.domain.repository.mq.basic.BasicMqConsumer;
-import com.evy.common.domain.repository.mq.model.MqConsumerModel;
-import com.evy.common.domain.repository.mq.impl.RabbitBaseMqConsumer;
-import com.evy.common.infrastructure.common.command.CommandTemplate;
-import com.evy.common.infrastructure.common.command.utils.CommandUtils;
-import com.evy.common.infrastructure.common.command.utils.SequenceUtils;
-import com.evy.common.infrastructure.common.exception.BasicException;
-import com.evy.common.infrastructure.common.inceptor.BaseCommandInceptor;
-import com.evy.common.infrastructure.common.log.CommandLog;
-import com.evy.common.infrastructure.tunnel.InputDTO;
+import com.evy.common.app.test.command.CommandExecute;
+import com.evy.common.app.test.command.TestLogCommand;
+import com.evy.common.command.app.CommandTemplate;
+import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.http.HttpUtils;
+import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.infrastructure.tunnel.test.TestInput;
 import com.evy.common.infrastructure.tunnel.test.TestOutDTO;
+import com.evy.common.log.CommandLog;
+import com.evy.common.mq.common.app.basic.BasicMqConsumer;
+import com.evy.common.mq.common.infrastructure.tunnel.model.MqConsumerModel;
+import com.evy.common.mq.rabbitmq.app.RabbitBaseMqConsumer;
+import com.evy.common.utils.CommandUtils;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for simple App.
@@ -48,6 +49,24 @@ public class AppTest {
         String enc = "ENC(" + pass1 + ")";
         System.out.println("加密:" + enc);
         System.out.println("解密:" + CommandUtils.decodeEnc(enc));
+    }
+
+    @Test
+    public void testHttp() throws IOException, URISyntaxException {
+        String uri = "http://localhost:15672/api/vhosts";
+        HttpGet httpGet = new HttpGet();
+        HttpRequestDTO<HttpGet> requestDTO = HttpRequestDTO.create(uri, httpGet, null, null,
+                Stream.of(HttpUtils.buildBasicAuth("root","root")).collect(Collectors.toList()));
+
+        HttpUtils.httpRequest(requestDTO, response -> {
+            try {
+                CommandLog.info(EntityUtils.toString(response.getEntity()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        });
+
     }
 
     @Test
@@ -129,66 +148,6 @@ public class AppTest {
     }
 
     /**
-     * 排序CommandExecute拦截器
-     */
-    @Test
-    public void test() {
-        BaseCommandInceptor inceptor1 = new BaseCommandInceptor() {
-            @Override
-            public int beforeCommand(InputDTO inputDTO) {
-                return 0;
-            }
-
-            @Override
-            public int afterCommand(InputDTO inputDTO) {
-                return 0;
-            }
-        };
-        BaseCommandInceptor inceptor2 = new BaseCommandInceptor() {
-            @Override
-            public int beforeCommand(InputDTO inputDTO) {
-                return 0;
-            }
-
-            @Override
-            public int afterCommand(InputDTO inputDTO) {
-                return 0;
-            }
-        };
-
-        inceptor1.setOrder(1);
-        inceptor2.setOrder(2);
-
-        List<BaseCommandInceptor> list = new ArrayList<>();
-        list.add(inceptor2);
-        list.add(inceptor1);
-
-        list = orderCommandInceptor(list);
-
-        System.out.println(list);
-        System.out.println();
-    }
-
-    /**
-     * 排序CommandExecute拦截器
-     *
-     * @param list
-     * @return
-     */
-    private List<BaseCommandInceptor> orderCommandInceptor(List<BaseCommandInceptor> list) {
-        //test BusinessConstant临时变量
-        list.stream()
-                .forEach(c -> {
-                    CommandUtils.setLambdaTemp(c, c.getOrder());
-                });
-        System.out.println(CommandUtils.getTempObject());
-
-        return list.stream()
-                .sorted(Comparator.comparingInt(BaseCommandInceptor::getOrder))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * CommandExecute test
      */
     @Test
@@ -199,6 +158,7 @@ public class AppTest {
         input.setRequestTime("12");
         input.setSrcSendNo("3");
         new CommandExecute().start(input);
+        Thread.sleep(10000);
     }
 
     @Test
@@ -217,7 +177,7 @@ public class AppTest {
      * @throws BasicException
      */
     @Test
-    public void testWhenException() throws BasicException {
+    public void testWhenException() throws BasicException, InterruptedException {
         TestInput input = new TestInput();
         input.setTest("esss");
         input.setClientIp("111");
@@ -233,6 +193,7 @@ public class AppTest {
                 new CommandExecute().start(input);
             }).start();
         }
+        Thread.sleep(10000);
     }
 
     /**

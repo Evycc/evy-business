@@ -1,7 +1,5 @@
 package com.evy.common;
 
-import com.evy.common.infrastructure.common.constant.BusinessConstant;
-
 import java.lang.reflect.Proxy;
 
 /**
