@@ -150,6 +150,7 @@ public class CreateFactory {
                     }
                 } catch (Exception exception) {
                     if (waitCount-- <= BusinessConstant.SUCESS) {
+                        conn = null;
                         break;
                     }
                     CommandLog.info("尝试连接redis host :{} port :{} 剩余次数:{}", host, port, waitCount);

@@ -18,9 +18,12 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 链路跟踪<br/>
@@ -80,6 +83,21 @@ public class TraceRedisInfo {
 
     static {
         initRedisClientList();
+        shutdownConn();
+    }
+
+    /**
+     * 释放连接
+     */
+    private static void shutdownConn() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (!CollectionUtils.isEmpty(REDIS_CONN_MAP)) {
+                REDIS_CONN_MAP.values().forEach(RedisConnection::close);
+            }
+            if (!CollectionUtils.isEmpty(REDIS_SENTINEL_CONN_MAP)) {
+                REDIS_SENTINEL_CONN_MAP.values().forEach(RedisConnection::close);
+            }
+        }));
     }
 
     /**
@@ -119,9 +137,11 @@ public class TraceRedisInfo {
                         } else {
                             continue;
                         }
-
-                        REDIS_CONN_MAP.put(buildRedisMapKey(host, port), CreateFactory.returnRedisConn(host, Integer.parseInt(port), password));
-                        REDIS_HOST_PASS.put(buildRedisMapKey(host, port), password);
+                        RedisConnection redisConnection = CreateFactory.returnRedisConn(host, Integer.parseInt(port), password);
+                        if (Objects.nonNull(redisConnection) && !redisConnection.isClosed()) {
+                            REDIS_CONN_MAP.put(buildRedisMapKey(host, port), redisConnection);
+                            REDIS_HOST_PASS.put(buildRedisMapKey(host, port), password);
+                        }
                     }
                 });
     }
@@ -137,7 +157,7 @@ public class TraceRedisInfo {
                             REDIS_CONN_MAP.forEach((k, v) -> {
                                 Optional.ofNullable(v)
                                         .ifPresent(redisConnection -> {
-                                            if (redisConnection instanceof LettuceConnection) {
+                                            if (redisConnection instanceof LettuceConnection && !redisConnection.isClosed()) {
                                                 try {
                                                     String all = "ALL";
                                                     String master = "master";
@@ -243,6 +263,8 @@ public class TraceRedisInfo {
 
         final Object object = new Object();
         int[] var1 = new int[]{1};
+        long start = System.currentTimeMillis();
+
         synchronized (object) {
             //获取Sentinel列表
             ReactiveRedisTemplate<String, String> template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
@@ -264,6 +286,7 @@ public class TraceRedisInfo {
                                 }
                             } else {
                                 if (var1[0]++ >= limit) {
+                                    CommandLog.info("shutdown");
                                     object.notify();
                                 }
                             }
@@ -278,6 +301,7 @@ public class TraceRedisInfo {
             }
         }
 
+        CommandLog.info("耗时:{}ms", System.currentTimeMillis()-start);
         if (!StringUtils.isEmpty(result[0])) {
             String[] sentinelHosts = result[0].split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
             Arrays.stream(sentinelHosts)
@@ -348,7 +372,9 @@ public class TraceRedisInfo {
         String var3 = properties.getProperty(var4);
 
         while (true) {
-            var2.append(var4).append(BusinessConstant.DOUBLE_LINE).append(var3);
+            if (var3 != null) {
+                var2.append(var4).append(BusinessConstant.DOUBLE_LINE).append(var3);
+            }
 
             var4 = DB + (var1++);
             var3 = properties.getProperty(var4);

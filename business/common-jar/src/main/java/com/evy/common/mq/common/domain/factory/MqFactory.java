@@ -4,6 +4,7 @@ import com.evy.common.command.infrastructure.config.BusinessPrpoties;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.CommandUtils;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;
@@ -115,11 +116,15 @@ public class MqFactory {
 
         Channel channel = null;
         try {
-            channel =  rabbitmqConnFactory.newConnection().createChannel();
-            if (BASICEQOS != 0) {
-                channel.basicQos(BASICEQOS);
+            Connection connection = rabbitmqConnFactory.newConnection();
+            if (connection.isOpen()) {
+                channel =  connection.createChannel();
+                if (BASICEQOS != 0) {
+                    channel.basicQos(BASICEQOS);
+                }
+                return channel;
             }
-            return channel;
+            throw new TimeoutException("RabbitMQ连接失败,或连接为Closed状态");
         } catch (IOException e) {
             CommandLog.errorThrow("RabbitMQ IO异常", e);
         } catch (TimeoutException e) {
@@ -129,7 +134,8 @@ public class MqFactory {
 
                 try {
                     TimeUnit.SECONDS.sleep(1);
-                    channel =  rabbitmqConnFactory.newConnection().createChannel();
+                    Connection connection = rabbitmqConnFactory.newConnection();
+                    channel =  connection.createChannel();
                     if (BASICEQOS != 0) {
                         channel.basicQos(BASICEQOS);
                     }

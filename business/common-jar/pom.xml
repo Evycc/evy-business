@@ -38,6 +38,7 @@
         <httpmime.version>4.5.12</httpmime.version>
         <javassist.version>3.25.0-GA</javassist.version>
         <lombok.version>1.18.8</lombok.version>
+        <snakeyaml.version>1.25</snakeyaml.version>
     </properties>
 
     <!-- 依赖版本管理 -->
@@ -59,6 +60,12 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>${javassist.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
         </dependency>
 
         <!-- 密码加密 -->
@@ -167,20 +174,6 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.1.1</version>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.springframework.boot</groupId>-->
-<!--                    <artifactId>spring-boot-starter</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.springframework.boot</groupId>-->
-<!--                    <artifactId>spring-boot-starter-jdbc</artifactId>-->
-<!--                </exclusion>-->
-<!--&lt;!&ndash;                <exclusion>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <groupId>org.mybatis.spring.boot</groupId>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <artifactId>mybatis-spring-boot-autoconfigure</artifactId>&ndash;&gt;-->
-<!--&lt;!&ndash;                </exclusion>&ndash;&gt;-->
-<!--            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -216,6 +209,10 @@
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>${jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
         </dependency>
     </dependencies>
 

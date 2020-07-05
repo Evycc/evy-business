@@ -46,9 +46,9 @@ public class CommandUtils {
 
     private static void initPrpo() {
         try {
-            prpoties = AppContextUtils.getBean(BusinessPrpoties.class);
+            prpoties = AppContextUtils.getPrpo();
         } catch (Exception e) {
-            CommandLog.error("CommandUtils#execute初始化异常", e.getMessage());
+            CommandLog.errorThrow("CommandUtils#execute初始化异常", e);
         } finally {
             if (prpoties != null) {
                 EXECUTE_TIME_OUT = prpoties.getExecuteTimeout();
@@ -75,7 +75,7 @@ public class CommandUtils {
                 CreateFactory.createThreadFactory("CommandUtils#execute"));
 
         try {
-            if (timeout > 0) {
+            if (timeout > BusinessConstant.SUCESS) {
                 returnCode = executor.submit(() -> function.apply(obeject))
                         .get(timeout, TimeUnit.MILLISECONDS);
             }
@@ -199,14 +199,13 @@ public class CommandUtils {
      * @return  解密后字符串
      */
     public static String decode(String pass){
-        String result = "";
+        String result = BusinessConstant.EMPTY_STR;
         try {
             result = STANDARD_PBE_STRING_ENCRYPTOR.decrypt(pass);
-            return result;
         } catch (Exception e){
-            CommandLog.errorThrow("", e);
-            return BusinessConstant.EMPTY_STR;
+            CommandLog.errorThrow(BusinessConstant.EMPTY_STR, e);
         }
+        return result;
     }
 
     /**
@@ -233,11 +232,10 @@ public class CommandUtils {
         String result = BusinessConstant.EMPTY_STR;
         try {
             result = STANDARD_PBE_STRING_ENCRYPTOR.encrypt(pass);
-            return result;
         } catch (Exception e){
-            CommandLog.errorThrow("", e);
-            return BusinessConstant.EMPTY_STR;
+            CommandLog.errorThrow(BusinessConstant.EMPTY_STR, e);
         }
+        return result;
     }
 
     /**
@@ -292,7 +290,6 @@ public class CommandUtils {
             }
             return field;
         } catch (NoSuchFieldException e) {
-            CommandLog.errorThrow("反射获取字段异常:{}", e);
             throw e;
         }
     }
@@ -314,7 +311,6 @@ public class CommandUtils {
 
             return value;
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            CommandLog.errorThrow("反射获取字段异常:{}", e);
             throw e;
         }
     }
@@ -333,8 +329,16 @@ public class CommandUtils {
 
             return value;
         } catch (IllegalAccessException e) {
-            CommandLog.errorThrow("反射获取字段异常:{}", e);
             throw e;
         }
+    }
+
+    /**
+     * long -> int
+     * @param l long
+     * @return int
+     */
+    public static int longParsetoInt(Long l) {
+        return Integer.parseInt(String.valueOf(l));
     }
 }

@@ -3,10 +3,11 @@ package com.evy.common.command.infrastructure.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 提供通用参数
+ * 提供通用参数，使用与需要提供配置的对象也是Bean的情况
  * @Author: EvyLiuu
  * @Date: 2019/11/30 14:20
  */

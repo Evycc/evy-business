@@ -2,10 +2,7 @@ package com.evy.common.trace;
 
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
-import com.evy.common.trace.service.TraceHttpInfo;
-import com.evy.common.trace.service.TraceMqInfo;
-import com.evy.common.trace.service.TraceRedisInfo;
-import com.evy.common.trace.service.TraceSlowSql;
+import com.evy.common.trace.service.*;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2020/5/23 16:49
  */
 public class TraceUtils {
-    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4,
+    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(5,
             CreateFactory.createThreadFactory("TraceUtils"));
 
     static {
@@ -34,6 +31,7 @@ public class TraceUtils {
         EXECUTOR.scheduleWithFixedDelay(TraceHttpInfo::executeHttp, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceSlowSql::executeSlowSql, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceRedisInfo::executeRedisInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
     }
 
     /**

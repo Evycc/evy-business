@@ -74,4 +74,35 @@
         trh_last_fork_usec=VALUES(trh_last_fork_usec), trh_conn_total_count=VALUES(trh_conn_total_count), trh_conn_cur_count=VALUES(trh_conn_cur_count),
         trh_conn_block_count=VALUES(trh_conn_block_count), trh_log_path=VALUES(trh_log_path), trh_config_path=VALUES(trh_config_path), trh_sentinel_monitor=VALUES(trh_sentinel_monitor), trh_sentinel_config_path=VALUES(trh_sentinel_config_path);
     </insert>
+
+    <insert id="threadInfoListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoListPO">
+        INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status, tati_thread_start_mtime, tati_thread_blocked_count,
+                                          tati_thread_blocked_mtime, tati_thread_blocked_name, tati_thread_blocked_id, tati_thread_waited_count, tati_thread_waited_mtime,
+                                          tati_thread_max_count, tati_thread_stack)
+        VALUES
+        <foreach collection="traceThreadInfos" separator="," item="tpo" index="i">
+            (#{tpo.tatiAppIp}, #{tpo.tatiThreadId}, #{tpo.tatiThreadName}, #{tpo.tatiThreadStatus}, #{tpo.tatiThreadStartMtime}, #{tpo.tatiThreadBlockedCount}, #{tpo.tatiThreadBlockedMtime},
+                #{tpo.tatiThreadBlockedName}, #{tpo.tatiThreadBlockedId}, #{tpo.tatiThreadWaitedCount}, #{tpo.tatiThreadWaitedMtime}, #{tpo.tatiThreadMaxCount}, #{tpo.tatiThreadStack})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        tati_app_ip = VALUES(tati_app_ip), tati_thread_id = VALUES(tati_thread_id), tati_thread_name = VALUES(tati_thread_name), tati_thread_status = VALUES(tati_thread_status),
+        tati_thread_start_mtime = VALUES(tati_thread_start_mtime), tati_thread_blocked_count = VALUES(tati_thread_blocked_count), tati_thread_blocked_mtime = VALUES(tati_thread_blocked_mtime),
+        tati_thread_blocked_name = VALUES(tati_thread_blocked_name), tati_thread_blocked_id = VALUES(tati_thread_blocked_id), tati_thread_waited_count = VALUES(tati_thread_waited_count),
+        tati_thread_waited_mtime = VALUES(tati_thread_waited_mtime), tati_thread_max_count = VALUES(tati_thread_max_count), tati_thread_stack = VALUES(tati_thread_stack);
+    </insert>
+
+    <insert id="insertAppMermoryInfo" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryInfoPO">
+        INSERT INTO trace_app_mermory_info(tami_app_ip, tami_cpu_count, tami_cpu_load, tami_sys_memory, tami_sys_avail_memory, tami_app_use_memory, tami_app_heap_max_memory, tami_app_heap_min_memory,
+                                           tami_app_heap_use_memory, tami_app_nonheap_max_memory, tami_app_nonheap_min_memory, tami_app_nonheap_use_memory)
+        VALUES(#{tamiAppIp}, #{tamiCpuCount}, #{tamiCpuLoad}, #{tamiSysMemory}, #{tamiSysAvailMemory}, #{tamiAppUseMemory},
+               #{tamiAppHeapMaxMemory}, #{tamiAppHeapMinMemory}, #{tamiAppHeapUseMemory}, #{tamiAppNonHeapMaxMemory}, #{tamiAppNonHeapMinMemory}, #{tamiAppNonHeapUseMemory});
+    </insert>
+
+    <select id="queryMermoryInfoByIp" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryQueryPO" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM trace_app_mermory_info WHERE tami_app_ip = #{tamiAppIp};
+    </select>
+
+    <delete id="deleteMermoryInfoByLastOne">
+        DELETE FROM trace_app_mermory_info WHERE tami_id = (SELECT t.tami_id FROM (SELECT tami_id FROM trace_app_mermory_info ORDER BY gmt_create LIMIT 1) AS t);
+    </delete>
 </mapper>

@@ -40,7 +40,7 @@ public class TraceHttpInfo {
      */
     public static void addTraceHttp(String url, long takeUpTimesatmp, boolean result, String inputParam, String respResult) {
         try {
-            Optional.of(AppContextUtils.getForEnv(HTTP_PRPO))
+            Optional.ofNullable(AppContextUtils.getForEnv(HTTP_PRPO))
                     .ifPresent(flag -> {
                         if (BusinessConstant.ZERO.equals(flag)) {
                             HTTP_MODELS.offer(TraceHttpModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, url, result, inputParam, respResult));

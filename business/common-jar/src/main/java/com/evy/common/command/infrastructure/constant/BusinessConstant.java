@@ -36,6 +36,8 @@ public class BusinessConstant {
     public static final String TMP_TABLE_NAME = "<";
     public static final String YES = "yes";
     public static final String NO = "no";
+    public static final String LEFT_PARENTHESES = "(";
+    public static final String RIGHT_PARENTHESES = ")";
 
     /**
      * 可用cpu数量
