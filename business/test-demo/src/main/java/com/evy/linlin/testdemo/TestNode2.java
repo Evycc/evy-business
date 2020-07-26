@@ -1,10 +1,10 @@
 //package com.evy.linlin.testdemo;
 //
-//import com.evy.common.domain.repository.mq.anno.AnnoMqConsumer;
-//import com.evy.common.domain.repository.mq.basic.BaseRabbitMqConsumer;
-//import com.evy.common.domain.repository.mq.model.MqSendMessage;
-//import com.evy.common.infrastructure.common.constant.BusinessConstant;
-//import com.evy.common.infrastructure.common.log.CommandLog;
+//import com.evy.common.mq.common.infrastructure.tunnel.anno.AnnoMqConsumer;
+//import com.evy.common.mq.rabbitmq.app.command.BaseRabbitMqConsumer;
+//import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
+//import com.evy.common.command.infrastructure.constant.BusinessConstant;
+//import com.evy.common.log.CommandLog;
 //import com.rabbitmq.client.AMQP;
 //import com.rabbitmq.client.Channel;
 //import com.rabbitmq.client.Envelope;

@@ -8,6 +8,7 @@ import com.evy.common.mq.common.app.basic.MqConsumer;
 import com.evy.common.mq.common.infrastructure.tunnel.anno.AnnoMqConsumer;
 import com.evy.common.mq.common.infrastructure.tunnel.anno.AnnoMqConsumer.AnnoMqConsumerModel;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqConsumerModel;
+import com.evy.common.trace.service.TraceService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
@@ -29,6 +30,8 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
         addCommandInceptor(bean);
         //存在@MqConsumer，添加rabbitmq consumer
         addMqConsumer(bean);
+        //存在@RestController,添加到服务列表
+        TraceService.addControllerCls(beanName, bean);
 
         return super.postProcessAfterInstantiation(bean, beanName);
     }

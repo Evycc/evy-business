@@ -14,17 +14,19 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 收集应用线程信息<br/>
  * 收集应用总线程数、线程ID、线程名、线程状态、线程堆栈信息 | 配置 : evy.trace.thread.flag={0开启|1关闭}<br/>
+ *
  * @Author: EvyLiuu
  * @Date: 2020/7/5 10:17
  */
 public class TraceThreadInfo {
     private static final String THREAD_PRPO = "evy.trace.thread.flag";
     private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
-    private static final String THREAD_INFO_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.threadInfoListInsert";
+    private static final String THREAD_INFO_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.threadInfoInsert";
 
     static {
         //监控死锁情况
@@ -41,7 +43,7 @@ public class TraceThreadInfo {
             Optional.ofNullable(AppContextUtils.getForEnv(THREAD_PRPO))
                     .ifPresent(flag -> {
                         if (BusinessConstant.ZERO.equals(flag)) {
-                            ThreadInfo[] threadInfos = THREAD_MX_BEAN.dumpAllThreads(true,true);
+                            ThreadInfo[] threadInfos = THREAD_MX_BEAN.dumpAllThreads(true, true);
                             //获取死锁状态的线程ID
 //                            long[] deadlockedThreads = THREAD_MX_BEAN.findDeadlockedThreads();
                             //等待死锁的线程ID
@@ -81,7 +83,9 @@ public class TraceThreadInfo {
                                 list.add(threadInfoPo);
                             }
 
-                            DBUtils.insert(THREAD_INFO_LIST_INSERT, TraceThreadInfoListPO.create(list));
+                            DBUtils.batchAny(list.stream()
+                                    .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
+                                    .collect(Collectors.toList()));
                         }
                     });
         } catch (Exception exception) {

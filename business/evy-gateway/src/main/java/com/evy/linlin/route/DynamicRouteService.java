@@ -1,9 +1,10 @@
-package com.evy.linlin;
+package com.evy.linlin.route;
 
-import com.evy.common.domain.repository.db.DBUtils;
-import com.evy.common.infrastructure.common.command.utils.JsonUtils;
-import com.evy.common.infrastructure.common.constant.BusinessConstant;
-import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.command.domain.factory.CreateFactory;
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
+import com.evy.common.db.DBUtils;
+import com.evy.common.log.CommandLog;
+import com.evy.common.utils.JsonUtils;
 import com.google.gson.JsonSyntaxException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +21,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 从数据表获取动态路由数据
@@ -34,7 +37,7 @@ public class DynamicRouteService implements CommandLineRunner {
     private final ReactiveRedisTemplate<String, String> template;
     private static final String ROUTE_MAP_KEYS = "gateway:routemap";
     private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
-            Executors.defaultThreadFactory());
+            CreateFactory.createThreadFactory("DynamicRouteService"));
     private static final String QUERY_ROUTERS_SQL = "SELECT tr_router_id,tr_router_uri,tr_predicate_name,tr_filters_name,tr_predicate_args,tr_filters_args,tr_order,gmt_modify FROM td_router";
     private static final String TR_ROUTER_ID = "tr_router_id";
     private static final String TR_ROUTER_URI = "tr_router_uri";
@@ -199,14 +202,14 @@ public class DynamicRouteService implements CommandLineRunner {
     private List<PredicateDefinition> splitAndReturnPd(String predicateName, String pargs) {
         List<PredicateDefinition> plist = null;
         //路由断言器设置
-        String[] pds = StringUtils.tokenizeToStringArray(predicateName, "|");
+        String[] pds = StringUtils.tokenizeToStringArray(predicateName, BusinessConstant.LINE);
         if (pds.length > 0) {
             plist = new ArrayList<>();
         }
         for (String pd : pds) {
             PredicateDefinition predicateDefinition = new PredicateDefinition();
             predicateDefinition.setName(pd);
-            String[] args = StringUtils.tokenizeToStringArray(pargs, "|");
+            String[] args = StringUtils.tokenizeToStringArray(pargs, BusinessConstant.LINE);
             try {
                 for (String arg : args) {
                     Map map = JsonUtils.convertToObject(arg, Map.class);
@@ -232,14 +235,14 @@ public class DynamicRouteService implements CommandLineRunner {
     private List<FilterDefinition> splitAndReturnFilter(String flitersName, String fargs) {
         List<FilterDefinition> flist = null;
         //路由过滤器设置
-        String[] fs = StringUtils.tokenizeToStringArray(flitersName, "|");
+        String[] fs = StringUtils.tokenizeToStringArray(flitersName, BusinessConstant.LINE);
         if (fs.length > 0) {
             flist = new ArrayList<>();
         }
         for (String f : fs) {
             FilterDefinition filterDefinition = new FilterDefinition();
             filterDefinition.setName(f);
-            String[] args = StringUtils.tokenizeToStringArray(fargs, "|");
+            String[] args = StringUtils.tokenizeToStringArray(fargs, BusinessConstant.LINE);
             try {
                 for (String arg : args) {
                     Map map = JsonUtils.convertToObject(arg, Map.class);

@@ -1,7 +1,7 @@
-package com.evy.linlin;
+package com.evy.linlin.route;
 
-import com.evy.common.infrastructure.common.command.utils.JsonUtils;
-import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.log.CommandLog;
+import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;

@@ -25,4 +25,7 @@ public class InputDTO{
     @Setter
     @NotNull
     private String clientIp;
+    @Getter
+    @Setter
+    private String traceId;
 }

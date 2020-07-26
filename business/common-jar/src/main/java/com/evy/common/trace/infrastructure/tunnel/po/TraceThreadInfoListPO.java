@@ -1,6 +1,5 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import com.evy.common.trace.service.TraceThreadInfo;
 import lombok.Getter;
 
 import java.util.List;

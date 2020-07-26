@@ -2,9 +2,13 @@ package com.evy.common.utils;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Random;
+
 /**
  * 基于雪花算法的唯一序列，最大64bit
- * 时间戳(36bit)+机器进程ID(12bit)+MAC地址(12bit)+sequence(4bit)
+ * 符号位(1bit)+时间戳(35bit)+机器进程ID(12bit)+MAC地址(12bit)+sequence(4bit)
  * @Author: EvyLiuu
  * @Date: 2020/5/16 16:03
  */
@@ -18,7 +22,7 @@ public class SequenceUtils {
     /**
      * 时间戳占用位数
      */
-    private static final long TIMESTAMP_LEFT_SHIFT = 36L;
+    private static final long TIMESTAMP_LEFT_SHIFT = 35L;
 
     /**
      * MAC地址占用位数
@@ -38,7 +42,15 @@ public class SequenceUtils {
     /**
      * 记录上次生成ID的时间截
      */
-    private static long LAST_TEMP_STAMP = -1L;
+    private static long LAST_TIME_STAMP = -1L;
+
+    /**
+     * 应用内时间,随机产生
+     */
+    private static final long CUR_TIME_STAMP = LocalDateTime.of(new Random().nextInt(54) +1998,
+            new Random().nextInt(12) +1,new Random().nextInt(27) +1,
+            new Random().nextInt(23) +1,new Random().nextInt(60) +1,
+            new Random().nextInt(60) +1).toInstant(ZoneOffset.of("+8")).toEpochMilli();
 
     /**
      * 机器ID
@@ -52,19 +64,13 @@ public class SequenceUtils {
     public static synchronized long nextId() {
         long timestamp = timeGen();
 
-        //如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
-        if (timestamp < LAST_TEMP_STAMP) {
-            throw new RuntimeException(
-                    String.format("系统时间小于LAST_TEMP_STAMP记录时间，序列生成异常 %s", LAST_TEMP_STAMP - timestamp));
-        }
-
         //如果是同一时间生成的，则进行毫秒内序列
-        if (LAST_TEMP_STAMP == timestamp) {
+        if (LAST_TIME_STAMP == timestamp) {
             SEQUENCE = (SEQUENCE + 1) & SEQUENCE_MASK;
             //毫秒内序列溢出
             if (SEQUENCE == 0) {
                 //阻塞到下一个毫秒,获得新的时间戳
-                timestamp = tilNextMillis(LAST_TEMP_STAMP);
+                timestamp = tilNextMillis(LAST_TIME_STAMP);
             }
         }
         //时间戳改变，毫秒内序列重置
@@ -73,10 +79,10 @@ public class SequenceUtils {
         }
 
         //上次生成ID的时间截
-        LAST_TEMP_STAMP = timestamp;
+        LAST_TIME_STAMP = timestamp;
 
         //移位并通过或运算拼到一起组成64位的ID
-        return ((timestamp - TWEPOCH) << TIMESTAMP_LEFT_SHIFT)  //时间戳部分
+        return  ((timestamp - TWEPOCH) << TIMESTAMP_LEFT_SHIFT)  //时间戳部分
                 | PID_HASHCODE << PID_LEFT_SHIFT //机器PID
                 | BusinessConstant.MAC_ID << PID_LEFT_SHIFT // MAC
                 | SEQUENCE; //序列号部分
@@ -100,7 +106,15 @@ public class SequenceUtils {
      * @return 当前时间(毫秒)
      */
     protected static long timeGen() {
-        return System.currentTimeMillis();
+        return CUR_TIME_STAMP + BusinessConstant.getVmUpTime();
+    }
+
+    /**
+     * 返回无符号序列
+     * @return 无符号序列
+     */
+    public static String getNextSeq(){
+        return Long.toUnsignedString(nextId());
     }
 
     /**
@@ -109,7 +123,7 @@ public class SequenceUtils {
      * @return  唯一序列
      */
     public static String getPrefix(String prefix) {
-        return prefix.concat(String.valueOf(nextId()));
+        return prefix.concat(getNextSeq());
     }
 
     /**
@@ -119,12 +133,7 @@ public class SequenceUtils {
      * @return  唯一序列
      */
     public static String getPrefix(String prefix, int len) {
-        String val = String.valueOf(nextId());
-        int n = val.length() - len;
-        if (n <= 0) {
-            throw new RuntimeException(String.format("len长度大于序列 len:{ %d }", len));
-        }
-        return prefix.concat(val.substring(n));
+        return fillToLen(prefix.concat(getNextSeq()), len);
     }
 
     /**
@@ -133,11 +142,22 @@ public class SequenceUtils {
      * @return  唯一序列
      */
     public static String nextId(int len) {
-        String val = String.valueOf(nextId());
-        int n = val.length() - len;
-        if (n <= 0) {
-            throw new RuntimeException(String.format("len长度大于序列 len:{ %d }", len));
+        return fillToLen(getNextSeq(), len);
+    }
+
+    /**
+     * 填充或者截取字符串
+     * @param str   源字符串
+     * @param len   填充或截取直到指定长度
+     * @return  指定长度字符串
+     */
+    private static String fillToLen(String str, int len) {
+        while (str.length() < len) {
+            str = str.concat(BusinessConstant.ZERO);
         }
-        return val.substring(n);
+        if (str.length() > len) {
+            str = str.substring(str.length() -len);
+        }
+        return str;
     }
 }

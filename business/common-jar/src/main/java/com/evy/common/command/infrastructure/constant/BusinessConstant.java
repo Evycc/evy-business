@@ -38,6 +38,9 @@ public class BusinessConstant {
     public static final String NO = "no";
     public static final String LEFT_PARENTHESES = "(";
     public static final String RIGHT_PARENTHESES = ")";
+    public static final String AT_STR = "@";
+    public static final String FORWARD_SLASH_STR = "/";
+    public static final String SHARE_STR = "#";
 
     /**
      * 可用cpu数量

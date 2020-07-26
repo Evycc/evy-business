@@ -4,8 +4,7 @@ import com.evy.common.command.infrastructure.config.BusinessPrpoties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import org.springframework.beans.BeansException;
-import org.springframework.boot.env.YamlPropertySourceLoader;
-import org.springframework.boot.json.YamlJsonParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.env.Environment;
@@ -16,14 +15,11 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 获取Spring ApplicationContext

@@ -11,17 +11,28 @@ import lombok.ToString;
 @Getter
 @ToString
 public class TraceMemoryQueryPO {
-    private final String tamiAppIp;
+    private String tamiAppIp;
+    private int limit;
+    private String tamiId;
 
-    private TraceMemoryQueryPO(String tamiAppIp) {
+    private TraceMemoryQueryPO(String tamiAppIp, int limit) {
         this.tamiAppIp = tamiAppIp;
+        this.limit = limit;
     }
 
-    public static TraceMemoryQueryPO create(String tamiAppIp) {
-        return new TraceMemoryQueryPO(tamiAppIp);
+    private TraceMemoryQueryPO(String tamiId) {
+        this.tamiId = tamiId;
     }
 
-    public static TraceMemoryQueryPO create() {
-        return new TraceMemoryQueryPO(BusinessConstant.VM_HOST);
+    public static TraceMemoryQueryPO create(String tamiId) {
+        return new TraceMemoryQueryPO(tamiId);
+    }
+
+    public static TraceMemoryQueryPO create(String tamiAppIp, int limit) {
+        return new TraceMemoryQueryPO(tamiAppIp, limit);
+    }
+
+    public static TraceMemoryQueryPO create(int limit) {
+        return new TraceMemoryQueryPO(BusinessConstant.VM_HOST, limit);
     }
 }

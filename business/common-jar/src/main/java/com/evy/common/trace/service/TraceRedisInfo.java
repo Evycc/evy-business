@@ -22,8 +22,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 链路跟踪<br/>
@@ -249,88 +247,91 @@ public class TraceRedisInfo {
         long waitTime = 3000L;
         int limit = 3;
 
-        LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
-                .clientResources(AppContextUtils.getBean(ClientResources.class)).build();
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
-        if (!StringUtils.isEmpty(REDIS_HOST_PASS.get(host + port))) {
-            configuration.setPassword(RedisPassword.of(CommandUtils.encodeEnc(REDIS_HOST_PASS.get(host + port))));
-        }
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration, clientConfiguration);
-
-        //初始化Factory
-        factory.afterPropertiesSet();
-        factory.initConnection();
-
-        final Object object = new Object();
-        int[] var1 = new int[]{1};
-        long start = System.currentTimeMillis();
-
-        synchronized (object) {
-            //获取Sentinel列表
-            ReactiveRedisTemplate<String, String> template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
-            template.listenTo(ChannelTopic.of(SENTINEL_LISTEREN))
-                    .subscribe(message -> {
-                        CommandLog.info("host : {} port : {} mess : {}", host, port, message);
-                        String mess = message.getMessage();
-                        String[] var2 = mess.split(BusinessConstant.COMMA, -1);
-
-                        if (var2.length > BusinessConstant.SUCESS) {
-                            String sentienlHost = var2[0] + BusinessConstant.COLON_STR + var2[1];
-                            if (StringUtils.isEmpty(result[0]) || !result[0].contains(sentienlHost)) {
-                                //未存储的sentinel ip
-                                if (!StringUtils.isEmpty(result[0])) {
-                                    result[0] += BusinessConstant.DOUBLE_LINE;
-                                    result[0] += sentienlHost;
-                                } else {
-                                    result[0] = sentienlHost;
-                                }
-                            } else {
-                                if (var1[0]++ >= limit) {
-                                    CommandLog.info("shutdown");
-                                    object.notify();
-                                }
-                            }
-                        }
-                    });
-
-            try {
-                //等待获取Sentinel列表
-                //4s收不到回应,表示未被sentinel监控
-                object.wait(waitTime);
-            } catch (InterruptedException ignore) {
+        if (!StringUtils.isEmpty(host)) {
+            LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
+                    .clientResources(AppContextUtils.getBean(ClientResources.class)).build();
+            RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
+            if (!StringUtils.isEmpty(REDIS_HOST_PASS.get(host + port))) {
+                configuration.setPassword(RedisPassword.of(CommandUtils.encodeEnc(REDIS_HOST_PASS.get(host + port))));
             }
-        }
+            LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration, clientConfiguration);
 
-        CommandLog.info("耗时:{}ms", System.currentTimeMillis()-start);
-        if (!StringUtils.isEmpty(result[0])) {
-            String[] sentinelHosts = result[0].split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
-            Arrays.stream(sentinelHosts)
-                    .map(h -> h.split(BusinessConstant.COLON_STR, -1))
-                    .forEach(strings -> {
-                        String configPath = BusinessConstant.EMPTY_STR;
+            //初始化Factory
+            factory.afterPropertiesSet();
+            factory.initConnection();
 
-                        LettuceConnection redisConnection = (LettuceConnection) REDIS_SENTINEL_CONN_MAP.get(buildRedisMapKey(strings[0], String.valueOf(strings[1])));
-                        try {
-                            if (Objects.isNull(redisConnection) || redisConnection.isClosed()) {
-                                redisConnection = CreateFactory.returnRedisConn(strings[0], Integer.parseInt(strings[1]), null);
+            final Object object = new Object();
+            int[] var1 = new int[]{1};
+            long start = System.currentTimeMillis();
+
+            synchronized (object) {
+                //获取Sentinel列表
+                ReactiveRedisTemplate<String, String> template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
+                template.listenTo(ChannelTopic.of(SENTINEL_LISTEREN))
+                        .subscribe(message -> {
+                            CommandLog.info("host : {} port : {} mess : {}", host, port, message);
+                            String mess = message.getMessage();
+                            String[] var2 = mess.split(BusinessConstant.COMMA, -1);
+
+                            if (var2.length > BusinessConstant.SUCESS) {
+                                String sentienlHost = var2[0] + BusinessConstant.COLON_STR + var2[1];
+                                if (StringUtils.isEmpty(result[0]) || !result[0].contains(sentienlHost)) {
+                                    //未存储的sentinel ip
+                                    if (!StringUtils.isEmpty(result[0])) {
+                                        result[0] += BusinessConstant.DOUBLE_LINE;
+                                        result[0] += sentienlHost;
+                                    } else {
+                                        result[0] = sentienlHost;
+                                    }
+                                } else {
+                                    if (var1[0]++ >= limit) {
+                                        CommandLog.info("shutdown");
+                                        object.notify();
+                                    }
+                                }
                             }
-                            configPath = Objects.requireNonNull(redisConnection.serverCommands().info("server")).getProperty(CONFIG_PATH);
-                        } catch (Exception e) {
-                            CommandLog.errorThrow("获取Sentinel失败", e);
-                        }
-                        REDIS_SENTINEL_CONN_MAP.put(buildRedisMapKey(strings[0], String.valueOf(strings[1])), redisConnection);
+                        });
+
+                try {
+                    //等待获取Sentinel列表
+                    //4s收不到回应,表示未被sentinel监控
+                    object.wait(waitTime);
+                } catch (InterruptedException ignore) {
+                }
+            }
+
+            CommandLog.info("耗时:{}ms", System.currentTimeMillis()-start);
+            if (!StringUtils.isEmpty(result[0])) {
+                String[] sentinelHosts = result[0].split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
+                Arrays.stream(sentinelHosts)
+                        .map(h -> h.split(BusinessConstant.COLON_STR, -1))
+                        .forEach(strings -> {
+                            String configPath = BusinessConstant.EMPTY_STR;
+
+                            LettuceConnection redisConnection = (LettuceConnection) REDIS_SENTINEL_CONN_MAP.get(buildRedisMapKey(strings[0], String.valueOf(strings[1])));
+                            try {
+                                if (Objects.isNull(redisConnection) || redisConnection.isClosed()) {
+                                    redisConnection = CreateFactory.returnRedisConn(strings[0], Integer.parseInt(strings[1]), null);
+                                }
+                                configPath = Objects.requireNonNull(redisConnection.serverCommands().info("server")).getProperty(CONFIG_PATH);
+                            } catch (Exception e) {
+                                CommandLog.errorThrow("获取Sentinel失败", e);
+                            }
+                            REDIS_SENTINEL_CONN_MAP.put(buildRedisMapKey(strings[0], String.valueOf(strings[1])), redisConnection);
 
 
-                        if (StringUtils.isEmpty(result[1])) {
-                            result[1] = configPath;
-                        } else {
-                            result[1] += BusinessConstant.DOUBLE_LINE;
-                            result[1] += configPath;
-                        }
-                    });
+                            if (StringUtils.isEmpty(result[1])) {
+                                result[1] = configPath;
+                            } else {
+                                result[1] += BusinessConstant.DOUBLE_LINE;
+                                result[1] += configPath;
+                            }
+                        });
+            }
+
+            factory.destroy();
         }
 
-        factory.destroy();
         return result;
     }
 

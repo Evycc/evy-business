@@ -3,25 +3,37 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.evy.common.trace.repository.mapper.TraceMapper">
+    <resultMap id="traceBeanNamePO" type="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceBeanNamePO">
+        <result column="tsi_service_bean_name" property="tsiServiceBeanName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="traceBeanConsumerPO"
+               type="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceBeanAndConsumerPO">
+        <result column="tsi_service_bean_name" property="tsiServiceBeanName" jdbcType="VARCHAR"/>
+        <result column="tsi_consumer" property="tsiConsumer" jdbcType="VARCHAR"/>
+    </resultMap>
+
     <insert id="mqSendInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
-        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content, tmf_producer_start_timestamp)
-        VALUES(#{tmfTopic}, #{tmfReqIp}, #{tmfTag}, #{tmfMsgId}, #{tmfMsgContent} ,#{tmfProducerStartTimestamp});
+        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content,
+                                  tmf_producer_start_timestamp)
+        VALUES (#{tmfTopic}, #{tmfReqIp}, #{tmfTag}, #{tmfMsgId}, #{tmfMsgContent}, #{tmfProducerStartTimestamp});
     </insert>
 
     <insert id="mqConsumerInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
         INSERT INTO trace_mq_flow(tmf_msg_id, tmf_resp_ip, tmf_consumer_end_timestamp, tmf_consumer_takeup_timestamp)
-        VALUES(#{tmfMsgId}, #{tmfRespIp}, #{tmfConsumerEndTimestamp}, #{tmfConsumerTakeUpTimestamp})
-        ON DUPLICATE KEY UPDATE
-        tmf_resp_ip=values(tmf_resp_ip),
-        tmf_consumer_end_timestamp=values(tmf_consumer_end_timestamp),
-        tmf_consumer_takeup_timestamp=values(tmf_consumer_takeup_timestamp);
+        VALUES (#{tmfMsgId}, #{tmfRespIp}, #{tmfConsumerEndTimestamp}, #{tmfConsumerTakeUpTimestamp})
+        ON DUPLICATE KEY UPDATE tmf_resp_ip=values(tmf_resp_ip),
+                                tmf_consumer_end_timestamp=values(tmf_consumer_end_timestamp),
+                                tmf_consumer_takeup_timestamp=values(tmf_consumer_takeup_timestamp);
     </insert>
 
     <insert id="mqSendListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO">
-        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content, tmf_producer_start_timestamp)
+        INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content,
+        tmf_producer_start_timestamp)
         VALUES
         <foreach collection="mqPoList" separator="," item="mqpo" index="i">
-            (#{mqpo.tmfTopic}, #{mqpo.tmfReqIp}, #{mqpo.tmfTag}, #{mqpo.tmfMsgId}, #{mqpo.tmfMsgContent} ,#{mqpo.tmfProducerStartTimestamp})
+            (#{mqpo.tmfTopic}, #{mqpo.tmfReqIp}, #{mqpo.tmfTag}, #{mqpo.tmfMsgId}, #{mqpo.tmfMsgContent}
+            ,#{mqpo.tmfProducerStartTimestamp})
         </foreach>
     </insert>
 
@@ -40,69 +52,171 @@
     <insert id="traceHttpInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceHttpPO">
         INSERT INTO trace_http_flow(thf_req_ip, thf_url, thf_takeup_time, thf_req_timestamp,
                                     thf_result_sucess, thf_input, thf_result)
-        VALUES (#{thfReqIp}, #{thfUrl}, #{thfTakeUpTime}, #{thfReqTimestamp}, #{thfResultSuccess}, #{thfInput}, #{thfResult});
+        VALUES (#{thfReqIp}, #{thfUrl}, #{thfTakeUpTime}, #{thfReqTimestamp}, #{thfResultSuccess}, #{thfInput},
+                #{thfResult});
     </insert>
 
     <insert id="traceHttpListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceHttpListPO">
         INSERT INTO trace_http_flow(thf_req_ip, thf_url, thf_takeup_time, thf_req_timestamp,
-                                    thf_result_sucess, thf_input, thf_result)
+        thf_result_sucess, thf_input, thf_result)
         VALUES
         <foreach collection="httpsPos" separator="," item="po" index="i">
-            (#{po.thfReqIp}, #{po.thfUrl}, #{po.thfTakeUpTime}, #{po.thfReqTimestamp}, #{po.thfResultSuccess}, #{po.thfInput}, #{po.thfResult})
+            (#{po.thfReqIp}, #{po.thfUrl}, #{po.thfTakeUpTime}, #{po.thfReqTimestamp}, #{po.thfResultSuccess},
+            #{po.thfInput}, #{po.thfResult})
         </foreach>
     </insert>
 
     <insert id="slowSqlInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceSqlPO">
         INSERT INTO trace_slow_sql(tss_req_ip, tss_slow_sql, tss_take_time, tss_explain, tss_explain_content)
-        VALUES(#{tssReqIp}, #{tssSlowSql}, #{tssTakeTime}, #{tssExplain}, #{tssExplainContent});
+        VALUES (#{tssReqIp}, #{tssSlowSql}, #{tssTakeTime}, #{tssExplain}, #{tssExplainContent});
     </insert>
 
     <insert id="redisInfoInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO">
-        INSERT INTO trace_redis_health(trh_redis_ip, trh_redis_flag, trh_slave_ip, trh_cluster_type, trh_rdb_open, trh_rdb_file, trh_rdb_save_type, trh_aof_open, trh_aof_file,
-                                       trh_aof_save_type, trh_aof_rdb_open, trh_memory_count, trh_memory_available_count, trh_memory_peak, trh_memory_fragmentation_ratio,
-                                       trh_keyspace_ratio, trh_keys_count, trh_last_rdb_status, trh_last_aof_status, trh_last_fork_usec, trh_conn_total_count,
-                                       trh_conn_cur_count, trh_conn_block_count, trh_log_path, trh_config_path, trh_sentinel_monitor, trh_sentinel_config_path)
-        VALUES (#{trhRedisIp}, #{trhRedisFlag}, #{trhSlaveIp}, #{trhClusterType}, #{trhRdbOpen}, #{trhRdbFile}, #{trhRdbSaveType}, #{trhAofOpen}, #{trhAofFile}, #{trhAofSaveType},
-                #{trhAofRdbOpen}, #{trhMemoryCount}, #{trhMemoryAvailableCount}, #{trhMemoryPeak}, #{trhMemoryFragmentationRatio}, #{trhKeyspaceRatio}, #{trhKeysCount}, #{trhLastRdbStatus},
-                #{trhLastAofStatus}, #{trhLastForkUsec}, #{trhConnTotalCount}, #{trhConnCurCount}, #{trhConnBlockCount}, #{trhLogPath}, #{trhConfigPath}, #{trhSentinelMonitor}, #{trhSentinelConfigPath})
-        ON DUPLICATE KEY UPDATE
-        trh_redis_ip=VALUES(trh_redis_ip), trh_redis_flag=VALUES(trh_redis_flag), trh_slave_ip=VALUES(trh_slave_ip), trh_cluster_type=VALUES(trh_cluster_type),
-        trh_rdb_open=VALUES(trh_rdb_open), trh_rdb_file=VALUES(trh_rdb_file), trh_rdb_save_type=VALUES(trh_rdb_save_type), trh_aof_open=VALUES(trh_aof_open),
-        trh_aof_file=VALUES(trh_aof_file), trh_aof_save_type=VALUES(trh_aof_save_type), trh_aof_rdb_open=VALUES(trh_aof_rdb_open), trh_memory_count=VALUES(trh_memory_count),
-        trh_memory_available_count=VALUES(trh_memory_available_count), trh_memory_peak=VALUES(trh_memory_peak), trh_memory_fragmentation_ratio=VALUES(trh_memory_fragmentation_ratio),
-        trh_keyspace_ratio=VALUES(trh_keyspace_ratio), trh_keys_count=VALUES(trh_keys_count), trh_last_rdb_status=VALUES(trh_last_rdb_status), trh_last_aof_status=VALUES(trh_last_aof_status),
-        trh_last_fork_usec=VALUES(trh_last_fork_usec), trh_conn_total_count=VALUES(trh_conn_total_count), trh_conn_cur_count=VALUES(trh_conn_cur_count),
-        trh_conn_block_count=VALUES(trh_conn_block_count), trh_log_path=VALUES(trh_log_path), trh_config_path=VALUES(trh_config_path), trh_sentinel_monitor=VALUES(trh_sentinel_monitor), trh_sentinel_config_path=VALUES(trh_sentinel_config_path);
+        INSERT INTO trace_redis_health(trh_redis_ip, trh_redis_flag, trh_slave_ip, trh_cluster_type, trh_rdb_open,
+                                       trh_rdb_file, trh_rdb_save_type, trh_aof_open, trh_aof_file,
+                                       trh_aof_save_type, trh_aof_rdb_open, trh_memory_count,
+                                       trh_memory_available_count, trh_memory_peak, trh_memory_fragmentation_ratio,
+                                       trh_keyspace_ratio, trh_keys_count, trh_last_rdb_status, trh_last_aof_status,
+                                       trh_last_fork_usec, trh_conn_total_count,
+                                       trh_conn_cur_count, trh_conn_block_count, trh_log_path, trh_config_path,
+                                       trh_sentinel_monitor, trh_sentinel_config_path)
+        VALUES (#{trhRedisIp}, #{trhRedisFlag}, #{trhSlaveIp}, #{trhClusterType}, #{trhRdbOpen}, #{trhRdbFile},
+                #{trhRdbSaveType}, #{trhAofOpen}, #{trhAofFile}, #{trhAofSaveType},
+                #{trhAofRdbOpen}, #{trhMemoryCount}, #{trhMemoryAvailableCount}, #{trhMemoryPeak},
+                #{trhMemoryFragmentationRatio}, #{trhKeyspaceRatio}, #{trhKeysCount}, #{trhLastRdbStatus},
+                #{trhLastAofStatus}, #{trhLastForkUsec}, #{trhConnTotalCount}, #{trhConnCurCount}, #{trhConnBlockCount},
+                #{trhLogPath}, #{trhConfigPath}, #{trhSentinelMonitor}, #{trhSentinelConfigPath})
+        ON DUPLICATE KEY UPDATE trh_redis_ip=VALUES(trh_redis_ip),
+                                trh_redis_flag=VALUES(trh_redis_flag),
+                                trh_slave_ip=VALUES(trh_slave_ip),
+                                trh_cluster_type=VALUES(trh_cluster_type),
+                                trh_rdb_open=VALUES(trh_rdb_open),
+                                trh_rdb_file=VALUES(trh_rdb_file),
+                                trh_rdb_save_type=VALUES(trh_rdb_save_type),
+                                trh_aof_open=VALUES(trh_aof_open),
+                                trh_aof_file=VALUES(trh_aof_file),
+                                trh_aof_save_type=VALUES(trh_aof_save_type),
+                                trh_aof_rdb_open=VALUES(trh_aof_rdb_open),
+                                trh_memory_count=VALUES(trh_memory_count),
+                                trh_memory_available_count=VALUES(trh_memory_available_count),
+                                trh_memory_peak=VALUES(trh_memory_peak),
+                                trh_memory_fragmentation_ratio=VALUES(trh_memory_fragmentation_ratio),
+                                trh_keyspace_ratio=VALUES(trh_keyspace_ratio),
+                                trh_keys_count=VALUES(trh_keys_count),
+                                trh_last_rdb_status=VALUES(trh_last_rdb_status),
+                                trh_last_aof_status=VALUES(trh_last_aof_status),
+                                trh_last_fork_usec=VALUES(trh_last_fork_usec),
+                                trh_conn_total_count=VALUES(trh_conn_total_count),
+                                trh_conn_cur_count=VALUES(trh_conn_cur_count),
+                                trh_conn_block_count=VALUES(trh_conn_block_count),
+                                trh_log_path=VALUES(trh_log_path),
+                                trh_config_path=VALUES(trh_config_path),
+                                trh_sentinel_monitor=VALUES(trh_sentinel_monitor),
+                                trh_sentinel_config_path=VALUES(trh_sentinel_config_path);
     </insert>
 
-    <insert id="threadInfoListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoListPO">
-        INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status, tati_thread_start_mtime, tati_thread_blocked_count,
-                                          tati_thread_blocked_mtime, tati_thread_blocked_name, tati_thread_blocked_id, tati_thread_waited_count, tati_thread_waited_mtime,
-                                          tati_thread_max_count, tati_thread_stack)
+    <insert id="threadInfoInsert"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO">
+        INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status,
+        tati_thread_start_mtime, tati_thread_blocked_count,
+        tati_thread_blocked_mtime, tati_thread_blocked_name, tati_thread_blocked_id, tati_thread_waited_count,
+        tati_thread_waited_mtime,
+        tati_thread_max_count, tati_thread_stack)
         VALUES
-        <foreach collection="traceThreadInfos" separator="," item="tpo" index="i">
-            (#{tpo.tatiAppIp}, #{tpo.tatiThreadId}, #{tpo.tatiThreadName}, #{tpo.tatiThreadStatus}, #{tpo.tatiThreadStartMtime}, #{tpo.tatiThreadBlockedCount}, #{tpo.tatiThreadBlockedMtime},
-                #{tpo.tatiThreadBlockedName}, #{tpo.tatiThreadBlockedId}, #{tpo.tatiThreadWaitedCount}, #{tpo.tatiThreadWaitedMtime}, #{tpo.tatiThreadMaxCount}, #{tpo.tatiThreadStack})
-        </foreach>
+            (#{tatiAppIp}, #{tatiThreadId}, #{tatiThreadName}, #{tatiThreadStatus},
+            #{tatiThreadStartMtime}, #{tatiThreadBlockedCount}, #{tatiThreadBlockedMtime},
+            #{tatiThreadBlockedName}, #{tatiThreadBlockedId}, #{tatiThreadWaitedCount},
+            #{tatiThreadWaitedMtime}, #{tatiThreadMaxCount}, #{tatiThreadStack})
         ON DUPLICATE KEY UPDATE
-        tati_app_ip = VALUES(tati_app_ip), tati_thread_id = VALUES(tati_thread_id), tati_thread_name = VALUES(tati_thread_name), tati_thread_status = VALUES(tati_thread_status),
-        tati_thread_start_mtime = VALUES(tati_thread_start_mtime), tati_thread_blocked_count = VALUES(tati_thread_blocked_count), tati_thread_blocked_mtime = VALUES(tati_thread_blocked_mtime),
-        tati_thread_blocked_name = VALUES(tati_thread_blocked_name), tati_thread_blocked_id = VALUES(tati_thread_blocked_id), tati_thread_waited_count = VALUES(tati_thread_waited_count),
-        tati_thread_waited_mtime = VALUES(tati_thread_waited_mtime), tati_thread_max_count = VALUES(tati_thread_max_count), tati_thread_stack = VALUES(tati_thread_stack);
+        tati_app_ip = VALUES(tati_app_ip), tati_thread_id = VALUES(tati_thread_id), tati_thread_name =
+        VALUES(tati_thread_name), tati_thread_status = VALUES(tati_thread_status),
+        tati_thread_start_mtime = VALUES(tati_thread_start_mtime), tati_thread_blocked_count =
+        VALUES(tati_thread_blocked_count), tati_thread_blocked_mtime = VALUES(tati_thread_blocked_mtime),
+        tati_thread_blocked_name = VALUES(tati_thread_blocked_name), tati_thread_blocked_id =
+        VALUES(tati_thread_blocked_id), tati_thread_waited_count = VALUES(tati_thread_waited_count),
+        tati_thread_waited_mtime = VALUES(tati_thread_waited_mtime), tati_thread_max_count =
+        VALUES(tati_thread_max_count), tati_thread_stack = VALUES(tati_thread_stack);
     </insert>
 
     <insert id="insertAppMermoryInfo" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryInfoPO">
-        INSERT INTO trace_app_mermory_info(tami_app_ip, tami_cpu_count, tami_cpu_load, tami_sys_memory, tami_sys_avail_memory, tami_app_use_memory, tami_app_heap_max_memory, tami_app_heap_min_memory,
-                                           tami_app_heap_use_memory, tami_app_nonheap_max_memory, tami_app_nonheap_min_memory, tami_app_nonheap_use_memory)
-        VALUES(#{tamiAppIp}, #{tamiCpuCount}, #{tamiCpuLoad}, #{tamiSysMemory}, #{tamiSysAvailMemory}, #{tamiAppUseMemory},
-               #{tamiAppHeapMaxMemory}, #{tamiAppHeapMinMemory}, #{tamiAppHeapUseMemory}, #{tamiAppNonHeapMaxMemory}, #{tamiAppNonHeapMinMemory}, #{tamiAppNonHeapUseMemory});
+        INSERT INTO trace_app_mermory_info(tami_app_ip, tami_cpu_count, tami_cpu_load, tami_sys_memory,
+                                           tami_sys_avail_memory, tami_app_use_memory, tami_app_heap_max_memory,
+                                           tami_app_heap_min_memory,
+                                           tami_app_heap_use_memory, tami_app_nonheap_max_memory,
+                                           tami_app_nonheap_min_memory, tami_app_nonheap_use_memory)
+        VALUES (#{tamiAppIp}, #{tamiCpuCount}, #{tamiCpuLoad}, #{tamiSysMemory}, #{tamiSysAvailMemory},
+                #{tamiAppUseMemory},
+                #{tamiAppHeapMaxMemory}, #{tamiAppHeapMinMemory}, #{tamiAppHeapUseMemory}, #{tamiAppNonHeapMaxMemory},
+                #{tamiAppNonHeapMinMemory}, #{tamiAppNonHeapUseMemory});
     </insert>
 
-    <select id="queryMermoryInfoByIp" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryQueryPO" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM trace_app_mermory_info WHERE tami_app_ip = #{tamiAppIp};
+    <select id="queryCountMermoryInfoByIp"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryQueryPO"
+            resultType="java.lang.Integer">
+        SELECT IF(COUNT(t.n) >= #{limit}, 1, 0)
+        FROM (SELECT 1 AS n FROM trace_app_mermory_info WHERE tami_app_ip = #{tamiAppIp} limit #{limit}) AS t;
     </select>
 
-    <delete id="deleteMermoryInfoByLastOne">
-        DELETE FROM trace_app_mermory_info WHERE tami_id = (SELECT t.tami_id FROM (SELECT tami_id FROM trace_app_mermory_info ORDER BY gmt_create LIMIT 1) AS t);
+    <select id="queryLastId" resultType="java.lang.String">
+        select tami_id FROM trace_app_mermory_info ORDER BY gmt_create LIMIT 1;
+    </select>
+
+    <delete id="deleteMermoryInfoByLastOne"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryQueryPO">
+        DELETE
+        FROM trace_app_mermory_info
+        WHERE tami_id = #{tamiId};
     </delete>
+
+    <!-- 查询消费者,用于更新对应消费者信息,返回多个结果-->
+    <select id="queryServiceConsumers" resultMap="traceBeanConsumerPO">
+        SELECT tsi_service_bean_name, tsi_consumer
+        FROM trace_services_info;
+    </select>
+
+    <update id="updateConsumerServiceInfo"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO">
+        UPDATE trace_services_info
+        SET tsi_consumer_names =
+                CASE
+                    WHEN
+                        tsi_consumer_names like CONCAT('%', #{tsiConsumerName}, '%') OR LENGTH(TRIM(#{tsiConsumerName}))=0 THEN tsi_consumer_names
+                    WHEN
+                        ISNULL(tsi_consumer_names) THEN CONCAT(#{tsiConsumerName}, '||')
+                    ELSE CONCAT(CONCAT(#{tsiConsumerName}, '||'), tsi_consumer_names)
+                    END
+        WHERE tsi_service_bean_name = #{tsiServiceBeanName};
+    </update>
+
+    <insert id="insertServiceProdiverInfo"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdateListPO">
+        INSERT INTO trace_services_info(tsi_service_bean_name, tsi_service_name, tsi_service_path, tsi_provider_names, tsi_provider)
+        VALUES
+        <foreach collection="poList" separator="," item="lpo" index="i">
+            (#{lpo.tsiServiceBeanName}, #{lpo.tsiServiceName}, #{lpo.tsiServicePath}, #{lpo.tsiProviderName}, #{lpo.tsiProvider})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        tsi_service_name = VALUES(tsi_service_name),
+        tsi_service_path =
+        CASE
+            WHEN tsi_service_path like CONCAT('%', VALUES(tsi_service_path), '%') OR LENGTH(TRIM(VALUES(tsi_service_path)))=0 THEN tsi_service_path
+            WHEN ISNULL(tsi_service_path) THEN CONCAT(VALUES(tsi_service_path), '||')
+            ELSE CONCAT(CONCAT(VALUES(tsi_service_path), '||'), tsi_service_path)
+        END,
+        tsi_provider_names =
+        CASE
+            WHEN tsi_provider_names like CONCAT('%', VALUES(tsi_provider_names), '%') OR LENGTH(TRIM(VALUES(tsi_provider_names)))=0 THEN tsi_provider_names
+            WHEN ISNULL(tsi_provider_names) THEN CONCAT(VALUES(tsi_provider_names), '||')
+            ELSE CONCAT(CONCAT(VALUES(tsi_provider_names), '||'), tsi_provider_names)
+        END
+    </insert>
+
+    <!-- 应用结束时,清除发布者\消费者信息-->
+    <update id="cleanServiceByAppIp"
+            parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO">
+        UPDATE trace_services_info
+        SET tsi_provider_names = REPLACE(tsi_provider_names, CONCAT(#{tsiProviderName}, '||'), ''),
+            tsi_consumer_names = REPLACE(tsi_consumer_names, CONCAT(#{tsiConsumerName}, '||'), '')
+        WHERE 1 = 1;
+    </update>
 </mapper>

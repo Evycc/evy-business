@@ -1,9 +1,9 @@
 package com.evy.linlin.testdemo;
 
-import com.evy.common.infrastructure.common.command.BaseCommandTemplate;
-import com.evy.common.infrastructure.common.exception.BasicException;
-import com.evy.common.infrastructure.common.log.anno.TraceLog;
-import com.evy.common.infrastructure.tunnel.OutDTO;
+import com.evy.common.command.app.BaseCommandTemplate;
+import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.linlin.HelloDto;
 import com.evy.linlin.HelloOutDto;
 import com.evy.linlin.HelloService;

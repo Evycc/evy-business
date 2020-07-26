@@ -1,6 +1,7 @@
 package com.evy.common.trace;
 
 import com.evy.common.command.domain.factory.CreateFactory;
+import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.evy.common.trace.service.*;
 
@@ -18,20 +19,26 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2020/5/23 16:49
  */
 public class TraceUtils {
-    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(5,
+    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(7,
             CreateFactory.createThreadFactory("TraceUtils"));
 
     static {
+        init();
+    }
+
+    public static void init(){
         //定时监控队列，存在数据则进行处理后入库
         //1分钟后执行
-        long initialDelay = 6000L;
+        long initialDelay = 60000L;
         //间隔1分钟轮询
-        long delay = 6000L;
+        long delay = 60000L;
         EXECUTOR.scheduleWithFixedDelay(TraceMqInfo::executeMq, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceHttpInfo::executeHttp, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceSlowSql::executeSlowSql, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceRedisInfo::executeRedisInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(TraceAppMemoryInfo::executeMemoryInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, initialDelay, delay, TimeUnit.MILLISECONDS);
     }
 
     /**

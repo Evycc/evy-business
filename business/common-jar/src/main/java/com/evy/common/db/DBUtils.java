@@ -17,6 +17,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -287,24 +289,24 @@ public class DBUtils {
 
         Transaction transaction = null;
         try {
-
             sqlSession = getSqlSession(ExecutorType.BATCH);
             transaction = getJdbcTransaction(sqlSession);
 
             for (BatchModel batchModel : batchList) {
-                Map<String, String> param = batchModel.getMap();
+                Map<String, String> param1 = batchModel.getMap();
+                Object param2 = batchModel.getParam();
                 String mapper = batchModel.getMapper();
                 BatchType batchType = batchModel.getType();
 
                 switch (batchType) {
                     case INSERT:
-                        sqlSession.insert(mapper, param);
+                        sqlSession.insert(mapper, param1 == null ? param2 : param1);
                         break;
                     case DELETE:
-                        sqlSession.delete(mapper, param);
+                        sqlSession.delete(mapper, param1 == null ? param2 : param1);
                         break;
                     case UPDATE:
-                        sqlSession.update(mapper, param);
+                        sqlSession.update(mapper, param1 == null ? param2 : param1);
                         break;
                     default:
                         throw new BasicException(new Exception("batchType类型错误"));
@@ -327,18 +329,16 @@ public class DBUtils {
 
             try {
                 //true  回滚整个事务
-                if (sqlSession != null) {
+                if (Objects.nonNull(sqlSession)) {
+                    transactionRollback(transaction);
                     sqlSession.rollback();
                     sqlSession.close();
                 }
-                transactionRollback(transaction);
             } catch (SQLException ex) {
                 printErrorRollback(ex);
             }
         } finally {
-            if (sqlSession != null) {
-                sqlSession.close();
-            }
+            close(sqlSession, transaction);
             CommandLog.info("batchAny耗时:{}ms", (System.currentTimeMillis() - start));
         }
 
@@ -380,19 +380,17 @@ public class DBUtils {
         } catch (Exception e) {
             CommandLog.errorThrow("insertBatch批量提交失败", e);
             try {
-                if (sqlSession != null) {
+                if (Objects.nonNull(sqlSession)) {
                     //true  回滚整个事务
+                    transactionRollback(transaction);
                     sqlSession.rollback();
                     sqlSession.close();
                 }
-                transactionRollback(transaction);
             } catch (Exception ex) {
                 printErrorRollback(ex);
             }
         } finally {
-            if (sqlSession != null) {
-                sqlSession.close();
-            }
+            close(sqlSession, transaction);
             CommandLog.info("insertBatch耗时:{}ms", (System.currentTimeMillis() - start));
         }
 
@@ -437,17 +435,15 @@ public class DBUtils {
             CommandLog.errorThrow("insertBatch批量提交失败", e);
             try {
                 if (sqlSession != null) {
+                    transactionRollback(transaction);
                     sqlSession.rollback();
                     sqlSession.close();
                 }
-                transactionRollback(transaction);
             } catch (SQLException ex) {
                 printErrorRollback(ex);
             }
         } finally {
-            if (sqlSession != null) {
-                sqlSession.close();
-            }
+            close(sqlSession, transaction);
             CommandLog.info("insertBatch耗时:{}ms", (System.currentTimeMillis() - start));
         }
 
@@ -680,25 +676,64 @@ public class DBUtils {
     }
 
     /**
+     * 关闭连接
+     * @param sqlSession    org.apache.ibatis.session.SqlSession
+     * @param transaction   org.apache.ibatis.transaction.Transaction
+     */
+    private static void close(SqlSession sqlSession, Transaction transaction) {
+        if (Objects.nonNull(sqlSession)) {
+            sqlSession.close();
+        }
+        if (Objects.nonNull(transaction)) {
+            try {
+                transaction.close();
+            } catch (SQLException throwables) {
+                CommandLog.errorThrow("关闭transaction异常", throwables);
+            }
+        }
+    }
+
+    /**
      * 批量提交结构
      */
-    @Builder
     public static class BatchModel {
         /**
          * mapper
          */
         @Getter
-        @Setter
         String mapper;
+        /**
+         * sql 入参 键值对
+         */
+        @Getter
+        Map<String, String> map;
         /**
          * sql 入参
          */
         @Getter
-        @Setter
-        Map<String, String> map;
+        Object param;
         @Getter
-        @Setter
         BatchType type;
+
+        private BatchModel(String mapper, Object param, BatchType type) {
+            this.mapper = mapper;
+            this.param = param;
+            this.type = type;
+        }
+
+        private BatchModel(String mapper, Map<String, String> map, BatchType type) {
+            this.mapper = mapper;
+            this.map = map;
+            this.type = type;
+        }
+
+        public static BatchModel create(String mapper, Object param, BatchType batchType) {
+            return new BatchModel(mapper, param, batchType);
+        }
+
+        public static BatchModel create(String mapper, Map<String, String> map, BatchType batchType) {
+            return new BatchModel(mapper, map, batchType);
+        }
     }
 
     /**

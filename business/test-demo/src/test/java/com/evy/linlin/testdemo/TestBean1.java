@@ -1,9 +1,9 @@
 package com.evy.linlin.testdemo;
 
-import com.evy.common.infrastructure.common.command.BaseCommandTemplate;
-import com.evy.common.infrastructure.common.log.anno.TraceLog;
-import com.evy.common.infrastructure.tunnel.InputDTO;
-import com.evy.common.infrastructure.tunnel.OutDTO;
+import com.evy.common.command.app.BaseCommandTemplate;
+import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

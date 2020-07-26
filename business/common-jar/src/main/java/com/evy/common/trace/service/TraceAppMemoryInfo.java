@@ -1,5 +1,6 @@
 package com.evy.common.trace.service;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.db.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryInfoPO;
@@ -10,7 +11,6 @@ import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.lang.management.ThreadMXBean;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
@@ -30,19 +30,22 @@ public class TraceAppMemoryInfo {
     private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
     private static final OperatingSystemMXBean SYSTEM_MX_BEAN = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     private static final String MEMORY_INFO_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.insertAppMermoryInfo";
-    private static final String MEMORY_INFO_QUERY_COUNT = "com.evy.common.trace.repository.mapper.TraceMapper.queryMermoryInfoByIp";
+    private static final String MEMORY_INFO_QUERY_COUNT = "com.evy.common.trace.repository.mapper.TraceMapper.queryCountMermoryInfoByIp";
     private static final String MEMORY_INFO_DELETE_LAST_ONE = "com.evy.common.trace.repository.mapper.TraceMapper.deleteMermoryInfoByLastOne";
+    private static final String MEMORY_INFO_QUERY_LAST_ONE = "com.evy.common.trace.repository.mapper.TraceMapper.queryLastId";
 
     /**
      * evy.trace.memory.flag 为0，则采集内存信息
      */
-    public static void executeThreadInfo() {
+    public static void executeMemoryInfo() {
         Optional.ofNullable(AppContextUtils.getForEnv(MEMORY_PRPO))
                 .ifPresent(flag -> {
-                    try {
-                        execute();
-                    } catch (Exception exception) {
-                        CommandLog.errorThrow("executeThreadInfo执行异常", exception);
+                    if (BusinessConstant.ZERO.equals(flag)) {
+                        try {
+                            execute();
+                        } catch (Exception exception) {
+                            CommandLog.errorThrow("executeThreadInfo执行异常", exception);
+                        }
                     }
                 });
     }
@@ -50,7 +53,7 @@ public class TraceAppMemoryInfo {
     /**
      * 通过ManagementFactory.getMemoryMXBean()获取应用堆内存、CPU信息
      */
-    public static void execute(){
+    public static void execute() {
         //堆内存信息  运行时数据区域，从中分配了所有类实例和数组的内存
         MemoryUsage heapMemory = MEMORY_MX_BEAN.getHeapMemoryUsage();
         //非堆内存 类的结构，例如运行时常量池，字段和方法数据，以及方法和构造函数
@@ -84,9 +87,9 @@ public class TraceAppMemoryInfo {
 
         String limit = Optional.ofNullable(AppContextUtils.getForEnv(MEMORY_LIMIT_PRPO))
                 .orElse(String.valueOf(DEFAULT_LIMIT));
-        int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create());
-        if (count >= Integer.parseInt(limit)) {
-            DBUtils.delete(MEMORY_INFO_DELETE_LAST_ONE);
+        int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create(Integer.parseInt(limit)));
+        if (count == BusinessConstant.FAILED) {
+            DBUtils.delete(MEMORY_INFO_DELETE_LAST_ONE, TraceMemoryQueryPO.create(DBUtils.selectOne(MEMORY_INFO_QUERY_LAST_ONE)));
         }
 
         DBUtils.insert(MEMORY_INFO_INSERT, traceMemoryInfoPo);

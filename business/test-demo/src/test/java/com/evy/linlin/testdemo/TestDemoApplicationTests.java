@@ -1,31 +1,43 @@
 package com.evy.linlin.testdemo;
 
-import com.evy.common.app.command.CommandExecute;
-import com.evy.common.domain.repository.db.DBUtils;
-import com.evy.common.domain.repository.mq.MqConsumer;
-import com.evy.common.domain.repository.mq.MqSender;
-import com.evy.common.domain.repository.mq.model.MqSendMessage;
-import com.evy.common.infrastructure.common.batch.BatchUtils;
-import com.evy.common.infrastructure.common.batch.FtpUtils;
-import com.evy.common.infrastructure.common.command.utils.CommandUtils;
-import com.evy.common.infrastructure.common.exception.BasicException;
-import com.evy.common.infrastructure.common.log.CommandLog;
-import com.evy.common.infrastructure.tunnel.OutDTO;
+import com.evy.common.app.test.command.CommandExecute;
+import com.evy.common.batch.BatchUtils;
+import com.evy.common.batch.FtpUtils;
+import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.common.db.DBUtils;
+import com.evy.common.http.HttpUtils;
+import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.infrastructure.tunnel.test.TestInput;
+import com.evy.common.log.CommandLog;
+import com.evy.common.mq.common.app.basic.MqConsumer;
+import com.evy.common.mq.common.app.basic.MqSender;
+import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
+import com.evy.common.trace.service.TraceAppMemoryInfo;
+import com.evy.common.trace.service.TraceService;
+import com.evy.common.trace.service.TraceThreadInfo;
+import com.evy.common.utils.CommandUtils;
 import com.evy.linlin.HelloDto;
 import com.evy.linlin.HelloOutDto;
 import com.jcraft.jsch.SftpException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.SerializationUtils;
 
+import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -38,6 +50,94 @@ public class TestDemoApplicationTests {
     MqConsumer rabbitMqConsumer;
     @Autowired
     MqSender mqSender;
+
+    @Test
+    public void testServerCommand() throws InterruptedException, NoSuchFieldException, IllegalAccessException {
+//        RedisConnectionFactory redisConnection = AppContextUtils.getBean(RedisConnectionFactory.class);
+//        redisConnection.getConnection().serverCommands().getConfig("*");
+
+//        new LettuceConnectionFactory("127.0.0.1",6380),
+//                RedisSerializationContext.fromSerializer(new StringRedisSerializer())
+
+//        LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
+//                .clientResources(AppContextUtils.getBean(ClientResources.class)).build();
+//        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration("127.0.0.1", 6380);
+//        LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration, clientConfiguration);
+//
+//        factory.afterPropertiesSet();
+//        factory.initConnection();
+//
+//        ReactiveRedisTemplate<String, String> template = new ReactiveRedisTemplate<String, String>(
+//                factory,
+//                RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
+//        template
+//                .listenTo(ChannelTopic.of("__sentinel__:hello"))
+//                .timeout(Duration.ofSeconds(3))
+//                .subscribe(stringStringMessage -> {
+//                    CommandLog.info("{}", stringStringMessage);
+//        }, Throwable::printStackTrace, () -> {CommandLog.info("??");});
+
+//        int i = 0;
+//        while (i++ < 100){
+//            new Thread(() -> {
+//                System.out.println("DeadLockDemo 子线程： " + Thread.currentThread().getId());
+//                try {
+//                    LockDemo.ttlock();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
+//        }
+//
+//        TimeUnit.SECONDS.sleep(2);
+//        TraceThreadInfo.executeThreadInfo();
+//        TraceRedisInfo.executeRedisInfo();
+
+        com.evy.common.trace.service.TraceService.executeService();
+
+        TimeUnit.SECONDS.sleep(120);
+    }
+
+    static class LockDemo {
+        private static Object obj = new Object();
+        public synchronized static void ttlock() throws InterruptedException {
+            System.out.println("ttlock");
+            Thread.sleep(1000);
+        }
+        public static void tslock() throws InterruptedException {
+            synchronized (obj){
+                System.out.println("tslock");
+                //此段会抛出java.lang.IllegalMonitorStateException异常
+                //调用wait()或者notify()之前，必须使用synchronized语义绑定住被wait/notify的对象
+//            Thread.currentThread().wait(1000 * 30);
+                obj.wait(1000);
+                obj.notify();
+            }
+        }
+    }
+
+    public static List<String> getFilterFile(File file, Predicate<String> filter) {
+        List<String> result = new ArrayList<>();
+        if (file.isFile() && filter.test(file.getName())) {
+            result.add(file.getPath());
+        } else {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File file1 : files) {
+                    if (file1.isFile() && filter.test(file1.getName())) {
+                        result.add(file1.getPath());
+                    } else {
+                        List<String> var1 = getFilterFile(file1, filter);
+                        if (!var1.isEmpty()) {
+                            result.addAll(var1);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 
     @Test
     public void testReturnDtoParam(){
@@ -64,7 +164,20 @@ public class TestDemoApplicationTests {
     }
 
     @Test
-    public void testDBUtils() throws BasicException {
+    public void testHttp() throws IOException, URISyntaxException, InterruptedException {
+        String path = "https://passport.csdn.net/v1/register/pc/officialAccount/checkLogin";
+        String context = "application/json;charset=utf-8";
+        HttpRequestDTO<HttpPost> httpPostHttpRequestDTO = HttpRequestDTO.create(
+                path, new HttpPost(), null,
+                Stream.of(new BasicNameValuePair("name","value")).collect(Collectors.toList()),
+                Stream.of(new BasicHeader("content-type",context)).collect(Collectors.toList())
+        );
+        HttpUtils.httpRequest(httpPostHttpRequestDTO, response -> "Hello World");
+        TimeUnit.SECONDS.sleep(100);
+    }
+
+    @Test
+    public void testDBUtils() throws BasicException, InterruptedException {
         Map<String, String> insertMap = new HashMap<>();
         insertMap.put("name", "EVYliuu1");
         insertMap.put("age", "18");
@@ -85,7 +198,9 @@ public class TestDemoApplicationTests {
             put("name", "EvyLinlin");
             put("age", "18");
         }});
-        for (int i=0; i <100001; i++){
+
+        //100001
+        for (int i=0; i <10; i++){
             bl1.add(insertMap);
         }
 //        bl1.add(insertMap);
@@ -157,22 +272,26 @@ public class TestDemoApplicationTests {
         //select
 
         //delete
+
+        TimeUnit.SECONDS.sleep(100);
     }
 
     @Test
-    public void test() throws SQLException {
+    public void test() throws SQLException, InterruptedException {
         ResultSet set = DBUtils.getDataSource().getConnection().prepareStatement(
-                "SELECT * FROM test_table"
+                "select * from trace_http_flow join test_table where thf_req_ip in (select tmf_req_ip from trace_mq_flow);"
         ).executeQuery();
         if (set.next()) {
             System.out.println(set.getString(2));
         }
 
         Map<String, String> map = DBUtils.selectOne("com.evy.linlin.testdemo.TestMapper.selectOne");
-        System.out.println(map);
+//        System.out.println(map);
 
         List<Map> lists = DBUtils.selectList("com.evy.linlin.testdemo.TestMapper.selectAll");
-        System.out.println(lists);
+//        System.out.println(lists);
+
+        TimeUnit.SECONDS.sleep(100);
     }
 
     @Test
@@ -185,6 +304,8 @@ public class TestDemoApplicationTests {
                 .build();
         mqSender.sendAndConfirm("topic-command-test", "rk-command-test",
                 "queue-command-test", "fuck");
+        mqSender.sendAndConfirm("topic-command-test", "rk-command-test",
+                "queue-command-test", "fuck2");
         TimeUnit.SECONDS.sleep(1000);
     }
 
@@ -229,7 +350,7 @@ public class TestDemoApplicationTests {
 //                "Hello World", TimeUnit.SECONDS, 10L));
 
         System.out.println(mqSender.sendTiming("topic-command-test1", "rk-command-test", "",
-                "Hello World", TimeUnit.SECONDS, 10L, "20200516 15:05", "yyyyMMdd HH:mm"));
+                "Hello World", TimeUnit.SECONDS, 10L, "20200614 13:57:40", "yyyyMMdd HH:mm:ss"));
 
         System.out.printf("耗时: %s(ms)\n", System.currentTimeMillis() - startTime);
         TimeUnit.SECONDS.sleep(1000);

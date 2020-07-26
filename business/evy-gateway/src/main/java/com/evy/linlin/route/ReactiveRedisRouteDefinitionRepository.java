@@ -1,10 +1,9 @@
-package com.evy.linlin;
+package com.evy.linlin.route;
 
-import com.evy.common.infrastructure.common.command.utils.JsonUtils;
-import com.evy.common.infrastructure.common.log.CommandLog;
+import com.evy.common.log.CommandLog;
+import com.evy.common.utils.JsonUtils;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionRepository;
-import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -49,8 +48,7 @@ public class ReactiveRedisRouteDefinitionRepository implements RouteDefinitionRe
                     .remove(ROUTE_NAME_KEYS, id)
                     .subscribe(count -> {
                         if (count == 0) {
-                            throw new NotFoundException("RouteDefinition not found: " + id
-                                    + "From RedisRouteDefinitionRepository");
+                            CommandLog.error("不存在路由ID :{}", id);
                         }
                     }, throwable -> Mono.defer(() -> Mono.error(throwable)));
         });

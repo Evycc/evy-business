@@ -13,6 +13,7 @@
         <module>evy-business</module>
         <module>common-jar</module>
         <module>test-demo</module>
+        <module>common-agent-jar</module>
     </modules>
 
     <parent>
