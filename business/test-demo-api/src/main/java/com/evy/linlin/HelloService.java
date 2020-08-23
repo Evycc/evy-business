@@ -1,8 +1,10 @@
 package com.evy.linlin;
 
-import com.evy.common.infrastructure.tunnel.InputDTO;
-import com.evy.common.infrastructure.tunnel.OutDTO;
-import org.springframework.web.bind.annotation.*;
+import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @Author: EvyLiuu

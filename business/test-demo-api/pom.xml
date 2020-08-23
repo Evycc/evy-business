@@ -10,6 +10,7 @@
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>12</java.version>
 	</properties>
 
@@ -35,7 +36,7 @@
 			<scope>compile</scope>
 			<optional>true</optional>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
