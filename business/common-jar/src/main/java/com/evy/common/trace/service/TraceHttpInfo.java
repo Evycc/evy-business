@@ -57,14 +57,14 @@ public class TraceHttpInfo {
     public static void executeHttp() {
         int size = HTTP_MODELS.size();
         try {
-            if (size > BusinessConstant.SUCESS) {
+            if (size > BusinessConstant.ONE_NUM) {
                 List<TraceHttpModel> httpModels = new ArrayList<>(HTTP_MODELS);
 
                 List<TraceHttpPO> httpPo = httpModels.stream()
                         .map(TraceHttpInfo::buildTraceHttpPo)
                         .collect(Collectors.toList());
 
-                if (httpPo.size() == BusinessConstant.FAILED) {
+                if (httpPo.size() == BusinessConstant.ONE_NUM) {
                     DBUtils.insert(HTTP_INSERT, httpPo.get(0));
                 } else {
                     DBUtils.insert(HTTP_LIST_INSERT, TraceHttpListPO.create(httpPo));

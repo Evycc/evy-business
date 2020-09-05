@@ -87,7 +87,7 @@ public class TraceMqInfo {
     public static void executeMq() {
         int size = MQ_MODELS.size();
         try {
-            if (size > BusinessConstant.SUCESS) {
+            if (size > BusinessConstant.ONE_NUM) {
                 List<TraceMqModel> mqModels = new ArrayList<>(MQ_MODELS);
 
                 List<TraceMqPO> sendList = mqModels.stream()

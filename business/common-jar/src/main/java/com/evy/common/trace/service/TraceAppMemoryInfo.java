@@ -88,7 +88,7 @@ public class TraceAppMemoryInfo {
         String limit = Optional.ofNullable(AppContextUtils.getForEnv(MEMORY_LIMIT_PRPO))
                 .orElse(String.valueOf(DEFAULT_LIMIT));
         int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create(Integer.parseInt(limit)));
-        if (count == BusinessConstant.FAILED) {
+        if (count == BusinessConstant.ONE_NUM) {
             DBUtils.delete(MEMORY_INFO_DELETE_LAST_ONE, TraceMemoryQueryPO.create(DBUtils.selectOne(MEMORY_INFO_QUERY_LAST_ONE)));
         }
 

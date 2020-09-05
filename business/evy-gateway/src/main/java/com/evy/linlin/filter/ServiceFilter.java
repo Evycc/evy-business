@@ -1,8 +1,10 @@
 package com.evy.linlin.filter;
 
+import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.common.log.CommandLog;
+import com.evy.common.utils.SequenceUtils;
 import com.evy.linlin.common.GwErrorCodeConstant;
 import com.evy.linlin.filter.infrastructure.tunnel.ServiceInfoModel;
 import com.evy.linlin.filter.infrastructure.tunnel.ServiceLimitInfoModel;
@@ -25,6 +27,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -34,22 +38,35 @@ import java.util.stream.Collectors;
  * serviceCode : trace_services_info 对应 tsi_service_bean_name字段<br/>
  * serviceCode格式 : 请求服务码 或 请求服务码#方法名
  *
- *
  * @Author: EvyLiuu
  * @Date: 2020/7/18 9:36
  */
 @RestController
 public class ServiceFilter implements GatewayFilter, Ordered {
+    /**
+     * 存在服务信息,k : 服务码Bean name  V : 服务信息
+     */
     private static final Map<String, ServiceInfoModel> SERVICE_MAP = new HashMap<>(16);
+    /**
+     * 限流信息临时Map
+     */
     private static final Map<String, ServiceLimitInfoModel> SERVICE_LIMIT_INFO_MAP = new HashMap<>(8);
+    /**
+     * 限流信息临时Map
+     */
     private static final Map<String, ServiceLimitInfoModel> SERVICE_LIMIT_INFO_TEMP_MAP = new HashMap<>(8);
+    /**
+     * 定时调度器
+     */
+    private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
+            CreateFactory.createThreadFactory(ServiceFilter.class.getName()));
     /**
      * 未找到指定服务,跳转到降级方法
      */
-    private static final String SERVICE_NO_FOUND = "/serviceNoFound";
-    private static final String GW_ERROR = "/gatewayError";
-    private static final String SERVICE_NO_AUTH = "/serviceNoAuth";
-    private static final String SERVICE_LIMIT = "/serviceQpsLimit";
+    public static final String SERVICE_NO_FOUND = "/serviceNoFound";
+    public static final String GW_ERROR = "/gatewayError";
+    public static final String SERVICE_NO_AUTH = "/serviceNoAuth";
+    public static final String SERVICE_LIMIT = "/serviceQpsLimit";
     private static final String BODY_HEAD_SERVICE_CODE = "serviceCode";
     private static final OutDTO SERVICE_NOT_FOUND_OUT_DTO = new OutDTO();
     private static final OutDTO GATEWAY_ERROR_OUT_DTO = new OutDTO();
@@ -57,6 +74,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     private static final OutDTO SERVICE_LIMIT_ERR_OUT_DTO = new OutDTO();
     private static final String LOCATION = "Location";
     private static final String CACHE_REQUEST_BODY_OBJECT_KEY = "cachedRequestBodyObject";
+    private static final String FILED_TRACE_ID = "traceId";
 
     @Autowired
     private ServiceFilterRepository repository;
@@ -90,12 +108,15 @@ public class ServiceFilter implements GatewayFilter, Ordered {
                 //带方法的服务
                 String[] srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
                 srvCode = srvAndMethod[0];
-                String method = srvAndMethod.length > BusinessConstant.FAILED ? srvAndMethod[1] : BusinessConstant.EMPTY_STR;
+                String method = srvAndMethod.length > BusinessConstant.ONE_NUM ? srvAndMethod[1] : BusinessConstant.EMPTY_STR;
 
                 //服务限流过滤
                 if (!buildLimitResponse(response, srvCode) &&
                         //服务鉴权
                         !buildServiceNoAuthResponse(response, exchange, srvCode)) {
+                    //赋值TraceID
+                    //TODO 根据traceid 进行链路跟踪
+                    buildTraceId(map);
                     //服务路由
                     buildRouteResponse(response, exchange, srvCode, method);
                 }
@@ -114,16 +135,18 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     }
 
     /**
-     * 获取服务限流信息
+     * 获取服务限流信息,间隔十分钟
      */
     public void initServiceLimitInfo() {
-        List<ServiceLimitInfoPO> serviceLimitInfoPoS = repository.queryServiceLimitInfos();
-        if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)) {
-            //防止并发时限流信息丢失,先保存到临时map
-            SERVICE_LIMIT_INFO_TEMP_MAP.putAll(serviceLimitInfoPoS.stream()
-                    .collect(Collectors.toMap(ServiceLimitInfoPO::getSliServiceBeanName, ServiceLimitInfoModel::convert)));
-            SERVICE_LIMIT_INFO_MAP.putAll(SERVICE_LIMIT_INFO_TEMP_MAP);
-        }
+        executorService.scheduleWithFixedDelay(() -> {
+            List<ServiceLimitInfoPO> serviceLimitInfoPoS = repository.queryServiceLimitInfos();
+            if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)) {
+                //防止并发时限流信息丢失,先保存到临时map
+                SERVICE_LIMIT_INFO_TEMP_MAP.putAll(serviceLimitInfoPoS.stream()
+                        .collect(Collectors.toMap(ServiceLimitInfoPO::getSliServiceBeanName, ServiceLimitInfoModel::convert)));
+                SERVICE_LIMIT_INFO_MAP.putAll(SERVICE_LIMIT_INFO_TEMP_MAP);
+            }
+        }, 0L, 10L, TimeUnit.MINUTES);
     }
 
     /**
@@ -173,6 +196,15 @@ public class ServiceFilter implements GatewayFilter, Ordered {
         }
 
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void buildTraceId(Map param) {
+        try {
+            param.put(FILED_TRACE_ID, SequenceUtils.getNextSeq());
+        } catch (Exception exception) {
+            CommandLog.error("buildTraceId异常");
+        }
     }
 
     /**

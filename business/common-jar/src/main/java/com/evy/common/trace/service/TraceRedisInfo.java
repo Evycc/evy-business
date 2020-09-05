@@ -183,7 +183,7 @@ public class TraceRedisInfo {
                                                     String trhRdbFile = redisConnection.getConfig(RDB_FILE).getProperty(RDB_FILE);
                                                     boolean trhRdbOpen = !StringUtils.isEmpty(trhRdbSaveType);
                                                     String trhLastRdbStatus = properties.getProperty(RDB_LAST_SAVE_STATUS);
-                                                    boolean trhAofOpen = Integer.parseInt(properties.getProperty(AOF_ENABLE, BusinessConstant.ZERO)) != BusinessConstant.SUCESS;
+                                                    boolean trhAofOpen = Integer.parseInt(properties.getProperty(AOF_ENABLE, BusinessConstant.ZERO)) != BusinessConstant.ZERO_NUM;
                                                     boolean trhAofRdbOpen = redisConnection.getConfig(AOF_RDB_ENABLE).getProperty(AOF_RDB_ENABLE, BusinessConstant.NO).equals(BusinessConstant.YES);
                                                     String trhAofFile = redisConnection.getConfig(AOF_FILE).getProperty(AOF_FILE);
                                                     String trhAofSaveType = trhAofOpen ? redisConnection.getConfig(AOF_SAVE_TYPE).getProperty(AOF_SAVE_TYPE) : null;
@@ -202,7 +202,7 @@ public class TraceRedisInfo {
                                                     int keyspaceHits = Integer.parseInt(properties.getProperty(KEYS_HITS, BusinessConstant.ZERO));
                                                     int keyspaceMisss = Integer.parseInt(properties.getProperty(KEYS_MISS, BusinessConstant.ZERO));
                                                     int keyspaceCount = keyspaceHits + keyspaceMisss;
-                                                    String trhKeyspaceRatio = keyspaceCount == BusinessConstant.SUCESS ?
+                                                    String trhKeyspaceRatio = keyspaceCount == BusinessConstant.ZERO_NUM ?
                                                             BusinessConstant.ONE : String.valueOf((keyspaceHits + keyspaceMisss) / keyspaceHits);
 
                                                     //集群
@@ -273,7 +273,7 @@ public class TraceRedisInfo {
                             String mess = message.getMessage();
                             String[] var2 = mess.split(BusinessConstant.COMMA, -1);
 
-                            if (var2.length > BusinessConstant.SUCESS) {
+                            if (var2.length > BusinessConstant.ZERO_NUM) {
                                 String sentienlHost = var2[0] + BusinessConstant.COLON_STR + var2[1];
                                 if (StringUtils.isEmpty(result[0]) || !result[0].contains(sentienlHost)) {
                                     //未存储的sentinel ip
@@ -367,7 +367,7 @@ public class TraceRedisInfo {
      * @return 返回以db0:keys=561,expires=0,avg_ttl=0||格式字符串
      */
     private static String getKeysCount(Properties properties) {
-        int var1 = BusinessConstant.SUCESS;
+        int var1 = BusinessConstant.ZERO_NUM;
         StringBuilder var2 = new StringBuilder();
         String var4 = DB + (var1++);
         String var3 = properties.getProperty(var4);
@@ -396,7 +396,7 @@ public class TraceRedisInfo {
      * @return 返回以host:post||格式字符串
      */
     private static String getSlavesForPrpo(Properties properties) {
-        int var1 = BusinessConstant.SUCESS;
+        int var1 = BusinessConstant.ZERO_NUM;
         StringBuilder var2 = new StringBuilder();
         String var3 = properties.getProperty(SLAVE + (var1++));
         String[] var4;

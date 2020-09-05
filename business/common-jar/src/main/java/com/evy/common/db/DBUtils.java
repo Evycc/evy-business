@@ -7,9 +7,7 @@ import com.evy.common.log.CommandLog;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -17,7 +15,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.mybatis.spring.SqlSessionTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;

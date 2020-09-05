@@ -14,7 +14,6 @@ import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import java.lang.reflect.Field;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
  * @Author: EvyLiuu
  * @Date: 2019/10/23 0:12
  */
-public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R extends OutDTO> implements CommandTemplate<T, R> {
+public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, R extends OutDTO> implements CommandTemplate<T, R> {
     /**
      * AnnoCommandInceptor Command拦截器列表
      */
@@ -141,21 +140,24 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
         TraceLog traceLog;
         traceLog = (TraceLog) curClass.getAnnotation(TraceLog.class);
         if (traceLog != null) {
-            CommandUtils.conveterFromDto(inputDTO, commandContent);
-            CommandUtils.conveterFromDto(outDTO, commandContent);
-
             String reqContent = traceLog.reqContent();
-            StringBuffer stringBuffer = new StringBuffer();
-            for (String s : reqContent.split(BusinessConstant.SPLIT_LINE)) {
-                if (!StringUtils.isEmpty(s)) {
-                    stringBuffer.append(s)
-                            .append(":")
-                            .append(commandContent.get(s))
-                            .append("\t");
+            String[] reqs = reqContent.split(BusinessConstant.SPLIT_LINE);
+            Map<String, String> map = null;
+
+            if (reqs.length == BusinessConstant.ZERO_NUM) {
+                map = new HashMap<>(2);
+                map.put("input", JsonUtils.convertToJson(inputDTO));
+                map.put("ouput", JsonUtils.convertToJson(outDTO));
+            } else {
+                CommandUtils.conveterFromDto(inputDTO, commandContent);
+                CommandUtils.conveterFromDto(outDTO, commandContent);
+                for (String s : reqs) {
+                    map = new HashMap<>(reqs.length);
+                    map.put(s, String.valueOf(commandContent.get(s)));
                 }
             }
 
-            commandContent.put("reqContent", stringBuffer);
+            commandContent.put("reqContent", JsonUtils.convertToJson(map));
             String curCode = this.getClass().getName();
             int temp1 = curCode.lastIndexOf(BusinessConstant.POINT);
             curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) +1, curCode.length() -1);
@@ -175,6 +177,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      * @param e      exception
      * @param outDTO outdto
      */
+    @SuppressWarnings("unchecked")
     private R whenException(Exception e, R outDTO) {
         BasicException be = e instanceof BasicException ? (BasicException) e : new BasicException(e);
         String errCode = be.getErrorCode();
@@ -201,6 +204,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      * @throws BasicException exception
      */
     @Override
+    @SuppressWarnings("unchecked")
     public R before(T t) throws BasicException {
         R outDTO = null;
 
@@ -228,6 +232,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      * @throws BasicException exception
      */
     @Override
+    @SuppressWarnings("unchecked")
     public R after(T t) throws BasicException {
         if (tempInceptor != null) {
             for (BaseCommandInceptor inceptor : tempInceptor) {
@@ -244,6 +249,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      * @param <E>   一般为与待转换DTO有父子关系的类型
      * @return  返回转换后的DTO对象
      */
+    @SuppressWarnings("unchecked")
     public <E> R convertDto(R r, E e){
         try {
             if (r.getClass().equals(e.getClass())) {
@@ -252,15 +258,15 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
 
             List<Field> rfieldList;
             List<Field> efieldList;
-            Class rtemp = r.getClass();
-            Class etemp = e.getClass();
+            Class<?> rtemp = r.getClass();
+            Class<?> etemp = e.getClass();
 
             rfieldList = Arrays.asList(CommandUtils.getAllField(rtemp));
             efieldList = Arrays.asList(CommandUtils.getAllField(etemp));
 
             for (Field rfield : rfieldList) {
                 String toFieldName = rfield.getName();
-                String toFieldValue = "";
+                String toFieldValue = BusinessConstant.EMPTY_STR;
                 for (Field efield : efieldList) {
                     String fromFieldName = efield.getName();
                     if (fromFieldName.equals(toFieldName)){
@@ -284,6 +290,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO, R e
      * @param list 拦截器列表
      * @return 排序后的拦截器列表
      */
+    @SuppressWarnings("unchecked")
     private List<BaseCommandInceptor> orderCommandInceptor(List<? extends BaseCommandInceptor> list) {
         return list.stream()
                 .sorted(Comparator.comparingInt(BaseCommandInceptor::getOrder))

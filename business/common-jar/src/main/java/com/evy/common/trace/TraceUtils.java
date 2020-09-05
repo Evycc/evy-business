@@ -1,7 +1,6 @@
 package com.evy.common.trace;
 
 import com.evy.common.command.domain.factory.CreateFactory;
-import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.evy.common.trace.service.*;
 

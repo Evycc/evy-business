@@ -16,6 +16,8 @@ public class BusinessConstant {
     private BusinessConstant(){}
     public static final String ZERO = "0";
     public static final String ONE = "1";
+    public static final int ZERO_NUM = 0;
+    public static final int ONE_NUM = 1;
     public static final int SUCESS = 0;
     public static final int FAILED = 1;
     public static final int UNKNOW = 2;

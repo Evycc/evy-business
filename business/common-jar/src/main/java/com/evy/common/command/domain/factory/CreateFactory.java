@@ -149,7 +149,7 @@ public class CreateFactory {
                         break;
                     }
                 } catch (Exception exception) {
-                    if (waitCount-- <= BusinessConstant.SUCESS) {
+                    if (waitCount-- <= BusinessConstant.ZERO_NUM) {
                         conn = null;
                         break;
                     }

@@ -70,15 +70,15 @@ public class TraceSlowSql {
         final String select1 = "SELECT";
         final String select2 = "select";
         try {
-            if (size > BusinessConstant.SUCESS) {
+            if (size > BusinessConstant.ZERO_NUM) {
                 List<TraceDBModel> dbModels = new ArrayList<>(DB_MODELS);
 
                 dbModels.forEach(model -> {
                     String slowSql = model.getSlowSql();
                     TraceSqlPO tracesqlpo;
 
-                    if (slowSql.indexOf(select1) > BusinessConstant.SUCESS ||
-                            slowSql.indexOf(select2) > BusinessConstant.SUCESS) {
+                    if (slowSql.indexOf(select1) > BusinessConstant.ZERO_NUM ||
+                            slowSql.indexOf(select2) > BusinessConstant.ZERO_NUM) {
                         //非SELECT开头查询语句,不进行explain
                         tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()));
                     } else {
@@ -237,7 +237,7 @@ public class TraceSlowSql {
         int tableMaxNums = 3;
 
         List<String> tables = explainModels.stream().map(ExplainModel::getTable).collect(Collectors.toList());
-        if (tables.size() == BusinessConstant.FAILED) {
+        if (tables.size() == BusinessConstant.ONE_NUM) {
             //单表
             stringBuilder.append(String.format(sqlSearchTraceSimple, tables.get(0)));
         } else {

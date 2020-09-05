@@ -3,7 +3,6 @@ package com.evy.common.trace.service;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.db.DBUtils;
 import com.evy.common.log.CommandLog;
-import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoListPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;

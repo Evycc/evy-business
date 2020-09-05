@@ -4,10 +4,7 @@ import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
 import com.evy.linlin.filter.ServiceFilter;
-import com.evy.linlin.route.ReactiveRedisRouteDefinitionRepository;
-import com.evy.linlin.route.RedisRouteDefinitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,11 +14,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignClientBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,10 +46,8 @@ public class EvyGatewayApplication implements CommandLineRunner {
     }
 
     /**
-     * 服务化路由 path("lb://{服务名}")
-     *
-     * @param builder
-     * @return
+     * 服务化路由 path("lb://{服务名}")<br/>
+     * 服务需要在这里进行注册路由,由ServiceFilter进行统一路由到对应服务
      */
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
@@ -85,24 +75,9 @@ public class EvyGatewayApplication implements CommandLineRunner {
                                 .and()
                                 .path("/evygateway")
                                 .filters(f -> f.filter(serviceFilter))
-                                .uri("http://baidu.com")
+                                .uri(ServiceFilter.SERVICE_NO_FOUND)
                 )
                 .build();
-    }
-
-    @Bean
-    public ReactiveRedisTemplate reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        return new ReactiveRedisTemplate(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
-    }
-
-    @Bean
-    public RedisRouteDefinitionRepository redisRouteDefinitionRepository(@Qualifier("stringRedisTemplate") StringRedisTemplate redisTemplate) {
-        return new RedisRouteDefinitionRepository(redisTemplate);
-    }
-
-    @Bean
-    public ReactiveRedisRouteDefinitionRepository reactiveRedisRouteDefinitionRepository(@Qualifier("reactiveRedisTemplate") ReactiveRedisTemplate factory) {
-        return new ReactiveRedisRouteDefinitionRepository(factory);
     }
 
     @RequestMapping(value = "/rpc", method = RequestMethod.POST)

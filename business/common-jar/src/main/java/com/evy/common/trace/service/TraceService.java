@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 获取应用发布服务信息<br/>
@@ -109,7 +108,7 @@ public class TraceService {
 
                 if (!CollectionUtils.isEmpty(cList)) {
                     //更新消费者机器信息
-                    if (cList.size() > BusinessConstant.FAILED) {
+                    if (cList.size() > BusinessConstant.ONE_NUM) {
                         //大于1,进行批量update
                         DBUtils.batchAny(cList.stream()
                                 .map(updatePo -> DBUtils.BatchModel.create(UPDATE_SERVICES_CONSUMER, updatePo, DBUtils.BatchType.UPDATE))

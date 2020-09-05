@@ -68,12 +68,12 @@ public class HttpUtils {
         } finally {
             REQUEST_CONFIG = RequestConfig.custom()
                     //请求连接超时
-                    .setConnectTimeout(connTimeOut == BusinessConstant.SUCESS ?
+                    .setConnectTimeout(connTimeOut == BusinessConstant.ONE_NUM ?
                             HTTP_CONN_TIMEOUT : connTimeOut)
                     //获取连接池连接的超时时间
                     .setConnectionRequestTimeout(HTTP_CONN_TIMEOUT)
                     //响应超时
-                    .setSocketTimeout(reqTimeOut == BusinessConstant.SUCESS ?
+                    .setSocketTimeout(reqTimeOut == BusinessConstant.ONE_NUM ?
                             HTTP_REQUEST_TIMEOUT : reqTimeOut)
                     .build();
         }

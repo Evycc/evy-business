@@ -75,7 +75,7 @@ public class CommandUtils {
                 CreateFactory.createThreadFactory("CommandUtils#execute"));
 
         try {
-            if (timeout > BusinessConstant.SUCESS) {
+            if (timeout > BusinessConstant.ZERO_NUM) {
                 returnCode = executor.submit(() -> function.apply(obeject))
                         .get(timeout, TimeUnit.MILLISECONDS);
             }

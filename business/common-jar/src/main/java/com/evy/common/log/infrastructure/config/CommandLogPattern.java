@@ -162,7 +162,7 @@ public class CommandLogPattern extends NamedConverter {
      */
     private String patternLogger(String loggerName) {
         String rs = loggerName;
-        if (loggerName.split(BusinessConstant.SPLIT_POINT).length > BusinessConstant.UNKNOW) {
+        if (loggerName.split(BusinessConstant.SPLIT_POINT).length > 2) {
             int lastOne = loggerName.lastIndexOf(BusinessConstant.POINT);
             int lastTwo = lastOne;
             char[] chars = loggerName.substring(0, lastOne).toCharArray();
