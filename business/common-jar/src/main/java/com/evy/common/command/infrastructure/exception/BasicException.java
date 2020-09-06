@@ -1,5 +1,6 @@
 package com.evy.common.command.infrastructure.exception;
 
+import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import lombok.Setter;
 public class BasicException extends Exception {
     @Getter
     @Setter
-    private String errorCode = "error01";
+    private String errorCode = ErrorConstant.ERROR_01;
     @Getter
     @Setter
     private String errorMessage = "系统繁忙";

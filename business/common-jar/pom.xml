@@ -19,10 +19,6 @@
     <url>http://www.example.com</url>
 
     <properties>
-        <java.version>12</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <slf4j.version>1.7.28</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <spring.version>5.1.9.RELEASE</spring.version>
@@ -126,7 +122,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!--校验 JSR-380-->

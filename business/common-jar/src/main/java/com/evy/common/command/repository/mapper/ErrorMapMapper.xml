@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.evy.common.command.repository.mapper.ErrorMapMapper">
+    <resultMap id="errorMapPO"
+               type="com.evy.common.command.infrastructure.tunnel.po.ErrorInfoPO">
+        <result column="pem_error_code" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="pem_error_msg" property="errorMsg" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryAllErrorCode" resultMap="errorMapPO">
+        SELECT pem_error_code, pem_error_msg FROM public_error_map;
+    </select>
+</mapper>

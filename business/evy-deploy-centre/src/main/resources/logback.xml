@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- log随jvm退出 -->
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+    <!-- 自定义%logger打印，打印其调用对象 -->
+    <conversionRule conversionWord="evylogger" converterClass="com.evy.common.log.infrastructure.config.CommandLogPattern"/>
+    <!-- 普通 -->
+    <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%replace(%replace(%caller{2}){'\s|\S|^.*|\t|\r|\n|[Caller.1]$',''}){'\t|\r|\n|(Caller.{1}[0-9]{1})+|\\(.*\\)| |at',''} => %logger - %msg%n"/>
+    <!-- TracrLog用 -->
+    <property name="TracrLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%evylogger - %msg%n"/>
+    <!--日志存放目录-->
+    <property name="logDir" value="/applog/current"/>
+    <!--历史日志存放目录-->
+    <property name="historyLogDir" value="/applog/history"/>
+    <!--应用名称-->
+    <property name="appName" value="evy-deploy-centre"/>
+
+    <contextName>${appName}</contextName>
+
+    <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logDir}/app.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${TracrLogPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="log_history_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logDir}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${historyLogDir}/%d{yyyy-MM-dd}/applog.%d{yyyyMMddHHmmss}-%i.gz</fileNamePattern>
+            <!-- 保存1个月历史日志 -->
+            <maxHistory>30</maxHistory>
+            <!-- 所有归档文件总的大小。当达到这个大小后，旧的归档文件将会被异步的删除 -->
+            <totalSizeCap>2048MB</totalSizeCap>
+            <!-- 单个文件大小 -->
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${TracrLogPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="log_error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logDir}/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${historyLogDir}/%d{yyyy-MM-dd}/error.%d{yyyyMMddHHmmss}-%i.gz</fileNamePattern>
+            <!-- 保存1个月历史日志 -->
+            <maxHistory>30</maxHistory>
+            <!-- 所有归档文件总的大小。当达到这个大小后，旧的归档文件将会被异步的删除 -->
+            <totalSizeCap>2048MB</totalSizeCap>
+            <!-- 单个文件大小 -->
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${TracrLogPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${TracrLogPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="asny_roll_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="logfile"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="asny_history_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="log_history_file"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="asny_error_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="log_error_file"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="asny_console" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT"/>
+        <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
+        <neverBlock>true</neverBlock>
+        <!--队列可容纳最高记录数,与性能相关-->
+        <queueSize>1024</queueSize>
+        <!--队列剩余容量为0时,抛弃日志,默认为queueSize/5-->
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!--    屏蔽hibernate.validator-->
+    <logger name="org.hibernate.validator" level="ERROR"/>
+
+    <logger name="com" level="DEBUG" additivity="false">
+        <appender-ref ref="asny_history_file"/>
+    </logger>
+
+    <root level="ERROR">
+        <appender-ref ref="asny_error_file"/>
+    </root>
+</configuration>

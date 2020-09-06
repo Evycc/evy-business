@@ -21,50 +21,91 @@ public class BusinessPrpoties {
     @Getter
     @Setter
     private int executeTimeout = 30000;
+    /**
+     * MQ消息中心
+     */
     @Getter
     @Setter
-    private mq mq;
+    private BusinessPrpoties.mq mq;
+    /**
+     * 数据库配置
+     */
     @Getter
     @Setter
-    private db db;
+    private BusinessPrpoties.db db;
+    /**
+     * 文服工具
+     */
     @Getter
     @Setter
-    private ftp ftp;
+    private BusinessPrpoties.ftp ftp;
 
+    /**
+     * 构造参数
+     */
     public BusinessPrpoties() {
         this.mq = new BusinessPrpoties.mq();
         this.db = new BusinessPrpoties.db();
         this.ftp = new BusinessPrpoties.ftp();
     }
 
+    /**
+     * 文服工具配置
+     */
     public static class ftp {
         public ftp() {
         }
 
+        /**
+         * 文服FTP用户名
+         */
         @Getter
         @Setter
         private String username;
+        /**
+         * 文服FTP密码
+         */
         @Getter
         @Setter
         private String password;
+        /**
+         * 文服FTP密钥
+         */
         @Getter
         @Setter
         private String privateKey;
+        /**
+         * 文服FTP密钥密码
+         */
         @Getter
         @Setter
         private String passphrase;
+        /**
+         * 文服FTP host
+         */
         @Getter
         @Setter
         private String host;
+        /**
+         * 文服FTP port
+         */
         @Getter
         @Setter
         private int port = 22;
+        /**
+         * 文服FTP连接超时时间,单位ms
+         */
         @Getter
         @Setter
         private int loginTimeout = 3000;
     }
 
+    /**
+     * 数据库配置
+     */
     public static class db {
+        public db() {
+        }
         /**
          * Mybatis Xml配置文件，默认名：mybatis.xml
          */
@@ -77,10 +118,11 @@ public class BusinessPrpoties {
         @Getter
         @Setter
         private int batchInsertCount = 3000;
-        public db() {
-        }
     }
 
+    /**
+     * 消息中心配置
+     */
     public static class mq {
         @Getter
         @Setter
@@ -94,15 +136,27 @@ public class BusinessPrpoties {
             public rabbitmq() {
             }
 
+            /**
+             * RabbitMQ用户名
+             */
             @Getter
             @Setter
             private String user = "root";
+            /**
+             * RabbitMQ密码
+             */
             @Getter
             @Setter
             private String password = "root";
+            /**
+             * RabbitMQ host
+             */
             @Getter
             @Setter
             private String host = "localhost";
+            /**
+             * RabbitMQ port
+             */
             @Getter
             @Setter
             private int port = 5672;

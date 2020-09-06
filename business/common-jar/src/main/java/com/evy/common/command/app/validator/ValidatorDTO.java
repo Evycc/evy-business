@@ -22,7 +22,7 @@ public interface ValidatorDTO<T extends InputDTO> {
      * @return  校验字段异常集合
      */
     default Set<ConstraintViolation<T>> validator(T t) {
-        Set<ConstraintViolation<T>> violations = new HashSet<>(3);
+        Set<ConstraintViolation<T>> violations = new HashSet<>(8);
         if (t != null){
             //dto存在校验失败的信息，会被存到Set中
             violations = VALIDATOR_FINAL.validate(t);

@@ -2,7 +2,9 @@ package com.evy.common.command.app;
 
 import com.evy.common.command.app.inceptor.BaseCommandInceptor;
 import com.evy.common.command.app.validator.ValidatorDTO;
+import com.evy.common.command.domain.factory.ErrorFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
+import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
@@ -36,7 +38,6 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * 实例对应的拦截器列表
      */
     private List<? extends BaseCommandInceptor> tempInceptor;
-
     /**
      * 记录日志流水topic
      */
@@ -52,6 +53,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * 当前command上下文
      */
     private final Map<String, Object> commandContent = new HashMap<>();
+    @Autowired
+    private ErrorFactory errorFactory;
 
     /**
      * 初始化
@@ -191,6 +194,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         }
         if (errMsg != null) {
             outDTO.setErrorMsg(errMsg);   
+        } else {
+            errorFactory.handleErrorCode(outDTO);
         }
 
         return outDTO;
@@ -212,7 +217,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         Set<ConstraintViolation<T>> violations = t.validator(t);
         if (!CollectionUtils.isEmpty(violations)) {
             for (ConstraintViolation<T> violeation : violations) {
-                throw new BasicException("SYS003", violeation.getPropertyPath() + violeation.getMessage());
+                throw new BasicException(ErrorConstant.ERROR_VALIDATOR, violeation.getPropertyPath() + violeation.getMessage());
             }
         }
 

@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 public class OutDTO{
     @Getter
     @Setter
-    @NotNull
     private String errorCode = "0";
     @Getter
     @Setter
