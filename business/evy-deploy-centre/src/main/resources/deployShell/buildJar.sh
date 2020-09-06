@@ -53,16 +53,21 @@ cd $dirPath || echoReturnMsg $failed '目标路径不存在{'"$dirPath"'}'
 mvnBuildCmd='mvn clean install -U'
 if [[ $paramIfJunit -eq '1' ]]; then mvnBuildCmd='mvn clean install -U -Dmaven.test.skip=true'; fi
 
-cd $dirPath && $mvnBuildCmd > mvnLog
+#创建指定工程下以参数tag命名的目录
+targetDir=$projectHistoryDir$paramAppName'/'$paramTag
+mkdir -p "$targetDir" && rm -rf "$targetDir'/*'"
+
+#将mvn日志放置到指定工程下以参数tag命名的目录
+cd $dirPath && $mvnBuildCmd > "$targetDir"'/mvnLog'
+
 if [[ -n "$(cd $dirPath && grep "$mvnBuildError" mvnLog)" ]]
 then
   echoReturnMsg $failed '编译失败'
 fi
 readonly jarPath="$dirPath/target/*.jar"
 
-#######################将编译后的jar及mvn日志放置到指定工程下以参数tag命名的目录,以便后续进行回滚#######################
-targetDir=$projectHistoryDir$paramAppName'/'$paramTag
-mkdir -p "$targetDir" && rm -rf "$targetDir'/*'" && cp $jarPath $targetDir && cp $dirPath/mvnLog $targetDir
+#######################将编译后的jar放置到指定工程下以参数tag命名的目录,以便后续进行回滚#######################
+cp $jarPath $targetDir && mv $dirPath/mvnLog $targetDir
 if [[ ! "$(ls -l $targetDir)" =~ 'jar' ]]
 then
     echoReturnMsg $failed '不存在编译jar包'
