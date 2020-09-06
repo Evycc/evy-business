@@ -60,14 +60,14 @@ mkdir -p "$targetDir" && rm -rf "$targetDir'/*'"
 #将mvn日志放置到指定工程下以参数tag命名的目录
 cd $dirPath && $mvnBuildCmd > "$targetDir"'/mvnLog'
 
-if [[ -n "$(cd $dirPath && grep "$mvnBuildError" mvnLog)" ]]
+if [[ -n "$(cd $dirPath && grep "$mvnBuildError" "$targetDir"'/mvnLog')" ]]
 then
   echoReturnMsg $failed '编译失败'
 fi
 readonly jarPath="$dirPath/target/*.jar"
 
 #######################将编译后的jar放置到指定工程下以参数tag命名的目录,以便后续进行回滚#######################
-cp $jarPath $targetDir && mv $dirPath/mvnLog $targetDir
+cp $jarPath $targetDir
 if [[ ! "$(ls -l $targetDir)" =~ 'jar' ]]
 then
     echoReturnMsg $failed '不存在编译jar包'

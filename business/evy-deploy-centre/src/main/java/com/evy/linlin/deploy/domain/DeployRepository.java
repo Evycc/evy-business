@@ -107,15 +107,17 @@ public class DeployRepository {
         String[] param = new String[params.length + 1];
         param[0] = shellCmd;
         ShellOutDO outDo = new ShellOutDO();
+        BufferedInputStream bis = null;
+        ByteArrayOutputStream baos = null;
         if (params.length > 0) {
             System.arraycopy(params, 0, param, 1, params.length);
         }
 
         try {
             Process process = RUNTIME.exec(SHELL_CMD, param);
-            BufferedInputStream bis = new BufferedInputStream(process.getInputStream());
+            bis = new BufferedInputStream(process.getInputStream());
             byte[] bytes = new byte[2048];
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(bis.available());
+            baos = new ByteArrayOutputStream(bis.available());
             int i;
 
             while ((i = bis.read(bytes)) != -1) {
@@ -127,6 +129,19 @@ public class DeployRepository {
         } catch (IOException e) {
             CommandLog.errorThrow("execShell异常", e);
             outDo.setErrorCode(ErrorConstant.ERROR_01);
+        } finally {
+            if (Objects.nonNull(bis)) {
+                try {
+                    bis.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (Objects.nonNull(baos)) {
+                try {
+                    baos.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
 
         return outDo;
