@@ -1,11 +1,8 @@
 package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.linlin.deploy.domain.DeployRepository;
 import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import com.evy.linlin.deploy.dto.GetGitBrchansOutDTO;
-import com.evy.linlin.deploy.dto.GitBrchanDO;
-import com.evy.linlin.deploy.dto.GitBrchanOutDO;
 import org.springframework.beans.BeanUtils;
 
 /**
