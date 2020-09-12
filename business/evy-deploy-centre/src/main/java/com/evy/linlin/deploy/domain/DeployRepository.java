@@ -2,7 +2,6 @@ package com.evy.linlin.deploy.domain;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.JsonUtils;
 import com.evy.linlin.deploy.dto.*;
@@ -162,7 +161,10 @@ public class DeployRepository {
     private String subProjectNameFromGitPath(String gitPath) {
         String flag1 = "/";
         String flag2 = ".git";
+        String result = gitPath.substring(gitPath.lastIndexOf(flag1) + 1, gitPath.lastIndexOf(flag2));
+        CommandLog.info("subProjectNameFromGitPath gitPath:{}", gitPath);
+        CommandLog.info("subProjectNameFromGitPath result:{}", result);
 
-        return gitPath.substring(gitPath.lastIndexOf(flag1) + 1, gitPath.lastIndexOf(flag2));
+        return result;
     }
 }
