@@ -81,7 +81,7 @@ cd $dirPath || echoReturnMsg $failed '目标路径不存在{'"$dirPath"'}'
 
 #######################编译打包工程#######################
 #编译父模块
-buildParetnModule "$projectRootDir$paramProjectName" "$paramIfJunit"
+(buildParetnModule "$projectRootDir$paramProjectName" "$paramIfJunit")
 
 mvnBuildCmd='mvn clean install -U'
 if [[ $paramIfJunit -eq '1' ]]; then mvnBuildCmd='mvn clean install -U -Dmaven.test.skip=true'; fi

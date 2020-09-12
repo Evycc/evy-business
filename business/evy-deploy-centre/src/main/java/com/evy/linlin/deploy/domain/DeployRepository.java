@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.domain;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
+import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.JsonUtils;
 import com.evy.linlin.deploy.dto.*;
@@ -33,7 +34,7 @@ public class DeployRepository {
     private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
     private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
     private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
-    private static final String SHELL_CMD = "/bin/sh";
+    private static final String SHELL_CMD = "/bin/bash";
 
     /**
      * 通过git链接,调用shell脚本,获取并返回对应分支列表
@@ -101,6 +102,8 @@ public class DeployRepository {
      * @return shell脚本返回
      */
     private ShellOutDO execShell(String shellCmd, String... params) {
+        CommandLog.info("execShell Cmd: {}", shellCmd);
+        CommandLog.info("execShell Cmd Params: {}", params);
         String[] param = new String[params.length + 1];
         param[0] = shellCmd;
         ShellOutDO outDo = new ShellOutDO();
@@ -113,6 +116,12 @@ public class DeployRepository {
         try {
             Process process = RUNTIME.exec(SHELL_CMD, param);
             bis = new BufferedInputStream(process.getInputStream());
+
+            if (bis.available() <= BusinessConstant.ZERO_NUM) {
+                process.exitValue();
+                throw new Exception();
+            }
+
             byte[] bytes = new byte[2048];
             baos = new ByteArrayOutputStream(bis.available());
             int i;
@@ -123,7 +132,7 @@ public class DeployRepository {
 
             String json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
             outDo = JsonUtils.convertToObject(json, ShellOutDO.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
             CommandLog.errorThrow("execShell异常", e);
             outDo.setErrorCode(ErrorConstant.ERROR_01);
         } finally {
