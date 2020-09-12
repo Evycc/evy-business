@@ -30,15 +30,10 @@ public class DeployRepository {
      * 通过该实例调用shell脚本
      */
     private static final Runtime RUNTIME = Runtime.getRuntime();
-    //    private static final String SHELL_GIT_BUILD = "/cdadmin/gitBuild.sh";
-//    private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
-//    private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
-//    private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
-    private static final String RESOURCE_PATH = "/src/main/resources/";
-    private static final String SHELL_GIT_BUILD = new File(RESOURCE_PATH + "gitBuild.sh").getAbsolutePath();
-    private static final String SHELL_BUILD_JAR = new File(RESOURCE_PATH + "buildJar.sh").getAbsolutePath();
-    private static final String SHELL_START_JAR = new File(RESOURCE_PATH + "startJar.sh").getAbsolutePath();
-    private static final String SHELL_GET_GIT_BRCHANS = new File(RESOURCE_PATH + "getGitBrchans.sh").getAbsolutePath();
+    private static final String SHELL_GIT_BUILD = "/cdadmin/gitBuild.sh";
+    private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
+    private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
+    private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
     private static final String CHMOD_755 = "755";
     private static final String CMD_CHMOD = "/bin/chmod";
     private static final String SHELL_CMD = "/bin/bash";
