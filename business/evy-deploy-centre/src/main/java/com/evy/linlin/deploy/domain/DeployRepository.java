@@ -102,7 +102,7 @@ public class DeployRepository {
      */
     private ShellOutDO execShell(String shellCmd, String... params) {
         CommandLog.info("execShell Cmd: {}", shellCmd);
-        CommandLog.info("execShell Cmd Params: {}", params);
+        CommandLog.info("execShell Cmd Params: {}", Arrays.asList(params));
         String[] param = new String[params.length + 1];
         param[0] = shellCmd;
         ShellOutDO outDo = new ShellOutDO();
