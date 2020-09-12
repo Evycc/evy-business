@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -165,8 +166,9 @@ public class DeployRepository {
             Process process = RUNTIME.exec(cmd);
             bis = new BufferedInputStream(process.getInputStream());
 
-            if (bis.available() <= BusinessConstant.ZERO_NUM) {
-                process.exitValue();
+            process.waitFor(10L, TimeUnit.SECONDS);
+            int available = bis.available();
+            if (available <= BusinessConstant.ZERO_NUM) {
                 throw new Exception();
             }
 
@@ -176,6 +178,10 @@ public class DeployRepository {
 
             while ((i = bis.read(bytes)) != -1) {
                 baos.write(bytes, 0, i);
+                available -= i;
+                if (available == BusinessConstant.ZERO_NUM) {
+                    break;
+                }
             }
 
             json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
@@ -195,6 +201,11 @@ public class DeployRepository {
                 }
             }
         }
+
+        if (!StringUtils.isEmpty(json)) {
+            CommandLog.info("执行系统命令返回:{}", json);
+        }
+
         return json;
     }
 }
