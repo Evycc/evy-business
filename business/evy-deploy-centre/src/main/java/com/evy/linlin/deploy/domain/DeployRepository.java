@@ -55,7 +55,10 @@ public class DeployRepository {
         if (BusinessConstant.ZERO.equals(errorCode) || !StringUtils.isEmpty(msg)) {
             //获取分支信息成功
             //分支信息第一行为HEAD指向[ origin/HEAD -> origin/master ],跳过第一行
-            List<String> branchs = Arrays.stream(msg.split("\n", -1)).skip(1).collect(Collectors.toList());
+            List<String> branchs = Arrays.stream(msg.split("\n", -1))
+                    .skip(1)
+                    .map(str -> str.replaceAll(BusinessConstant.WHITE_EMPTY_STR, BusinessConstant.EMPTY_STR))
+                    .collect(Collectors.toList());
             gitBrchanOutDo = GitBrchanOutDO.create(gitPath, branchs);
         } else {
             gitBrchanOutDo = GitBrchanOutDO.create(gitPath, null);
