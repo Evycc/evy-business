@@ -24,6 +24,35 @@ function echoReturnMsg(){
   fi
 }
 
+#获取项目父模块目录,用于mvn编译
+#$1 查找的根目录
+#$2 ${是否执行Junit 0:执行 1:不执行}
+function buildParetnModule(){
+  tempLen=0
+  tempFileName=""
+  if [[ -n "${1}" ]]
+    then
+      #遍历目录
+      for file in $(find "${1}" -type f -name pom.xml)
+        do
+          if [[ $tempLen -eq 0 || $tempLen -gt ${#file} ]]; then tempLen=${#file}; tempFileName=${file}
+          fi
+      done
+  fi
+  if [[ -n $tempFileName ]];
+  then
+    #截取"/pom.xml",只保留目录绝对路径
+    endIndex=${#tempFileName}-8
+    tempFileName=${tempFileName:0:$endIndex}
+
+    if [[ -n "$2" && "$2" -eq "1" ]]; then mvn="mvn clean install -U -Dmaven.test.skip=true"
+      else mvn="mvn clean install -U"
+    fi
+    cd "$tempFileName" && $mvn
+  fi
+  exit 0
+}
+
 #######################全局变量#######################
 #git clone根目录
 readonly projectRootDir='/cdadmin/gitProject/'
@@ -41,7 +70,8 @@ if [[ -n ${3} && ${3} -eq '0' ]]; then paramIfJunit='0'; fi
 #应用名称
 if [[ -n "${4}" ]]; then readonly paramTag=${4}; fi
 #目标项目路径 /cdadmin/gitProject/{项目名称}/{应用名称}
-readonly dirPath=$projectRootDir$paramProjectName'/**/'$paramAppName
+# $projectRootDir$paramProjectName'/**/'$paramAppName
+readonly dirPath=$(find "$projectRootDir$paramProjectName"  -type d -name "$paramAppName")
 readonly sucess='0'
 readonly failed='1'
 readonly mvnBuildError='BUILD FAILURE'
@@ -50,6 +80,9 @@ readonly noFoundDirError='err'
 cd $dirPath || echoReturnMsg $failed '目标路径不存在{'"$dirPath"'}'
 
 #######################编译打包工程#######################
+#编译父模块
+buildParetnModule "$projectRootDir$paramProjectName" "$paramIfJunit"
+
 mvnBuildCmd='mvn clean install -U'
 if [[ $paramIfJunit -eq '1' ]]; then mvnBuildCmd='mvn clean install -U -Dmaven.test.skip=true'; fi
 
