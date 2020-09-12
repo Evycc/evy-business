@@ -114,7 +114,7 @@ public class DeployRepository {
                 .append(shellCmd).append(BusinessConstant.WHITE_EMPTY_STR);
         paramList.forEach(param -> stringBuilder.append(param).append(BusinessConstant.WHITE_EMPTY_STR));
 
-        String result = excelCmd(stringBuilder.toString());
+        String result = excelCmd(stringBuilder.toString(), true);
         if (StringUtils.isEmpty(result)) {
             outDo.setErrorCode(ErrorConstant.ERROR_01);
         } else {
@@ -148,16 +148,17 @@ public class DeployRepository {
     private String chmod755(String shellFilePath) {
         String stringBuilder = CMD_CHMOD + BusinessConstant.WHITE_EMPTY_STR +
                 CHMOD_755 + BusinessConstant.WHITE_EMPTY_STR + shellFilePath;
-        excelCmd(stringBuilder);
+        excelCmd(stringBuilder, false);
         return shellFilePath;
     }
 
     /**
      * 执行系统命令
      * @param cmd 完整的系统命令字符串
+     * @param hasReturn 是否存在返回值 true : 存在返回 false : 不存在返回
      * @return  执行结果，执行错误返回空字符串
      */
-    private String excelCmd(String cmd) {
+    private String excelCmd(String cmd, boolean hasReturn) {
         CommandLog.info("执行系统命令:{}", cmd);
         BufferedInputStream bis = null;
         ByteArrayOutputStream baos = null;
@@ -168,23 +169,24 @@ public class DeployRepository {
 
             process.waitFor(10L, TimeUnit.SECONDS);
             int available = bis.available();
-            if (available <= BusinessConstant.ZERO_NUM) {
+            if (available <= BusinessConstant.ZERO_NUM && !hasReturn) {
                 throw new Exception();
-            }
+            } else {
+                byte[] bytes = new byte[2048];
+                baos = new ByteArrayOutputStream(bis.available());
+                int i;
 
-            byte[] bytes = new byte[2048];
-            baos = new ByteArrayOutputStream(bis.available());
-            int i;
-
-            while ((i = bis.read(bytes)) != -1) {
-                baos.write(bytes, 0, i);
-                available -= i;
-                if (available == BusinessConstant.ZERO_NUM) {
-                    break;
+                while ((i = bis.read(bytes)) != -1) {
+                    baos.write(bytes, 0, i);
+                    available -= i;
+                    if (available == BusinessConstant.ZERO_NUM) {
+                        break;
+                    }
                 }
+
+                json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
             }
 
-            json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             CommandLog.errorThrow("execShell异常", e);
         } finally {
