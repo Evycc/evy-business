@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -29,21 +30,29 @@ public class DeployRepository {
      * 通过该实例调用shell脚本
      */
     private static final Runtime RUNTIME = Runtime.getRuntime();
-    private static final String SHELL_GIT_BUILD = "/cdadmin/gitBuild.sh";
-    private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
-    private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
-    private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
+    //    private static final String SHELL_GIT_BUILD = "/cdadmin/gitBuild.sh";
+//    private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
+//    private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
+//    private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
+    private static final String RESOURCE_PATH = "/src/main/resources/";
+    private static final String SHELL_GIT_BUILD = new File(RESOURCE_PATH + "gitBuild.sh").getAbsolutePath();
+    private static final String SHELL_BUILD_JAR = new File(RESOURCE_PATH + "buildJar.sh").getAbsolutePath();
+    private static final String SHELL_START_JAR = new File(RESOURCE_PATH + "startJar.sh").getAbsolutePath();
+    private static final String SHELL_GET_GIT_BRCHANS = new File(RESOURCE_PATH + "getGitBrchans.sh").getAbsolutePath();
+    private static final String CHMOD_755 = "755";
+    private static final String CMD_CHMOD = "/bin/chmod";
     private static final String SHELL_CMD = "/bin/bash";
 
     /**
      * 通过git链接,调用shell脚本,获取并返回对应分支列表
-     * @param gitBrchanDo  com.evy.linlin.deploy.dto.GitBrchanDO
+     *
+     * @param gitBrchanDo com.evy.linlin.deploy.dto.GitBrchanDO
      * @return msg 返回Null，表示获取失败
      */
     public GitBrchanOutDO getGitBrchansShell(GitBrchanDO gitBrchanDo) {
         String gitPath = gitBrchanDo.getGitPath();
         GitBrchanOutDO gitBrchanOutDo;
-        ShellOutDO shellOutDo = execShell(SHELL_GET_GIT_BRCHANS, gitPath, subProjectNameFromGitPath(gitPath));
+        ShellOutDO shellOutDo = execShell(chmod755(SHELL_GET_GIT_BRCHANS), gitPath, subProjectNameFromGitPath(gitPath));
 
         String errorCode = shellOutDo.getErrorCode();
         String msg = shellOutDo.getMsg();
@@ -96,57 +105,24 @@ public class DeployRepository {
     /**
      * 执行linux shell
      *
-     * @param shellCmd shell脚本
+     * @param shellCmd shell脚本绝对路径
      * @param params   参数
      * @return shell脚本返回
      */
     private ShellOutDO execShell(String shellCmd, String... params) {
-        CommandLog.info("execShell Cmd: {}", shellCmd);
-        CommandLog.info("execShell Cmd Params: {}", Arrays.asList(params));
-        String[] param = new String[params.length + 1];
-        param[0] = shellCmd;
+        List<String> paramList = Arrays.asList(params);
         ShellOutDO outDo = new ShellOutDO();
-        BufferedInputStream bis = null;
-        ByteArrayOutputStream baos = null;
-        if (params.length > 0) {
-            System.arraycopy(params, 0, param, 1, params.length);
-        }
 
-        try {
-            Process process = RUNTIME.exec(SHELL_CMD, param);
-            bis = new BufferedInputStream(process.getInputStream());
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(SHELL_CMD).append(BusinessConstant.WHITE_EMPTY_STR)
+                .append(shellCmd).append(BusinessConstant.WHITE_EMPTY_STR);
+        paramList.forEach(param -> stringBuilder.append(param).append(BusinessConstant.WHITE_EMPTY_STR));
 
-            if (bis.available() <= BusinessConstant.ZERO_NUM) {
-                process.exitValue();
-                throw new Exception();
-            }
-
-            byte[] bytes = new byte[2048];
-            baos = new ByteArrayOutputStream(bis.available());
-            int i;
-
-            while ((i = bis.read(bytes)) != -1) {
-                baos.write(bytes, 0, i);
-            }
-
-            String json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-            outDo = JsonUtils.convertToObject(json, ShellOutDO.class);
-        } catch (Exception e) {
-            CommandLog.errorThrow("execShell异常", e);
+        String result = excelCmd(stringBuilder.toString());
+        if (StringUtils.isEmpty(result)) {
             outDo.setErrorCode(ErrorConstant.ERROR_01);
-        } finally {
-            if (Objects.nonNull(bis)) {
-                try {
-                    bis.close();
-                } catch (IOException ignored) {
-                }
-            }
-            if (Objects.nonNull(baos)) {
-                try {
-                    baos.close();
-                } catch (IOException ignored) {
-                }
-            }
+        } else {
+            outDo = JsonUtils.convertToObject(result, ShellOutDO.class);
         }
 
         return outDo;
@@ -166,5 +142,64 @@ public class DeployRepository {
         CommandLog.info("subProjectNameFromGitPath result:{}", result);
 
         return result;
+    }
+
+    /**
+     * 为sh脚本设置755权限
+     * @param shellFilePath sh脚本绝对路径
+     * @return  sh脚本绝对路径
+     */
+    private String chmod755(String shellFilePath) {
+        String stringBuilder = CMD_CHMOD + BusinessConstant.WHITE_EMPTY_STR +
+                CHMOD_755 + BusinessConstant.WHITE_EMPTY_STR + shellFilePath;
+        excelCmd(stringBuilder);
+        return shellFilePath;
+    }
+
+    /**
+     * 执行系统命令
+     * @param cmd 完整的系统命令字符串
+     * @return  执行结果，执行错误返回空字符串
+     */
+    private String excelCmd(String cmd) {
+        CommandLog.info("执行系统命令:{}", cmd);
+        BufferedInputStream bis = null;
+        ByteArrayOutputStream baos = null;
+        String json = BusinessConstant.EMPTY_STR;
+        try {
+            Process process = RUNTIME.exec(cmd);
+            bis = new BufferedInputStream(process.getInputStream());
+
+            if (bis.available() <= BusinessConstant.ZERO_NUM) {
+                process.exitValue();
+                throw new Exception();
+            }
+
+            byte[] bytes = new byte[2048];
+            baos = new ByteArrayOutputStream(bis.available());
+            int i;
+
+            while ((i = bis.read(bytes)) != -1) {
+                baos.write(bytes, 0, i);
+            }
+
+            json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            CommandLog.errorThrow("execShell异常", e);
+        } finally {
+            if (Objects.nonNull(bis)) {
+                try {
+                    bis.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (Objects.nonNull(baos)) {
+                try {
+                    baos.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+        return json;
     }
 }

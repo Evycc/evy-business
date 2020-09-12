@@ -121,6 +121,7 @@
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
                     <include>**/*.yml</include>
+                    <include>**/*.sh</include>
                 </includes>
             </resource>
         </resources>
