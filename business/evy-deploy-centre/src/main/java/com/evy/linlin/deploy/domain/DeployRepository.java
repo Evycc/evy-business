@@ -172,23 +172,26 @@ public class DeployRepository {
 
             process.waitFor(10L, TimeUnit.SECONDS);
             int available = bis.available();
-            if (available <= BusinessConstant.ZERO_NUM && !hasReturn) {
+
+            if (!hasReturn) {
+                return json;
+            } else if (available <= BusinessConstant.ZERO_NUM) {
                 throw new Exception();
-            } else {
-                byte[] bytes = new byte[2048];
-                baos = new ByteArrayOutputStream(bis.available());
-                int i;
-
-                while ((i = bis.read(bytes)) != -1) {
-                    baos.write(bytes, 0, i);
-                    available -= i;
-                    if (available == BusinessConstant.ZERO_NUM) {
-                        break;
-                    }
-                }
-
-                json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
             }
+
+            byte[] bytes = new byte[2048];
+            baos = new ByteArrayOutputStream(bis.available());
+            int i;
+
+            while ((i = bis.read(bytes)) != -1) {
+                baos.write(bytes, 0, i);
+                available -= i;
+                if (available == BusinessConstant.ZERO_NUM) {
+                    break;
+                }
+            }
+
+            json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
 
         } catch (Exception e) {
             CommandLog.errorThrow("execShell异常", e);
