@@ -3,6 +3,7 @@ package com.evy.linlin.deploy.app;
 import com.evy.linlin.deploy.dto.AutoDeployDTO;
 import com.evy.linlin.deploy.dto.AutoDeployOutDTO;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -13,5 +14,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public interface IAutoDeploy {
     @PostMapping("/autoDeploy")
-    AutoDeployOutDTO autoDeploy(AutoDeployDTO dto);
+    AutoDeployOutDTO autoDeploy(@RequestBody AutoDeployDTO dto);
 }
