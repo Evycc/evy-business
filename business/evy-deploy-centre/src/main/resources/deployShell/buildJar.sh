@@ -27,6 +27,7 @@ function echoReturnMsg(){
 #获取项目父模块目录,用于mvn编译
 #$1 查找的根目录
 #$2 ${是否执行Junit 0:执行 1:不执行}
+#$3 日志文件路径
 function buildParetnModule(){
   tempLen=0
   tempFileName=""
@@ -48,7 +49,8 @@ function buildParetnModule(){
     if [[ -n "$2" && "$2" -eq "1" ]]; then mvn="mvn clean install -U -Dmaven.test.skip=true"
       else mvn="mvn clean install -U"
     fi
-    cd "$tempFileName" && $mvn
+    (cd "$tempFileName" && $mvn > "$3")
+    (echo -e '\n=================编译父目录结束=================\n' >> "$3")
   fi
   exit 0
 }
@@ -80,9 +82,6 @@ readonly noFoundDirError='err'
 cd $dirPath || echoReturnMsg $failed '目标路径不存在{'"$dirPath"'}'
 
 #######################编译打包工程#######################
-#编译父模块
-(buildParetnModule "$projectRootDir$paramProjectName" "$paramIfJunit")
-
 mvnBuildCmd='mvn clean install -U'
 if [[ $paramIfJunit -eq '1' ]]; then mvnBuildCmd='mvn clean install -U -Dmaven.test.skip=true'; fi
 
@@ -90,8 +89,11 @@ if [[ $paramIfJunit -eq '1' ]]; then mvnBuildCmd='mvn clean install -U -Dmaven.t
 targetDir=$projectHistoryDir$paramAppName'/'$paramTag
 mkdir -p "$targetDir" && rm -rf "$targetDir'/*'"
 
+#编译父模块
+(buildParetnModule "$projectRootDir$paramProjectName" "$paramIfJunit" "$targetDir"'/mvnLog')
+
 #将mvn日志放置到指定工程下以参数tag命名的目录
-cd $dirPath && $mvnBuildCmd > "$targetDir"'/mvnLog'
+cd $dirPath && $mvnBuildCmd >> "$targetDir"'/mvnLog'
 
 if [[ -n "$(cd $dirPath && grep "$mvnBuildError" "$targetDir"'/mvnLog')" ]]
 then

@@ -44,6 +44,7 @@ public class DeployRepository {
     private static final String SHELL_CMD = "/bin/bash";
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("DeployRepository");
     private static final String BRCHAN_FILTER_STR = "origin/";
+    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/cdadmin/jar/dump.log";
 
     /**
      * 通过git链接,调用shell脚本,获取并返回对应分支列表
@@ -93,7 +94,7 @@ public class DeployRepository {
             if (checkBuildJarShell(buildJarOutDo, autoDeployOutDo)) {
                 //3.调用startJar.sh 部署到指定服务器 (根据服务器列表,是否分批参数,选择并行还是串行)
                 String targetHost = autoDeployDO.getTargetHost();
-                String jvmParam = autoDeployDO.getJvmParam();
+                String jvmParam = autoDeployDO.getJvmParam() + JVM_PARAM_DEFAULT;
                 String[] targetHosts = targetHost.split(BusinessConstant.SPLIT_LINE, -1);
                 boolean isMoreHost = targetHost.length() > BusinessConstant.ONE_NUM;
 
