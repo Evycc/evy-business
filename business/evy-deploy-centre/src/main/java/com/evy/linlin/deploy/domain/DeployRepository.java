@@ -168,7 +168,7 @@ public class DeployRepository {
      * 返回: {"errorCode":"0","msg":"已经是最新的。"}<br/>
      */
     private ShellOutDO gitBuildShell(String projectName, String gitPath, String branch) {
-        return execShell(chmod755(SHELL_GIT_BUILD), gitPath, projectName, branch);
+        return execShell(chmod755(SHELL_GIT_BUILD), projectName, gitPath, branch);
     }
 
     /**
