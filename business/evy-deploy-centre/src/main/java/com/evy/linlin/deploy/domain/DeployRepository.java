@@ -62,7 +62,7 @@ public class DeployRepository {
             //分支信息第一行为HEAD指向[ origin/HEAD -> origin/master ],跳过第一行
             List<String> branchs = Arrays.stream(msg.split("\n", -1))
                     .skip(1)
-                    .map(str -> str.replaceAll(BusinessConstant.WHITE_EMPTY_STR, BusinessConstant.EMPTY_STR))
+                    .map(str -> str.replaceAll(BusinessConstant.WHITE_EMPTY_STR + "origin/", BusinessConstant.EMPTY_STR))
                     .collect(Collectors.toList());
             gitBrchanOutDo = GitBrchanOutDO.create(gitPath, branchs);
         } else {
@@ -271,7 +271,7 @@ public class DeployRepository {
             Process process = RUNTIME.exec(cmd);
             bis = new BufferedInputStream(process.getInputStream());
 
-            process.waitFor(10L, TimeUnit.SECONDS);
+            process.waitFor(60L, TimeUnit.SECONDS);
             int available = bis.available();
 
             if (!hasReturn) {
