@@ -43,6 +43,7 @@ public class DeployRepository {
     private static final String CMD_CHMOD = "/bin/chmod";
     private static final String SHELL_CMD = "/bin/bash";
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("DeployRepository");
+    private static final String BRCHAN_FILTER_STR = "origin/";
 
     /**
      * 通过git链接,调用shell脚本,获取并返回对应分支列表
@@ -62,7 +63,7 @@ public class DeployRepository {
             //分支信息第一行为HEAD指向[ origin/HEAD -> origin/master ],跳过第一行
             List<String> branchs = Arrays.stream(msg.split("\n", -1))
                     .skip(1)
-                    .map(str -> str.replaceAll(BusinessConstant.WHITE_EMPTY_STR + "origin/", BusinessConstant.EMPTY_STR))
+                    .map(str -> str.replaceAll(BusinessConstant.WHITE_EMPTY_STR, BusinessConstant.EMPTY_STR).replaceAll(BRCHAN_FILTER_STR, BusinessConstant.EMPTY_STR))
                     .collect(Collectors.toList());
             gitBrchanOutDo = GitBrchanOutDO.create(gitPath, branchs);
         } else {
@@ -85,7 +86,7 @@ public class DeployRepository {
         ShellOutDO gitBuildShellOutDo = gitBuildShell(projectName, gitPath, autoDeployDO.getBrchanName());
         if (checkGitBuildShell(gitBuildShellOutDo, autoDeployOutDo)) {
             //2.调用buildJar.sh 获取msg编译后目录
-            String timeStamp = DateUtils.nowStr3().replace(BusinessConstant.WHITE_EMPTY_STR, BusinessConstant.STRIKE_THROUGH_STR);
+            String timeStamp = DateUtils.nowStr3().replace(BusinessConstant.WHITE_EMPTY_STR, "T");
             ShellOutDO buildJarOutDo = buildJarShell(projectName, autoDeployDO.getAppName(), autoDeployDO.isSwitchJunit(), timeStamp);
             String jarPath = buildJarOutDo.getMsg();
 
@@ -269,9 +270,9 @@ public class DeployRepository {
         String json = BusinessConstant.EMPTY_STR;
         try {
             Process process = RUNTIME.exec(cmd);
+            process.waitFor(60L, TimeUnit.SECONDS);
             bis = new BufferedInputStream(process.getInputStream());
 
-            process.waitFor(60L, TimeUnit.SECONDS);
             int available = bis.available();
 
             if (!hasReturn) {
