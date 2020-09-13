@@ -1,5 +1,6 @@
 package com.evy.linlin.deploy.tunnel.dto;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.linlin.deploy.dto.AutoDeployDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,8 +52,10 @@ public class AutoDeployDO {
     private boolean switchBatchDeploy;
 
     public static AutoDeployDO convertFromDto(AutoDeployDTO deployDTO) {
+        boolean isSwitchJunit = deployDTO.getSwitchJunit() == BusinessConstant.ZERO_NUM;
+        boolean isSwitchBatchDeploy = deployDTO.getSwitchBatchDeploy() == BusinessConstant.ZERO_NUM;
         return new AutoDeployDO(deployDTO.getGitPath(), deployDTO.getProjectName(), deployDTO.getBrchanName(),
-                deployDTO.getAppName(), deployDTO.getRemarks(), deployDTO.getJvmParam(), deployDTO.isSwitchJunit(),
-                deployDTO.getTargetHost(), deployDTO.isSwitchBatchDeploy());
+                deployDTO.getAppName(), deployDTO.getRemarks(), deployDTO.getJvmParam(), isSwitchJunit,
+                deployDTO.getTargetHost(), isSwitchBatchDeploy);
     }
 }

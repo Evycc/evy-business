@@ -7,7 +7,10 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * AutoDeployDTO
@@ -54,9 +57,12 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
     @Length(max = 1024)
     private String jvmParam;
     /**
-     * 是否开启junit
+     * 是否开启junit 0 开启 1 不开启
      */
-    private boolean switchJunit;
+    @NotNull(message = "switchJunit不能为空")
+    @Min(value = 0)
+    @Max(value = 1)
+    private Integer switchJunit;
     /**
      * 部署目标服务器host,允许多个,用 | 分割
      */
@@ -64,8 +70,10 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
     @Length(max = 100)
     private String targetHost;
     /**
-     * 是否分批部署
+     * 是否分批部署 0 开启 1 不开启
      */
-    @NotBlank(message = "switchBatchDeploy不能为空")
-    private boolean switchBatchDeploy;
+    @NotNull(message = "switchBatchDeploy不能为空")
+    @Min(value = 0)
+    @Max(value = 1)
+    private Integer switchBatchDeploy;
 }
