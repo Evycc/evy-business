@@ -46,7 +46,8 @@ public class DateUtils {
     }
 
     /**
-     * yyyyMMDD HH:mm:ss
+     * 返回指定格式时间
+     * @param pattern 时间格式
      * @return  当前时间
      */
     public static String now(String pattern) {

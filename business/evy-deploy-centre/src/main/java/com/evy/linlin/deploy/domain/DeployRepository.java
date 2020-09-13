@@ -1,21 +1,25 @@
 package com.evy.linlin.deploy.domain;
 
+import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.log.CommandLog;
+import com.evy.common.utils.DateUtils;
 import com.evy.common.utils.JsonUtils;
-import com.evy.linlin.deploy.dto.*;
+import com.evy.linlin.deploy.tunnel.constant.DeployErrorConstant;
+import com.evy.linlin.deploy.tunnel.dto.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -38,12 +42,13 @@ public class DeployRepository {
     private static final String CHMOD_755 = "755";
     private static final String CMD_CHMOD = "/bin/chmod";
     private static final String SHELL_CMD = "/bin/bash";
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("DeployRepository");
 
     /**
      * 通过git链接,调用shell脚本,获取并返回对应分支列表
      *
-     * @param gitBrchanDo com.evy.linlin.deploy.dto.GitBrchanDO
-     * @return msg 返回Null，表示获取失败
+     * @param gitBrchanDo GitBrchanDO
+     * @return branchs 返回Null，表示获取失败
      */
     public GitBrchanOutDO getGitBrchansShell(GitBrchanDO gitBrchanDo) {
         String gitPath = gitBrchanDo.getGitPath();
@@ -68,19 +73,102 @@ public class DeployRepository {
 
     /**
      * 自动编译及部署到对应服务器
+     * @return 返回各个服务器部署pid，errorCode不为0则部署失败
      */
     public AutoDeployOutDO autoDeploy(AutoDeployDO autoDeployDO) {
+        AutoDeployOutDO autoDeployOutDo = new AutoDeployOutDO();
+        //1.调用gitBuild.sh errorCode=0 && msg != ""
+        String gitPath = autoDeployDO.getGitPath();
+        String projectName = subProjectNameFromGitPath(gitPath);
+        List<DeployStatusOutDO> deployStatusOutDos = new ArrayList<>(8);
 
-        return null;
+        ShellOutDO gitBuildShellOutDo = gitBuildShell(projectName, gitPath, autoDeployDO.getBrchanName());
+        if (checkGitBuildShell(gitBuildShellOutDo, autoDeployOutDo)) {
+            //2.调用buildJar.sh 获取msg编译后目录
+            String timeStamp = DateUtils.nowStr3().replace(BusinessConstant.WHITE_EMPTY_STR, BusinessConstant.STRIKE_THROUGH_STR);
+            ShellOutDO buildJarOutDo = buildJarShell(projectName, autoDeployDO.getAppName(), autoDeployDO.isSwitchJunit(), timeStamp);
+            String jarPath = buildJarOutDo.getMsg();
+
+            if (checkBuildJarShell(buildJarOutDo, autoDeployOutDo)) {
+                //3.调用startJar.sh 部署到指定服务器 (根据服务器列表,是否分批参数,选择并行还是串行)
+                String targetHost = autoDeployDO.getTargetHost();
+                String jvmParam = autoDeployDO.getJvmParam();
+                String[] targetHosts = targetHost.split(BusinessConstant.SPLIT_LINE, -1);
+                boolean isMoreHost = targetHost.length() > BusinessConstant.ONE_NUM;
+
+                if (isMoreHost) {
+                    if (!autoDeployDO.isSwitchBatchDeploy()) {
+                        //并行部署
+                        for (String host : targetHosts) {
+                            EXECUTOR_SERVICE.submit(() -> {
+                                DeployStatusOutDO deployStatusOutDo = excelAndGetStartJarShell(host, jarPath, jvmParam);
+                                deployStatusOutDos.add(deployStatusOutDo);
+                            });
+                        }
+                    } else {
+                        //串行部署
+                        for (String host : targetHosts) {
+                            DeployStatusOutDO deployStatusOutDo = excelAndGetStartJarShell(host, jarPath, jvmParam);
+                            deployStatusOutDos.add(deployStatusOutDo);
+                            if (checkGetStartJarShell(deployStatusOutDo, autoDeployOutDo)) {
+                                //PID为空则认为部署失败，直接返回
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    //单服务器
+                    DeployStatusOutDO deployStatusOutDo = excelAndGetStartJarShell(targetHost, jarPath, jvmParam);
+                    deployStatusOutDos.add(deployStatusOutDo);
+                }
+            }
+        }
+
+        autoDeployOutDo.setDeployStatusOutDOList(deployStatusOutDos);
+        return autoDeployOutDo;
     }
+
+    /**
+     * 检查gitBuild.sh执行是否成功，失败则赋值错误码
+     */
+    private boolean checkGitBuildShell(ShellOutDO shellOutDo, AutoDeployOutDO autoDeployOutDo) {
+        if (!BusinessConstant.ZERO.equals(shellOutDo.getErrorCode()) && Objects.isNull(shellOutDo.getMsg())) {
+            autoDeployOutDo.setErrorCode(DeployErrorConstant.DEPLOY_ERROR_1);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检查buildJar.sh执行是否成功，失败则赋值错误码
+     */
+    private boolean checkBuildJarShell(ShellOutDO shellOutDo, AutoDeployOutDO autoDeployOutDo) {
+        if (StringUtils.isEmpty(shellOutDo.getMsg())) {
+            autoDeployOutDo.setErrorCode(DeployErrorConstant.DEPLOY_ERROR_1);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 检查startJar.sh执行是否成功，失败则赋值错误码
+     */
+    private boolean checkGetStartJarShell(DeployStatusOutDO deployStatusOutDo, AutoDeployOutDO autoDeployOutDo) {
+        if (StringUtils.isEmpty(deployStatusOutDo.getPid())) {
+            autoDeployOutDo.setErrorCode(DeployErrorConstant.DEPLOY_ERROR_1);
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 启用gitBuild.sh<br/>
      * sh -x gitBuild.sh ${git项目名称} ${git地址} ${git分支}<br/>
      * 返回: {"errorCode":"0","msg":"已经是最新的。"}<br/>
      */
-    private void gitBuildShell(String projectName, String gitPath, String branch) {
-
+    private ShellOutDO gitBuildShell(String projectName, String gitPath, String branch) {
+        return execShell(chmod755(SHELL_GIT_BUILD), gitPath, projectName, branch);
     }
 
     /**
@@ -88,8 +176,9 @@ public class DeployRepository {
      * sh -vx buildJar.sh evy-business test-demo 1 2020-08-07<br/>
      * 返回编译后的jar路径,如 {"errorCode":"0","msg":"/cdadmin/gitProject/history/test-demo/2020-08-25"}
      */
-    private void buildJarShell(String projectName, String appName, boolean switchJunit, String deployTimestamp) {
-
+    private ShellOutDO buildJarShell(String projectName, String appName, boolean switchJunit, String deployTimestamp) {
+        return execShell(chmod755(SHELL_BUILD_JAR), projectName, appName,
+                switchJunit ? BusinessConstant.ZERO : BusinessConstant.ONE, deployTimestamp);
     }
 
     /**
@@ -97,8 +186,20 @@ public class DeployRepository {
      * sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m<br/>
      * 返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
      */
-    private void startJarShell(String targetHost, String jarPath, String jvmParam) {
+    private ShellOutDO startJarShell(String targetHost, String jarPath, String jvmParam) {
+        return execShell(chmod755(SHELL_START_JAR), targetHost, jarPath, jvmParam);
+    }
 
+    /**
+     * 执行startJar.sh,并返回DeployStatusOutDO
+     * @param targetHost 目标服务器host
+     * @param jarPath   jar包路径
+     * @param jvmParam  jvm参数
+     * @return DeployStatusOutDO pid为空表示部署失败
+     */
+    private DeployStatusOutDO excelAndGetStartJarShell(String targetHost, String jarPath, String jvmParam) {
+        ShellOutDO shellOutDo = startJarShell(targetHost, jarPath, jvmParam);
+        return DeployStatusOutDO.create(shellOutDo.getMsg(), targetHost);
     }
 
     /**

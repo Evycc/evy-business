@@ -5,8 +5,8 @@ import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.linlin.deploy.domain.DeployRepository;
 import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import com.evy.linlin.deploy.dto.GetGitBrchansOutDTO;
-import com.evy.linlin.deploy.dto.GitBrchanDO;
-import com.evy.linlin.deploy.dto.GitBrchanOutDO;
+import com.evy.linlin.deploy.tunnel.dto.GitBrchanDO;
+import com.evy.linlin.deploy.tunnel.dto.GitBrchanOutDO;
 import org.springframework.web.bind.annotation.RestController;
 
 /**

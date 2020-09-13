@@ -1,8 +1,10 @@
 package com.evy.linlin.deploy.dto;
 
+import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -14,7 +16,8 @@ import javax.validation.constraints.NotBlank;
  */
 @Getter
 @Setter
-public class AutoDeployDTO extends InputDTO {
+@ToString
+public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDTO> {
     /**
      * git路径
      */
@@ -55,9 +58,14 @@ public class AutoDeployDTO extends InputDTO {
      */
     private boolean switchJunit;
     /**
-     * 部署目标服务器
+     * 部署目标服务器host,允许多个,用 | 分割
      */
     @NotBlank(message = "targetHost不能为空")
     @Length(max = 100)
     private String targetHost;
+    /**
+     * 是否分批部署
+     */
+    @NotBlank(message = "switchBatchDeploy不能为空")
+    private boolean switchBatchDeploy;
 }

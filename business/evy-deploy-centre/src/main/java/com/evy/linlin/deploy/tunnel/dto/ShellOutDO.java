@@ -1,4 +1,4 @@
-package com.evy.linlin.deploy.dto;
+package com.evy.linlin.deploy.tunnel.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

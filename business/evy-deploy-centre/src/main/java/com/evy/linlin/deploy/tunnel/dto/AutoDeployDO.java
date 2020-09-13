@@ -1,5 +1,6 @@
-package com.evy.linlin.deploy.dto;
+package com.evy.linlin.deploy.tunnel.dto;
 
+import com.evy.linlin.deploy.dto.AutoDeployDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,10 +45,14 @@ public class AutoDeployDO {
      * 部署目标服务器
      */
     private String targetHost;
+    /**
+     * 是否分批部署
+     */
+    private boolean switchBatchDeploy;
 
     public static AutoDeployDO convertFromDto(AutoDeployDTO deployDTO) {
         return new AutoDeployDO(deployDTO.getGitPath(), deployDTO.getProjectName(), deployDTO.getBrchanName(),
                 deployDTO.getAppName(), deployDTO.getRemarks(), deployDTO.getJvmParam(), deployDTO.isSwitchJunit(),
-                deployDTO.getTargetHost());
+                deployDTO.getTargetHost(), deployDTO.isSwitchBatchDeploy());
     }
 }

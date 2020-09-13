@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface IGetGitBrchans {
     /**
      * 获取git对应分支集合
-     * @param dto   com.evy.linlin.deploy.dto.getGitBrchansDTO
-     * @return      com.evy.linlin.deploy.dto.getGitBrchansOutDTO
+     * @param dto   com.evy.linlin.deploy.tunnel.dto.getGitBrchansDTO
+     * @return      com.evy.linlin.deploy.tunnel.dto.getGitBrchansOutDTO
      */
-    @PostMapping("/")
+    @PostMapping("/getGitBrchans")
     GetGitBrchansOutDTO getGitBrchans(@RequestBody GetGitBrchansDTO dto);
 }
