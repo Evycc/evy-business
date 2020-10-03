@@ -19,4 +19,8 @@ public class DeployInsertPO {
     private String appName;
     private String gitPath;
     private String gitBrchan;
+    private String remarks;
+    private String jvmParam;
+    private String targetHost;
+    private Integer switchBatchDeploy;
 }

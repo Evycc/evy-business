@@ -27,8 +27,8 @@
     <!-- 添加部署记录 -->
     <insert id="insertBuildInfo" parameterType="com.evy.linlin.deploy.tunnel.po.DeployInsertPO">
         INSERT INTO public_deploy_info(pdi_seq, pdi_user_seq, pdi_project_name, pdi_app_name, pdi_git_path,
-                                       pdi_git_brchan)
-        VALUES (#{seq}, #{userSeq}, #{projectName}, #{appName}, #{gitPath}, #{gitBrchan})
+                                       pdi_git_brchan,pdi_remarks, pdi_jvm_param, pdi_target_host, pdi_switch_batch_deploy)
+        VALUES (#{seq}, #{userSeq}, #{projectName}, #{appName}, #{gitPath}, #{gitBrchan}, #{remarks}, #{jvmParam}, #{targetHost}, #{switchBatchDeploy})
     </insert>
 
     <!-- 根据唯一序列,更新部署记录 -->
