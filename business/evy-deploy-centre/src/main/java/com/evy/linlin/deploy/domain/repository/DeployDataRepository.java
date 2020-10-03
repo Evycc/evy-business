@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Repository
 public class DeployDataRepository {
-    private static final String QRY_DEPLOY_INFO_FOR_SEQ = "DeployMapper.qryDeployInfoForUserSeq";
+    private static final String QRY_DEPLOY_INFO_FOR_SEQ = "DeployMapper.qryDeployInfoForSeq";
     private static final String QRY_DEPLOY_INFOS_FOR_USERSEQ = "DeployMapper.qryDeployInfoListForUserSeq";
     private static final String UPDTAE_DEPLOY_STAGE = "DeployMapper.updateBuildStatus";
     private static final String INSERT_NEW_DEPLOY_INFO = "DeployMapper.insertBuildInfo";
