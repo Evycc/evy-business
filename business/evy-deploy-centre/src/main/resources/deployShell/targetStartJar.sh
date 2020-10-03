@@ -7,6 +7,7 @@ set -o nounset    #遇到不存在的变量，终止
 #-n对语法进行检查    -v | -x根据脚本每个命令执行
 
 #######################targetStartJar.sh说明#######################
+#需要先在目标服务器配置ssh环境变量: 取home目录/root/.bashrc 添加行 . /etc/profile
 #通过startJar.sh,ssh到远程服务器执行该脚本
 #启动Jar,输出日志到startLog文件,输出pid到pidLog文件
 #使用方式 sh -x targetStartJar.sh ${jar路径} ${jar包名} ${jvm参数}

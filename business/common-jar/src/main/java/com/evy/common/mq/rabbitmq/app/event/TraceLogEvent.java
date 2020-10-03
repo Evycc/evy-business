@@ -21,7 +21,7 @@ import java.util.Map;
  * @Author: EvyLiuu
  * @Date: 2019/11/24 20:07
  */
-@Component
+@Component("traceLogEvent")
 public class TraceLogEvent extends BaseRabbitMqConsumer {
     private final static String INSERT_LOG = "INSERT INTO public_log_flow(plf_srcSendNo,plf_code,plf_clientIp,plf_serverIp,plf_reqContent,plf_errorCode,plf_errorMsg) VALUES (?,?,?,?,?,?,?)";
     private static final String SRCSENDNO = "srcSendNo";

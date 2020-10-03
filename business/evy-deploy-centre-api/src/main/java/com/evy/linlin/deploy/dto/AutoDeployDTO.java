@@ -22,29 +22,10 @@ import javax.validation.constraints.NotNull;
 @ToString
 public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDTO> {
     /**
-     * git路径
+     * 编译流水,用于关联编译应用信息
      */
-    @NotBlank(message = "gitPath不能为空")
-    @Length(max = 1024, message = "gitPath长度超限")
-    private String gitPath;
-    /**
-     * 项目名称
-     */
-    @NotBlank(message = "projectName不能为空")
-    @Length(max = 100)
-    private String projectName;
-    /**
-     * git分支
-     */
-    @NotBlank(message = "brchanName不能为空")
-    @Length(max = 100)
-    private String brchanName;
-    /**
-     * 应用名称
-     */
-    @NotBlank(message = "appName不能为空")
-    @Length(max = 100)
-    private String appName;
+    @NotBlank(message = "buildSeq不能为空")
+    private String buildSeq;
     /**
      * 备注
      */
@@ -57,13 +38,6 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
     @Length(max = 1024)
     private String jvmParam;
     /**
-     * 是否开启junit 0 开启 1 不开启
-     */
-    @NotNull(message = "switchJunit不能为空")
-    @Min(value = 0)
-    @Max(value = 1)
-    private Integer switchJunit;
-    /**
      * 部署目标服务器host,允许多个,用 | 分割
      */
     @NotBlank(message = "targetHost不能为空")
@@ -73,7 +47,7 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
      * 是否分批部署 0 开启 1 不开启
      */
     @NotNull(message = "switchBatchDeploy不能为空")
-    @Min(value = 0)
-    @Max(value = 1)
+    @Min(0)
+    @Max(1)
     private Integer switchBatchDeploy;
 }

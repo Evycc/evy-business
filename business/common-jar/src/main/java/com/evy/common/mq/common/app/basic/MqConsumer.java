@@ -10,7 +10,7 @@ import com.evy.common.mq.rabbitmq.app.event.TraceLogEvent;
 import com.evy.common.utils.AppContextUtils;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
  * @Date: 2019/11/3 13:51
  */
 @Component
-@Lazy
+@DependsOn("appContextUtils")
 public class MqConsumer {
     /**
      * MQ 参数工厂

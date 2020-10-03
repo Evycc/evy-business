@@ -11,6 +11,7 @@ import com.evy.common.utils.DateUtils;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.SerializationUtils;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2019/11/3 13:47
  */
 @Component("RabbitMqSender")
+@DependsOn("appContextUtils")
 public class RabbitMqSender implements MqSender {
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("RabbitMqSender");
     /**

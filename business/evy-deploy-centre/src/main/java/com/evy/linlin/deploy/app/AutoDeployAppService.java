@@ -2,11 +2,11 @@ package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
-import com.evy.linlin.deploy.domain.DeployRepository;
+import com.evy.linlin.deploy.domain.DeployShellRepository;
 import com.evy.linlin.deploy.dto.AutoDeployDTO;
 import com.evy.linlin.deploy.dto.AutoDeployOutDTO;
-import com.evy.linlin.deploy.tunnel.dto.AutoDeployDO;
-import com.evy.linlin.deploy.tunnel.dto.AutoDeployOutDO;
+import com.evy.linlin.deploy.tunnel.DeployAssembler;
+import com.evy.linlin.deploy.tunnel.model.AutoDeployDO;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @TraceLog
 public class AutoDeployAppService extends AutoDeployService {
-    private final DeployRepository deployRepository;
-    public AutoDeployAppService(DeployRepository deployRepository) {
-        this.deployRepository = deployRepository;
+    private final DeployShellRepository deployShellRepository;
+    public AutoDeployAppService(DeployShellRepository deployShellRepository) {
+        this.deployShellRepository = deployShellRepository;
     }
 
     @Override
     public AutoDeployOutDTO execute(AutoDeployDTO deployDTO) throws BasicException {
-        return AutoDeployOutDO.convertFromDto(deployRepository.autoDeploy(AutoDeployDO.convertFromDto(deployDTO)));
+        deployShellRepository.autoDeploy(DeployAssembler.doConvertToDto(deployDTO));
+        return new AutoDeployOutDTO();
     }
 }

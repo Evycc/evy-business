@@ -1,12 +1,14 @@
 package com.evy.linlin.deploy.app;
 
+import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
-import com.evy.linlin.deploy.domain.DeployRepository;
+import com.evy.linlin.deploy.domain.DeployShellRepository;
 import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import com.evy.linlin.deploy.dto.GetGitBrchansOutDTO;
-import com.evy.linlin.deploy.tunnel.dto.GitBrchanDO;
-import com.evy.linlin.deploy.tunnel.dto.GitBrchanOutDO;
+import com.evy.linlin.deploy.tunnel.DeployAssembler;
+import com.evy.linlin.deploy.tunnel.model.GitBrchanOutDO;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -17,14 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @TraceLog
 public class GetGitBrchansAppService extends GetGitBrchansService {
-    private final DeployRepository deployRepository;
+    private final DeployShellRepository deployShellRepository;
 
-    public GetGitBrchansAppService(DeployRepository deployRepository) {
-        this.deployRepository = deployRepository;
+    public GetGitBrchansAppService(DeployShellRepository deployShellRepository) {
+        this.deployShellRepository = deployShellRepository;
     }
 
     @Override
     public GetGitBrchansOutDTO execute(GetGitBrchansDTO dto) throws BasicException {
-        return GitBrchanOutDO.convertToDto(deployRepository.getGitBrchansShell(GitBrchanDO.convertFromDto(dto)));
+        GitBrchanOutDO gitBrchanOutDo = deployShellRepository.getGitBrchansShell(DeployAssembler.doConvertToDto(dto));
+        if (CollectionUtils.isEmpty(gitBrchanOutDo.getGitBrchans())) {
+            throw new BasicException(ErrorConstant.ERROR_01, "获取分支为空");
+        }
+
+        return DeployAssembler.dtoConvertToDo(gitBrchanOutDo);
     }
 }

@@ -106,10 +106,10 @@
     <logger name="org.hibernate.validator" level="ERROR"/>
 
     <logger name="com" level="DEBUG" additivity="false">
-        <appender-ref ref="asny_history_file"/>
+        <appender-ref ref="log_history_file"/>
     </logger>
 
     <root level="ERROR">
-        <appender-ref ref="asny_error_file"/>
+        <appender-ref ref="log_error_file"/>
     </root>
 </configuration>

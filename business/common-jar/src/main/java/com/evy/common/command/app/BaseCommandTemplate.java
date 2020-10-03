@@ -16,6 +16,7 @@ import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import java.lang.reflect.Field;
@@ -144,14 +145,14 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         traceLog = (TraceLog) curClass.getAnnotation(TraceLog.class);
         if (traceLog != null) {
             String reqContent = traceLog.reqContent();
-            String[] reqs = reqContent.split(BusinessConstant.SPLIT_LINE);
             Map<String, String> map = null;
 
-            if (reqs.length == BusinessConstant.ZERO_NUM) {
+            if (StringUtils.isEmpty(reqContent)) {
                 map = new HashMap<>(2);
                 map.put("input", JsonUtils.convertToJson(inputDTO));
                 map.put("ouput", JsonUtils.convertToJson(outDTO));
             } else {
+                String[] reqs = reqContent.split(BusinessConstant.SPLIT_LINE);
                 CommandUtils.conveterFromDto(inputDTO, commandContent);
                 CommandUtils.conveterFromDto(outDTO, commandContent);
                 for (String s : reqs) {
@@ -166,6 +167,10 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) +1, curCode.length() -1);
             commandContent.put("code", curCode);
             commandContent.put("serverIp", BusinessConstant.VM_HOST);
+            commandContent.put("clientIp", inputDTO.getClientIp());
+            commandContent.put("srcSendNo", inputDTO.getSrcSendNo());
+            commandContent.put("errorCode", outDTO.getErrorCode());
+            commandContent.put("errorMsg", outDTO.getErrorMsg());
 
             String json = JsonUtils.convertToJson(commandContent);
 

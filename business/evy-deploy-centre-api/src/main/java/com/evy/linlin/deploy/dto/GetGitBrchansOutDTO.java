@@ -18,14 +18,4 @@ import java.util.List;
 public class GetGitBrchansOutDTO extends OutDTO {
     private String gitPath;
     private List<String> branchs;
-
-    public static GetGitBrchansOutDTO create(String gitPath, List<String> branchs) {
-        return new GetGitBrchansOutDTO(gitPath, branchs);
-    }
-
-    public static GetGitBrchansOutDTO create(String errorCode) {
-        GetGitBrchansOutDTO getGitBrchansOutDTO = new GetGitBrchansOutDTO();
-        getGitBrchansOutDTO.setErrorCode(errorCode);
-        return getGitBrchansOutDTO;
-    }
 }

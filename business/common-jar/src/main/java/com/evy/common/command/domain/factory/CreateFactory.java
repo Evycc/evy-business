@@ -7,6 +7,7 @@ import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.SequenceUtils;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnection;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Date: 2020/5/7 23:45
  */
 @Component
+@DependsOn("appContextUtils")
 public class CreateFactory {
     /**
      * 返回基于CPU核心数的线程池

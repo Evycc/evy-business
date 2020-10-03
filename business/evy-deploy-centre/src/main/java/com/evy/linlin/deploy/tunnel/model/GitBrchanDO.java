@@ -1,4 +1,4 @@
-package com.evy.linlin.deploy.tunnel.dto;
+package com.evy.linlin.deploy.tunnel.model;
 
 import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import lombok.AllArgsConstructor;
@@ -13,12 +13,4 @@ import lombok.Getter;
 @Getter
 public class GitBrchanDO {
     private final String gitPath;
-
-    public static GitBrchanDO convertFromDto(GetGitBrchansDTO dto) {
-        return create(dto.getGitPath());
-    }
-
-    public static GitBrchanDO create(String gitPath) {
-        return new GitBrchanDO(gitPath);
-    }
 }

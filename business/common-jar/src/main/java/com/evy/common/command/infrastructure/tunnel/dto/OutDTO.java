@@ -1,5 +1,6 @@
 package com.evy.common.command.infrastructure.tunnel.dto;
 
+import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,8 +14,8 @@ import lombok.ToString;
 public class OutDTO{
     @Getter
     @Setter
-    private String errorCode = "0";
+    private String errorCode = ErrorConstant.SUCCESS;
     @Getter
     @Setter
-    private String errorMsg;
+    private String errorMsg = "交易成功";
 }

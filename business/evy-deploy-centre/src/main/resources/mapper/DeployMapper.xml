@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DeployMapper">
+    <resultMap id="DeployQryOutPO" type="com.evy.linlin.deploy.tunnel.po.DeployQryOutPO">
+        <result column="pdi_seq" property="buildSeq" jdbcType="VARCHAR"/>
+        <result column="pdi_user_seq" property="userSeq" jdbcType="VARCHAR"/>
+        <result column="pdi_project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="pdi_app_name" property="appName" jdbcType="VARCHAR"/>
+        <result column="pdi_git_path" property="gitPath" jdbcType="VARCHAR"/>
+        <result column="pdi_git_brchan" property="gitBrchan" jdbcType="VARCHAR"/>
+        <result column="pdi_stage_flag" property="stageFlag" jdbcType="VARCHAR"/>
+        <result column="pdi_switch_junit" property="switchJunit" jdbcType="CHAR"/>
+        <result column="pdi_switch_batch_deploy" property="switchBatchDeploy" jdbcType="CHAR"/>
+        <result column="pdi_jar_path" property="jarPath" jdbcType="VARCHAR"/>
+        <result column="pdi_jvm_param" property="jvmParam" jdbcType="VARCHAR"/>
+        <result column="pdi_target_host" property="targetHost" jdbcType="VARCHAR"/>
+        <result column="pdi_remarks" property="remarks" jdbcType="VARCHAR"/>
+        <result column="gmt_create" property="createDateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="DeployStageOutPO" type="com.evy.linlin.deploy.tunnel.po.DeployStageOutPO">
+        <result column="pdi_stage_flag" property="stageFlag" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 添加部署记录 -->
+    <insert id="insertBuildInfo" parameterType="com.evy.linlin.deploy.tunnel.po.DeployInsertPO">
+        INSERT INTO public_deploy_info(pdi_seq, pdi_user_seq, pdi_project_name, pdi_app_name, pdi_git_path,
+                                       pdi_git_brchan)
+        VALUES (#{seq}, #{userSeq}, #{projectName}, #{appName}, #{gitPath}, #{gitBrchan})
+    </insert>
+
+    <!-- 根据唯一序列,更新部署记录 -->
+    <update id="updateBuildStatus" parameterType="com.evy.linlin.deploy.tunnel.po.DeployUpdatePO">
+        UPDATE public_deploy_info
+        <set>
+            <if test="jarPath != null and jarPath != '' ">
+                pdi_jar_path = #{jarPath},
+            </if>
+            <if test="buildLog != null and buildLog != '' ">
+                pdi_build_log = #{buildLog},
+            </if>
+            pdi_stage_flag=#{stage}
+        </set>
+        WHERE pdi_seq = #{seq}
+    </update>
+
+    <!-- 根据唯一序列查询对应部署状态 -->
+    <select id="qryStageForSeq" parameterType="com.evy.linlin.deploy.tunnel.po.DeployQryPO"
+            resultMap="DeployStageOutPO">
+        SELECT pdi_stage_flag
+        FROM public_deploy_info
+        WHERE pdi_seq = #{seq}
+        LIMIT 1
+    </select>
+
+    <!-- 根据唯一序列查询对应部署应用信息 -->
+    <select id="qryDeployInfoForSeq" parameterType="com.evy.linlin.deploy.tunnel.po.DeployQryPO"
+            resultMap="DeployQryOutPO">
+        SELECT pdi_seq,
+               pdi_user_seq,
+               pdi_project_name,
+               pdi_app_name,
+               pdi_git_path,
+               pdi_git_brchan,
+               pdi_stage_flag,
+               pdi_switch_junit,
+               pdi_switch_batch_deploy,
+               pdi_jar_path,
+               pdi_jvm_param,
+               pdi_target_host,
+               pdi_remarks,
+               gmt_create
+        FROM public_deploy_info
+        WHERE pdi_seq = #{seq}
+        LIMIT 1
+    </select>
+
+    <!-- 查询用户部署记录 -->
+    <select id="qryDeployInfoListForUserSeq" parameterType="com.evy.linlin.deploy.tunnel.po.DeployQryPO"
+            resultMap="DeployQryOutPO">
+        SELECT pdi_seq,
+               pdi_user_seq,
+               pdi_project_name,
+               pdi_app_name,
+               pdi_git_path,
+               pdi_git_brchan,
+               pdi_stage_flag,
+               pdi_switch_junit,
+               pdi_switch_batch_deploy,
+               pdi_jar_path,
+               pdi_jvm_param,
+               pdi_target_host,
+               pdi_remarks,
+               gmt_create
+        FROM public_deploy_info
+        WHERE pdi_user_seq = #{userSeq}
+    </select>
+</mapper>

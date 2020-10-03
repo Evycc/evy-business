@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @RequestMapping
 public interface IAutoDeploy {
+    /**
+     * 异步部署指定应用
+     */
     @PostMapping("/autoDeploy")
     AutoDeployOutDTO autoDeploy(@RequestBody AutoDeployDTO dto);
 }

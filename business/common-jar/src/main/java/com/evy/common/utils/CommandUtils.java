@@ -158,42 +158,6 @@ public class CommandUtils {
     }
 
     /**
-     * 返回dto字段(包含父类)
-     * @param dto   实例
-     * @return  字段字符串
-     */
-    public static String returnDtoParam(Object dto) {
-        try {
-            Objects.requireNonNull(dto);
-            StringBuffer str = new StringBuffer();
-            Class temp = dto.getClass();
-            String clsName = temp.getName();
-                    str.append("[")
-                    .append(clsName.substring(clsName.lastIndexOf(BusinessConstant.POINT) +1))
-                    .append("(");
-
-            Field[] fields = getAllField(temp);
-            for (Field field : fields) {
-                str.append(field.getName())
-                        .append("=")
-                        .append(fieldAccessGet(field, dto))
-                        .append(",");
-            }
-
-            int l = str.lastIndexOf(",");
-            if (l > 0) {
-                str.delete(l, str.length());
-            }
-            str.append(")")
-                    .append("]");
-            return str.toString();
-        } catch (IllegalAccessException e) {
-            CommandLog.errorThrow("获取DTO字段异常", e);
-            return BusinessConstant.EMPTY_STR;
-        }
-    }
-
-    /**
      * jasypt解密
      * @param pass  加密字符串
      * @return  解密后字符串

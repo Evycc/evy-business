@@ -10,4 +10,8 @@ public class DeployErrorConstant {
      * 部署失败
      */
     public final static String DEPLOY_ERROR_1 = "DEPLOY_ERROR_1";
+    /**
+     * 编译失败
+     */
+    public final static String BUILD_ERROR_1 = "BUILD_ERROR_1";
 }
