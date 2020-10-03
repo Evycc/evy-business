@@ -39,7 +39,8 @@ public class DeployAssembler {
         String nextSeq = SequenceUtils.getNextSeq();
         String projectName = subProjectNameFromGitPath(nextDeployBuildSeqDTO.getGitPath());
         return new DeployInsertPO(nextSeq, nextDeployBuildSeqDTO.getUserSeq(), projectName, nextDeployBuildSeqDTO.getAppName(),
-                nextDeployBuildSeqDTO.getGitPath(), nextDeployBuildSeqDTO.getBrchanName());
+                nextDeployBuildSeqDTO.getGitPath(), nextDeployBuildSeqDTO.getBrchanName(), nextDeployBuildSeqDTO.getRemarks(),
+                nextDeployBuildSeqDTO.getJvmParam(), nextDeployBuildSeqDTO.getTargetHost(), nextDeployBuildSeqDTO.getSwitchBatchDeploy());
     }
 
     /*---------------- convertToDto DTO转DO ----------------*/
