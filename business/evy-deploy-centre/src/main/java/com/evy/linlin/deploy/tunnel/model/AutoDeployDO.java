@@ -16,20 +16,4 @@ public class AutoDeployDO {
      * 编译成功唯一序列,用于关联数据库中对应jar包路径
      */
     private String buildSeq;
-    /**
-     * 备注
-     */
-    private String remarks;
-    /**
-     * jvm参数
-     */
-    private String jvmParam;
-    /**
-     * 部署目标服务器
-     */
-    private String targetHost;
-    /**
-     * 是否分批部署
-     */
-    private boolean switchBatchDeploy;
 }

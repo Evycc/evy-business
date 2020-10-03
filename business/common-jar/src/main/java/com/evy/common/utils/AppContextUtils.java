@@ -27,7 +27,7 @@ import java.util.function.Predicate;
  * @Author: EvyLiuu
  * @Date: 2019/11/9 15:32
  */
-@Component
+@Component("appContextUtils")
 public class AppContextUtils implements ApplicationContextAware {
     private static ApplicationContext CONTEXT;
     private static Environment ENVIRONMENT;

@@ -144,7 +144,7 @@ public class DeployShellRepository {
                 boolean isMoreHost = targetHost.length() > BusinessConstant.ONE_NUM;
 
                 if (isMoreHost) {
-                    if (!autoDeployDO.isSwitchBatchDeploy()) {
+                    if (deployQryOutPo.getSwitchBatchDeploy() == BusinessConstant.ZERO_NUM) {
                         //并行部署
                         for (String host : targetHosts) {
                             EXECUTOR_SERVICE.submit(() -> {

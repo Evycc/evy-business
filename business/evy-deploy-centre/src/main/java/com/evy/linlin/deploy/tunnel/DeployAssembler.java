@@ -48,8 +48,7 @@ public class DeployAssembler {
      * AutoDeployDTO -> AutoDeployDO
      */
     public static AutoDeployDO doConvertToDto(AutoDeployDTO deployDTO) {
-        return new AutoDeployDO(deployDTO.getBuildSeq(), deployDTO.getRemarks(), deployDTO.getJvmParam(),
-                deployDTO.getTargetHost(), deployDTO.getSwitchBatchDeploy() == BusinessConstant.ZERO_NUM);
+        return new AutoDeployDO(deployDTO.getBuildSeq());
     }
 
     /**

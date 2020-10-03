@@ -26,28 +26,4 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
      */
     @NotBlank(message = "buildSeq不能为空")
     private String buildSeq;
-    /**
-     * 备注
-     */
-    @NotBlank(message = "remarks不能为空")
-    @Length(max = 100)
-    private String remarks;
-    /**
-     * jvm参数
-     */
-    @Length(max = 1024)
-    private String jvmParam;
-    /**
-     * 部署目标服务器host,允许多个,用 | 分割
-     */
-    @NotBlank(message = "targetHost不能为空")
-    @Length(max = 100)
-    private String targetHost;
-    /**
-     * 是否分批部署 0 开启 1 不开启
-     */
-    @NotNull(message = "switchBatchDeploy不能为空")
-    @Min(0)
-    @Max(1)
-    private Integer switchBatchDeploy;
 }
