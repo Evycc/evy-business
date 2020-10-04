@@ -1,15 +1,13 @@
 package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/9/26 11:00
  */
+@Setter
 @Getter
 @ToString
 @AllArgsConstructor
