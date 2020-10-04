@@ -52,7 +52,7 @@ public class DeployShellRepository {
     private static final String SHELL_CMD = "/bin/bash";
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService(DeployShellRepository.class.getName());
     private static final String BRCHAN_FILTER_STR = "origin/";
-    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/cdadmin/jar/dump.log";
+    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/applog/current/dump.log";
     private final DeployDataRepository deployDataRepository;
 
     public DeployShellRepository(DeployDataRepository deployDataRepository) {
