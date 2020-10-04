@@ -15,7 +15,7 @@ public abstract class QryDeployInfosService extends BaseCommandTemplate<QryDeplo
     @Override
     public QryDeployInfoOutDTO qryDeployInfosByUser(QryDeployInfoDTO qryDeployInfoDTO) {
         QryDeployInfoOutDTO qryDeployInfoOutDTO = DeployAssembler.createQryDeployInfoOutDto();
-        BeanUtils.copyProperties(start(qryDeployInfoDTO), qryDeployInfoDTO);
+        BeanUtils.copyProperties(start(qryDeployInfoDTO), qryDeployInfoOutDTO);
         return qryDeployInfoOutDTO;
     }
 }

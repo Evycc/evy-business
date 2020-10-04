@@ -15,7 +15,7 @@ public abstract class ReviewDeployStatusService extends BaseCommandTemplate<Revi
     @Override
     public ReviewStatusOutDTO reviewStatus(ReviewStatusDTO reviewStatusDTO) {
         ReviewStatusOutDTO reviewStatusOutDTO = DeployAssembler.createReviewStatusOutDTO();
-        BeanUtils.copyProperties(start(reviewStatusDTO), reviewStatusDTO);
+        BeanUtils.copyProperties(start(reviewStatusDTO), reviewStatusOutDTO);
         return reviewStatusOutDTO;
     }
 }
