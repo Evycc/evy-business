@@ -20,6 +20,7 @@ public class AgentApp {
      */
     public static void premain(String agentArg, Instrumentation instrumentation)
     {
+        System.out.println("Agent Start.");
         //agentArg=DEBUG    打印替换后的字节码字符串
         instrumentation.addTransformer(new AgentApdater(agentArg), true);
 
