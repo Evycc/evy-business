@@ -1,7 +1,5 @@
 package com.evy.linlin.deploy.tunnel.model;
 
-import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.linlin.deploy.dto.BuildProjectDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

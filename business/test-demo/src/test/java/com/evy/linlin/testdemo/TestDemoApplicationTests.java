@@ -138,12 +138,6 @@ public class TestDemoApplicationTests {
     }
 
     @Test
-    public void testReturnDtoParam(){
-        String s = CommandUtils.returnDtoParam(new TestInput());
-        System.out.println(s);
-    }
-
-    @Test
     public void codeTest() throws ClassNotFoundException {
         OutDTO outDTO = new OutDTO();
         outDTO.setErrorCode("1");

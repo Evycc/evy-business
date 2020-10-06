@@ -94,10 +94,8 @@ public class CommandLog {
      */
     @Deprecated
     private static String getClassNameAndPutMDC(){
-        StackTraceElement[] ste = new Exception().getStackTrace();
         String cln = Thread.currentThread().getStackTrace()[2].getClassName();
-        String preClass = ste[3].getClassName();
-        MDC.put("preClass", preClass);
+        MDC.put("preClass", cln);
         return cln;
     }
 

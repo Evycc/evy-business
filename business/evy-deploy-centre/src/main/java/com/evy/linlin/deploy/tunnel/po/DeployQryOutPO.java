@@ -1,11 +1,7 @@
 package com.evy.linlin.deploy.tunnel.po;
 
-import com.evy.linlin.deploy.dto.DeployInfoDTO;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Author: EvyLiuu

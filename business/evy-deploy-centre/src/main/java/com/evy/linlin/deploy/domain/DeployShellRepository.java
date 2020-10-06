@@ -13,8 +13,6 @@ import com.evy.linlin.deploy.tunnel.constant.DeployErrorConstant;
 import com.evy.linlin.deploy.tunnel.constant.DeployStageEnum;
 import com.evy.linlin.deploy.tunnel.model.*;
 import com.evy.linlin.deploy.tunnel.po.DeployQryOutPO;
-import com.evy.linlin.deploy.tunnel.po.DeployQryPO;
-import com.evy.linlin.deploy.tunnel.po.DeployUpdatePO;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -28,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**

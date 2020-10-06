@@ -133,7 +133,7 @@ public class BaseCommandTemplateAgent {
                 .append("}");
     }
 
-    public static boolean judge(String classNmae) {
-        return EXECUTE_METHOD.equals(classNmae);
+    public static boolean judge(String className) {
+        return EXECUTE_METHOD.equals(className);
     }
 }

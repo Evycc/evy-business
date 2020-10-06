@@ -18,6 +18,7 @@ import java.util.stream.Stream;
  * @Date: 2019/10/27 14:54
  */
 public class CommandLogPattern extends NamedConverter {
+
     /**
      * 过滤类名集合
      */
@@ -48,7 +49,7 @@ public class CommandLogPattern extends NamedConverter {
 //        getStackClsInfo(iLoggingEvent);
 //        return rs;
 
-        return getStackClsInfo(iLoggingEvent);
+        return BusinessConstant.VM_HOST + BusinessConstant.DOUBLE_LINE + getStackClsInfo(iLoggingEvent);
     }
 
     /**

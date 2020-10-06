@@ -1,6 +1,5 @@
 package com.evy.linlin.deploy.tunnel.po;
 
-import com.evy.linlin.deploy.dto.NextDeployBuildSeqDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;

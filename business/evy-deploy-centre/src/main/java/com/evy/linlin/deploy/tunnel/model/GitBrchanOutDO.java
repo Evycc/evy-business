@@ -1,11 +1,7 @@
 package com.evy.linlin.deploy.tunnel.model;
 
-import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.command.infrastructure.constant.ErrorConstant;
-import com.evy.linlin.deploy.dto.GetGitBrchansOutDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 

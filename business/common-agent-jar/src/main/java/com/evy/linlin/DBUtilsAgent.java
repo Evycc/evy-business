@@ -54,7 +54,7 @@ public class DBUtilsAgent {
         }
     }
 
-    public static boolean judge(String classNmae) {
-        return DB_METHOD.equals(classNmae);
+    public static boolean judge(String className) {
+        return DB_METHOD.equals(className);
     }
 }

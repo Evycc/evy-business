@@ -35,7 +35,7 @@ public class RabbitMqConsumerAgent {
                     .append("com.evy.common.trace.TraceUtils.addTraceMqEnd(sendMessage.getMessageId(),agentEndTime);")
                     .append("}");
             if (args.contains("DEBUG")) {
-                System.out.println("DBUtilsAgent#agentExecute\t" + stringBuilder);
+                System.out.println("BaseRabbitMqConsumer#agentExecute\t" + stringBuilder);
             }
             ctMethod.setBody(stringBuilder.toString());
             ctClass.detach();
@@ -48,7 +48,7 @@ public class RabbitMqConsumerAgent {
         }
     }
 
-    public static boolean judge(String classNmae) {
-        return MQ_CONSUMER_STR.equals(classNmae);
+    public static boolean judge(String className) {
+        return MQ_CONSUMER_STR.equals(className);
     }
 }

@@ -7,7 +7,6 @@ import com.evy.linlin.deploy.domain.DeployShellRepository;
 import com.evy.linlin.deploy.dto.BuildProjectDTO;
 import com.evy.linlin.deploy.dto.BuildProjectOutDTO;
 import com.evy.linlin.deploy.tunnel.DeployAssembler;
-import com.evy.linlin.deploy.tunnel.model.BuildInfoDO;
 import org.springframework.web.bind.annotation.RestController;
 
 /**

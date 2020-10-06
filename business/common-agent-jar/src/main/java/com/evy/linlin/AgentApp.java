@@ -11,8 +11,6 @@ import java.lang.instrument.Instrumentation;
  *
  */
 public class AgentApp {
-    static int LOAD_FLAG = 1;
-
     /**
      * agent
      * @param agentArg  DEBUG : 打印修改后字节码字符串
@@ -23,13 +21,5 @@ public class AgentApp {
         System.out.println("Agent Start.");
         //agentArg=DEBUG    打印替换后的字节码字符串
         instrumentation.addTransformer(new AgentApdater(agentArg), true);
-
-        if (LOAD_FLAG == 1) {
-            try {
-                Class.forName("com.evy.common.trace.TraceUtils");
-                LOAD_FLAG = 0;
-            } catch (ClassNotFoundException e) {
-            }
-        }
     }
 }

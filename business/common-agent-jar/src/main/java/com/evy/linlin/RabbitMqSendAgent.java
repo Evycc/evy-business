@@ -62,7 +62,7 @@ public class RabbitMqSendAgent {
         }
     }
 
-    public static boolean judge(String classNmae) {
-        return MQ_SENDER_STR.equals(classNmae);
+    public static boolean judge(String className) {
+        return MQ_SENDER_STR.equals(className);
     }
 }

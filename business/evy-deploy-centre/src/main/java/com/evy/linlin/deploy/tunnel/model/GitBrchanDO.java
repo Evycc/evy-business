@@ -1,6 +1,5 @@
 package com.evy.linlin.deploy.tunnel.model;
 
-import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
