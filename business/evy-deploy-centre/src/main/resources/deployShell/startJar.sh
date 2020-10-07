@@ -28,12 +28,22 @@ function echoReturnMsg(){
 }
 
 #######################全局变量#######################
-#目标服务器IP
-if [[ -n "${1}" ]]; then readonly paramTargetIp=${1}; fi
-#jar包路径
-if [[ -n "${2}" ]]; then readonly paramJarPath=${2}'/'; fi
-#jvm参数
-if [[ -n "${3}" ]]; then readonly paramJvm=${3}; fi
+i=1
+#参数3 jvm参数
+paramJvm=''
+for arg in "$@"; do
+    if [[ i -eq 1 ]]; then
+      #参数1 目标服务器IP
+      paramTargetIp=${arg}
+        elif [[ i -eq 2 ]]; then
+          ##参数2 jar包路径
+          paramJarPath=${arg}'/'
+            else
+              paramJvm=$paramJvm${arg}' '
+    fi
+    ((i=++i))
+done
+
 readonly targetPath='/cdadmin/jar/'
 readonly shPath='/cdadmin/'
 readonly shFileName='targetStartJar.sh'
@@ -41,10 +51,36 @@ readonly startLog='startLog'
 readonly pidLog='pidLog'
 readonly jarPath=$(ls $paramJarPath*jar*)
 readonly jarFileName=$(echo $jarPath|awk -F'/' '{print $NF}')
+readonly targetClassPath1='/cdadmin/jar/localClass/classes/'
+readonly targetClassPath2='/cdadmin/jar/localClass/lib/'
+classpathParam='/cdadmin/jar/localClass/classes'
+readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify'
+readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
+readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG'
+
+#######################将jar包解压到本地,拼接classpath#######################
+cd $paramJarPath && jar xf $jarPath
+
+for fileName in $(find $paramJarPath'BOOT-INF/lib/' -maxdepth 1 -mindepth 1 -type f -printf '%f\n')
+  do
+    classpathParam=$classpathParam':'$targetClassPath2$fileName
+done
+
+classpathParam=' -classpath '$classpathParam
+
+#######################停止java进程#######################
+ssh root@"$paramTargetIp" "ps -ef|grep java|awk -F' ' '{print \$2}'|while read -r p; do kill -9 \$p; done || true"
 
 #######################从远程服务器创建目录#######################
 #ssh cdadmin@"$paramTargetIp" "mkdir -r $targetPath"
-ssh root@"$paramTargetIp" "mkdir -p $targetPath"
+ssh root@"$paramTargetIp" "mkdir -p $targetPath && rm -rf $targetPath/*"
+
+#######################上传classpath文件到目标服务器############
+ssh root@"$paramTargetIp" "mkdir -p $targetClassPath1 && rm -rf $targetClassPath1"
+ssh root@"$paramTargetIp" "mkdir -p $targetClassPath2 && rm -rf $targetClassPath2"
+
+scp -r $paramJarPath'BOOT-INF/classes' root@"$paramTargetIp":$targetClassPath1
+scp -r $paramJarPath'BOOT-INF/lib' root@"$paramTargetIp":$targetClassPath2
 
 #######################上传targetStartJar.sh到目标服务器#######################
 #scp $shPath$shFileName cdadmin@"$paramTargetIp":$targetPath
@@ -56,7 +92,7 @@ scp "$jarPath" root@"$paramTargetIp":$targetPath
 
 #######################从目标服务器启动jar#######################
 #ssh cdadmin@"$paramTargetIp" "chmod 775 $targetPath$shFileName; sh $targetPath$shFileName $targetPath $jarFileName $paramJvm"
-ssh root@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $paramJvm"
+ssh root@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $DEFAULT_JVM_PARAM$paramJvm $classpathParam"
 
 #######################从目标服务器传回jar启动日志及pid#######################
 #scp cdadmin@"$paramTargetIp":$targetPath$startLog $paramJarPath

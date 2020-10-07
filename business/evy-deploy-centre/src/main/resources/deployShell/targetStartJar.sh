@@ -17,20 +17,34 @@ set -o nounset    #遇到不存在的变量，终止
 #$3 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
 
 #######################入参#######################
-#jar路径
-if [[ -n "${1}" ]]; then readonly paramJarPath=${1}; fi
-#jar包名
-if [[ -n "${2}" ]]; then readonly paramJarFileName=${2}; fi
-#jvm参数
-if [[ -n "${3}" ]]; then readonly paramJvm=${3}; fi
+i=1
+#参数3 jvm参数
+paramJvm=''
+for arg in "$@"; do
+    if [[ i -eq 1 ]]; then
+      #参数1 jar路径
+      paramJarPath=${arg}
+        elif [[ i -eq 2 ]]; then
+          ##参数2 jar包名
+          paramJarFileName=${arg}'/'
+            else
+              paramJvm=$paramJvm${arg}' '
+    fi
+    ((i=++i))
+done
+
+readonly START_APP='com.evy.linlin.start.EvyStartApp'
 readonly startLog='startLog'
 readonly pidLog='pidLog'
 
 #######################停止java进程#######################
-(ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done)
+(ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done || true)
 
 #######################启动jar#######################
-#后台启动
-(nohup java -jar $paramJarPath$paramJarFileName $paramJvm > $paramJarPath$startLog 2>&1 &)
+#后台启动 jar包方式启动
+#(nohup java $paramJvm -jar $paramJarPath$paramJarFileName > $paramJarPath$startLog 2>&1 &)
+#后台启动 类名启动
+(nohup java $paramJvm $START_APP > $paramJarPath$startLog 2>&1 &)
+
 #将启动jar进程号写入pidLog文件
 (ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do echo $p > $paramJarPath$pidLog; break; done)
