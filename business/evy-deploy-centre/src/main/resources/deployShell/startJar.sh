@@ -44,6 +44,7 @@ for arg in "$@"; do
     ((i=++i))
 done
 
+readonly serverUser='root'
 readonly targetPath='/cdadmin/jar/'
 readonly shPath='/cdadmin/'
 readonly shFileName='targetStartJar.sh'
@@ -57,6 +58,7 @@ classpathParam='/cdadmin/jar/localClass/classes'
 readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify'
 readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
 readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG'
+readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
 
 #######################将jar包解压到本地,拼接classpath#######################
 cd $paramJarPath && jar xf $jarPath
@@ -69,36 +71,37 @@ done
 classpathParam=' -classpath '$classpathParam
 
 #######################停止java进程#######################
-ssh root@"$paramTargetIp" "ps -ef|grep java|awk -F' ' '{print \$2}'|while read -r p; do kill -9 \$p; done || true"
+ssh $serverUser@"$paramTargetIp" "ps -ef|grep java|awk -F' ' '{print \$2}'|while read -r p; do kill -9 \$p; done || true"
 
 #######################从远程服务器创建目录#######################
 #ssh cdadmin@"$paramTargetIp" "mkdir -r $targetPath"
-ssh root@"$paramTargetIp" "mkdir -p $targetPath && rm -rf $targetPath/*"
+ssh $serverUser@"$paramTargetIp" "mkdir -p $targetPath && rm -rf $targetPath/*"
 
 #######################上传classpath文件到目标服务器############
-ssh root@"$paramTargetIp" "mkdir -p $targetClassPath1 && rm -rf $targetClassPath1"
-ssh root@"$paramTargetIp" "mkdir -p $targetClassPath2 && rm -rf $targetClassPath2"
+ssh $serverUser@"$paramTargetIp" "mkdir -p $targetClassPath1 && rm -rf $targetClassPath1"
+ssh $serverUser@"$paramTargetIp" "mkdir -p $targetClassPath2 && rm -rf $targetClassPath2"
 
-scp -r $paramJarPath'BOOT-INF/classes' root@"$paramTargetIp":$targetClassPath1
-scp -r $paramJarPath'BOOT-INF/lib' root@"$paramTargetIp":$targetClassPath2
+scp -r $paramJarPath'BOOT-INF/classes' $serverUser@"$paramTargetIp":$targetClassPath1
+scp -r $paramJarPath'BOOT-INF/lib' $serverUser@"$paramTargetIp":$targetClassPath2
 
 #######################上传targetStartJar.sh到目标服务器#######################
-#scp $shPath$shFileName cdadmin@"$paramTargetIp":$targetPath
-scp $shPath$shFileName root@"$paramTargetIp":$targetPath
+scp $shPath$shFileName $serverUser@"$paramTargetIp":$targetPath
 
 #######################上传jar到目标服务器#######################
-#scp "$jarPath" cdadmin@"$paramTargetIp":$targetPath
-scp "$jarPath" root@"$paramTargetIp":$targetPath
+scp "$jarPath" $serverUser@"$paramTargetIp":$targetPath
+
+#######################上传agent jar到目标服务器#######################
+if [[ -f $AGENT_LOCAL_PATH ]]; then
+  scp "$AGENT_LOCAL_PATH" $serverUser@"$paramTargetIp":$targetPath
+  paramJvm=$paramJvm' '$AGENT_JVM_PARAM_DEBUG
+fi
 
 #######################从目标服务器启动jar#######################
-#ssh cdadmin@"$paramTargetIp" "chmod 775 $targetPath$shFileName; sh $targetPath$shFileName $targetPath $jarFileName $paramJvm"
-ssh root@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $DEFAULT_JVM_PARAM$paramJvm $classpathParam"
+ssh $serverUser@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $DEFAULT_JVM_PARAM$paramJvm $classpathParam"
 
 #######################从目标服务器传回jar启动日志及pid#######################
-#scp cdadmin@"$paramTargetIp":$targetPath$startLog $paramJarPath
-#scp cdadmin@"$paramTargetIp":$targetPath$pidLog $paramJarPath
-scp root@"$paramTargetIp":$targetPath$startLog $paramJarPath
-scp root@"$paramTargetIp":$targetPath$pidLog $paramJarPath
+scp $serverUser@"$paramTargetIp":$targetPath$startLog $paramJarPath
+scp $serverUser@"$paramTargetIp":$targetPath$pidLog $paramJarPath
 
 #######################返回pid#######################
 _exec1=$(cat "$paramJarPath$pidLog")
