@@ -24,7 +24,7 @@ public class ReviewDeployStatusAppService extends ReviewDeployStatusService {
 
     @Override
     public ReviewStatusOutDTO execute(ReviewStatusDTO reviewStatusDTO) throws BasicException {
-        return DeployAssembler.poConvertToDto(
+        return DeployAssembler.poConvertDto(
                 dataRepository.qryStageForSeq(
                         DeployAssembler.createFromBuildSeq(reviewStatusDTO.getBuildSeq())
                 )

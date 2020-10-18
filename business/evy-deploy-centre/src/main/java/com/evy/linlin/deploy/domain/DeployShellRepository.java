@@ -136,7 +136,7 @@ public class DeployShellRepository {
                 //1.调用startJar.sh 部署到指定服务器 (根据服务器列表,是否分批参数,选择并行还是串行)
                 String jarPath = deployQryOutPo.getJarPath();
                 String targetHost = deployQryOutPo.getTargetHost();
-                String jvmParam = deployQryOutPo.getJvmParam() + JVM_PARAM_DEFAULT;
+                String jvmParam = deployQryOutPo.getJvmParam() + BusinessConstant.WHITE_EMPTY_STR + JVM_PARAM_DEFAULT;
                 String[] targetHosts = targetHost.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
                 boolean isMoreHost = targetHost.length() > BusinessConstant.ONE_NUM;
 

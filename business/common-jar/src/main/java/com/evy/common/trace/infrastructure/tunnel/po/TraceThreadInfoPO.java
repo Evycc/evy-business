@@ -2,7 +2,6 @@ package com.evy.common.trace.infrastructure.tunnel.po;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import lombok.Getter;
-import lombok.ToString;
 import org.springframework.util.StringUtils;
 
 /**
@@ -10,7 +9,6 @@ import org.springframework.util.StringUtils;
  * @Date: 2020/7/5 10:48
  */
 @Getter
-@ToString
 public class TraceThreadInfoPO {
     private final String tatiAppIp;
     private final int tatiThreadId;

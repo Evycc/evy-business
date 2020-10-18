@@ -11,6 +11,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class TraceRedisPO {
+    private final String trhAppIp;
     private final String trhRedisIp;
     private final String trhRedisFlag;
     private final String trhSlaveIp;
@@ -39,7 +40,8 @@ public class TraceRedisPO {
     private final String trhSentinelMonitor;
     private final String trhSentinelConfigPath;
 
-    public TraceRedisPO(String trhRedisIp, String trhRedisFlag, String trhSlaveIp, String trhClusterType, boolean trhRdbOpen, boolean trhAofOpen, boolean trhAofRdbOpen, String trhRdbFile, String trhRdbSaveType, String trhAofFile, String trhAofSaveType, String trhMemoryCount, String trhMemoryAvailableCount, String trhMemoryPeak, String trhMemoryFragmentationRatio, String trhKeyspaceRatio, String trhKeysCount, String trhLastRdbStatus, String trhLastAofStatus, String trhLastForkUsec, String trhConnTotalCount, String trhConnCurCount, String trhConnBlockCount, String trhLogPath, String trhConfigPath, String trhSentinelMonitor, String trhSentinelConfigPath) {
+    public TraceRedisPO(String trhAppIp, String trhRedisIp, String trhRedisFlag, String trhSlaveIp, String trhClusterType, boolean trhRdbOpen, boolean trhAofOpen, boolean trhAofRdbOpen, String trhRdbFile, String trhRdbSaveType, String trhAofFile, String trhAofSaveType, String trhMemoryCount, String trhMemoryAvailableCount, String trhMemoryPeak, String trhMemoryFragmentationRatio, String trhKeyspaceRatio, String trhKeysCount, String trhLastRdbStatus, String trhLastAofStatus, String trhLastForkUsec, String trhConnTotalCount, String trhConnCurCount, String trhConnBlockCount, String trhLogPath, String trhConfigPath, String trhSentinelMonitor, String trhSentinelConfigPath) {
+        this.trhAppIp = trhAppIp;
         this.trhRedisIp = trhRedisIp;
         this.trhRedisFlag = trhRedisFlag;
         this.trhSlaveIp = trhSlaveIp;
@@ -81,7 +83,7 @@ public class TraceRedisPO {
         String master = "master";
         trhRedisFlag = master.equalsIgnoreCase(trhRedisFlag) ? BusinessConstant.ZERO : BusinessConstant.ONE;
 
-        return new TraceRedisPO(trhRedisIp, trhRedisFlag, trhSlaveIp, trhClusterType, trhRdbOpen, trhAofOpen, trhAofRdbOpen, trhRdbFile, trhRdbSaveType, trhAofFile, trhAofSaveType,
+        return new TraceRedisPO(BusinessConstant.VM_HOST, trhRedisIp, trhRedisFlag, trhSlaveIp, trhClusterType, trhRdbOpen, trhAofOpen, trhAofRdbOpen, trhRdbFile, trhRdbSaveType, trhAofFile, trhAofSaveType,
                 trhMemoryCount, trhMemoryAvailableCount, trhMemoryPeak, trhMemoryFragmentationRatio, trhKeyspaceRatio, trhKeysCount, trhLastRdbStatus, trhLastAofStatus,
                 trhLastForkUsec, trhConnTotalCount, trhConnCurCount, trhConnBlockCount, trhLogPath, trhConfigPath, trhSentinelMonitor, trhSentinelConfigPath);
     }

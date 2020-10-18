@@ -25,7 +25,7 @@ public class BuildProjectAppService extends BuildProjectService {
 
     @Override
     public BuildProjectOutDTO execute(BuildProjectDTO dto) throws BasicException {
-        deployShellRepository.build(DeployAssembler.doConvertToDto(dto));
+        deployShellRepository.build(DeployAssembler.dtoConvertDo(dto));
         return DeployAssembler.createBuildProjectOutDTO(ErrorConstant.SUCCESS, dto.getBuildSeq());
     }
 }

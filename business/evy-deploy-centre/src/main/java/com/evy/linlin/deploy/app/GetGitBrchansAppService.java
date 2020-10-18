@@ -27,11 +27,11 @@ public class GetGitBrchansAppService extends GetGitBrchansService {
 
     @Override
     public GetGitBrchansOutDTO execute(GetGitBrchansDTO dto) throws BasicException {
-        GitBrchanOutDO gitBrchanOutDo = deployShellRepository.getGitBrchansShell(DeployAssembler.doConvertToDto(dto));
+        GitBrchanOutDO gitBrchanOutDo = deployShellRepository.getGitBrchansShell(DeployAssembler.dtoConvertDo(dto));
         if (CollectionUtils.isEmpty(gitBrchanOutDo.getGitBrchans())) {
             throw new BasicException(ErrorConstant.ERROR_01, "获取分支为空");
         }
 
-        return DeployAssembler.dtoConvertToDo(gitBrchanOutDo);
+        return DeployAssembler.doConvertDto(gitBrchanOutDo);
     }
 }

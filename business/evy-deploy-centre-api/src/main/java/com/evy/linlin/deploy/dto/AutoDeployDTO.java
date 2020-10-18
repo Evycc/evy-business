@@ -5,6 +5,7 @@ import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 
@@ -21,5 +22,6 @@ public class AutoDeployDTO extends InputDTO implements ValidatorDTO<AutoDeployDT
      * 编译流水,用于关联编译应用信息
      */
     @NotBlank(message = "buildSeq不能为空")
+    @Length(max = 64, message = "buildSeq长度超限")
     private String buildSeq;
 }

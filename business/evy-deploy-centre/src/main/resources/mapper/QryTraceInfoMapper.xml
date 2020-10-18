@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QryTraceInfoMapper">
+    <!-- 根据唯一序列查询对应部署状态 -->
+    <select id="getTargetIpFromSeq" parameterType="com.evy.linlin.trace.domain.tunnel.po.GetTargetIpFromSeqPO"
+            resultType="java.lang.String">
+        SELECT pdi_target_host
+        FROM public_deploy_info
+        WHERE pdi_seq = #{seq}
+        LIMIT 1
+    </select>
+
+    <!--    根据服务器IP查询内存信息最新记录集合-->
+    <select id="qryAppMermoryList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryListPO">
+        SELECT tami_app_ip                 as tamiAppIp,
+               tami_cpu_count              as tamiCpuCount,
+               tami_cpu_load               as tamiCpuLoad,
+               tami_sys_memory             as tamiSysMemory,
+               tami_sys_avail_memory       as tamiSysAvailMemory,
+               tami_app_use_memory         as tamiAppUseMemory,
+               tami_app_heap_max_memory    as tamiAppHeapMaxMemory,
+               tami_app_heap_min_memory    as tamiAppHeapMinMemory,
+               tami_app_heap_use_memory    as tamiAppHeapUseMemory,
+               tami_app_nonheap_max_memory as tamiAppNoheapMaxMemory,
+               tami_app_nonheap_min_memory as tamiAppNoheapMinMemory,
+               tami_app_nonheap_use_memory as tamiAppNoheapUseMemory,
+               gmt_modify                  as gmtModify
+        FROM trace_app_mermory_info
+        WHERE tami_app_ip = #{appIp}
+        ORDER BY gmt_create DESC
+        <if test="limit != null or limit != ''">
+            LIMIT #{limit};
+        </if>
+        <if test="limit == null or limit == ''">
+            LIMIT 7;
+        </if>
+    </select>
+
+    <!--    根据服务器IP查询最新线程信息集合-->
+    <select id="qryAppThreadInfoList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryAppThreadInfoPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryAppThreadInfoListPO">
+        SELECT
+        tati_app_ip as tatiAppIp,
+        tati_thread_id as tatiThreadId,
+        tati_thread_name as tatiThreadName,
+        tati_thread_status as tatiThreadStatus,
+        tati_thread_start_mtime as tatiThreadStartMtime,
+        tati_thread_blocked_count as tatiThreadBlockedCount,
+        tati_thread_blocked_mtime as tatiThreadBlockedMtime,
+        tati_thread_blocked_name as tatiThreadBlockedName,
+        tati_thread_blocked_id as tatiThreadBlockedId,
+        tati_thread_waited_count as tatiThreadWaitedCount,
+        tati_thread_waited_mtime as tatiThreadWaitedMtime,
+        tati_thread_max_count as tatiThreadMaxCount,
+        tati_thread_stack as tatiThreadStack,
+        gmt_modify as gmtModify
+        FROM trace_app_thread_info
+        <where>
+            tati_app_ip = #{appIp}
+            <if test="threadName != null and threadName != ''">
+                and tati_thread_name = #{threadName} LIMIT 1
+            </if>
+        </where>
+
+    </select>
+
+    <!--    根据服务器IP查询http请求记录集合-->
+    <select id="qryAppHttpReqInfoList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqListPO">
+        SELECT thf_req_ip        as thfReqIp,
+               thf_url           as thfUrl,
+               thf_takeup_time   as thfTakeupTime,
+               thf_req_timestamp as thfReqTimestamp,
+               thf_result_sucess as thfResultSucess,
+               thf_input         as thfInput,
+               thf_result        as thfResult,
+               gmt_modify        as gmtModify
+        FROM trace_http_flow
+        WHERE thf_req_ip = #{appIp}
+        <if test="limit != null or limit != ''">
+            LIMIT #{limit};
+        </if>
+        <if test="limit == null or limit == ''">
+            LIMIT 7;
+        </if>
+    </select>
+
+    <!--    查询指定服务器MQ发布消费信息-->
+    <select id="qryMqTraceInfoList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoListPO">
+        SELECT
+        tmf_topic as tmfReqIp,
+        tmf_req_ip as tmfTopic,
+        tmf_tag as tmfTag,
+        tmf_msg_id as tmfMsgId,
+        tmf_mq_content as tmfMqContent,
+        tmf_resp_ip as tmfRespIp,
+        tmf_producer_start_timestamp as tmfProducerStartTimestamp,
+        tmf_consumer_end_timestamp as tmfConsumerStartTimestamp,
+        tmf_consumer_takeup_timestamp as tmfConsumerTakeupTimestamp,
+        gmt_modify as gmtModify
+        FROM trace_mq_flow
+        <where>
+            tmf_req_ip = #{appIp}
+            <if test="topic != null and topic != ''">
+                and tmf_topic = #{topic}
+            </if>
+            <if test="msgId != null and msgId != ''">
+                and tmf_msg_id = #{msgId}
+            </if>
+            <if test="limit != null or limit != ''">
+                LIMIT #{limit};
+            </if>
+            <if test="limit == null or limit == ''">
+                LIMIT 7;
+            </if>
+        </where>
+    </select>
+
+    <!--    查询redis健康信息-->
+    <select id="qryRedisInfo"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryRedisInfoPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryRedisInfoOutPO">
+        SELECT trh_app_ip                     as trhAppIp,
+               trh_redis_ip                   as trhRedisIp,
+               trh_redis_flag                 as trhRedisFlag,
+               trh_slave_ip                   as trhSlaveIp,
+               trh_cluster_type               as trhClusterType,
+               trh_rdb_open                   as trhRdbOpen,
+               trh_rdb_file                   as trhRdbFile,
+               trh_rdb_save_type              as trhRdbSaveType,
+               trh_aof_open                   as trhAofOpen,
+               trh_aof_file                   as trhAofFile,
+               trh_aof_save_type              as trhAofSaveType,
+               trh_aof_rdb_open               as trhAofRdbOpen,
+               trh_memory_count               as trhMemoryCount,
+               trh_memory_available_count     as trhMemoryAvailableCount,
+               trh_memory_peak                as trhMemoryPeak,
+               trh_memory_fragmentation_ratio as trhMemoryFragmentationCount,
+               trh_keyspace_ratio             as trhKeyspaceRatio,
+               trh_keys_count                 as trhKeysCount,
+               trh_last_rdb_status            as trhLastRdbStatus,
+               trh_last_aof_status            as trhLastAofStatus,
+               trh_last_fork_usec             as trhLastForkUsec,
+               trh_conn_total_count           as trhConnTotalCount,
+               trh_conn_cur_count             as trhConnCurCount,
+               trh_conn_block_count           as trhConnBlockCount,
+               trh_log_path                   as trhLogPath,
+               trh_config_path                as trhConfigPath,
+               trh_sentinel_monitor           as trhSentinelMonitor,
+               trh_sentinel_config_path       as trhSentinelConfigPath,
+               gmt_modify                     as gmtModify
+        FROM trace_redis_health
+        WHERE trh_app_ip = #{appIp}
+    </select>
+
+    <!--    查询应用服务列表-->
+    <select id="qryServiceInfoList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryServiceInfoPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryServiceInfoListPO">
+        SELECT tsi_service_bean_name as tsiServiceBeanName,
+        tsi_service_name as tsiServiceName,
+        tsi_service_path as tsiServicePath,
+        tsi_provider as tsiProvider,
+        tsi_consumer as tsiConsumer,
+        tsi_provider_names as tsiProviderNames,
+        tsi_consumer_names as tsiConsumerNames,
+        gmt_modify as gmtModify,
+        #{appIp} as appIp
+        FROM trace_services_info
+        <where>
+            tsi_provider_names like CONCAT('%', #{appIp}, '%')
+            <if test="serviceBeanName != null and serviceBeanName != ''">
+                and tsi_service_bean_name = #{serviceBeanName} limit 1
+            </if>
+        </where>
+    </select>
+
+    <!--    查询应用慢SQL-->
+    <select id="qryAppSlowSqlList"
+            parameterType="com.evy.linlin.trace.domain.tunnel.po.QryAppSlowSqlPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QryAppSlowSqlListPO">
+        SELECT tss_req_ip          as tssReqIp,
+               tss_slow_sql        as tssSlowSql,
+               tss_take_time       as tssTakeTime,
+               tss_explain         as tssExplain,
+               tss_explain_content as tssExplainContent,
+               gmt_modify          as gmtModify
+        FROM trace_slow_sql
+        WHERE tss_req_ip = #{appIp}
+        <if test="limit != null or limit != ''">
+            LIMIT #{limit};
+        </if>
+        <if test="limit == null or limit == ''">
+            LIMIT 7;
+        </if>
+    </select>
+</mapper>

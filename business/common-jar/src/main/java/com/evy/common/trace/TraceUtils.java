@@ -21,10 +21,6 @@ public class TraceUtils {
     private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(7,
             CreateFactory.createThreadFactory("TraceUtils"));
 
-    static {
-        init();
-    }
-
     public static void init(){
         //定时监控队列，存在数据则进行处理后入库
         //1分钟后执行

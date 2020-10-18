@@ -5,6 +5,7 @@ import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -30,5 +31,6 @@ public class BuildProjectDTO extends InputDTO implements ValidatorDTO<BuildProje
      * 编译应用唯一序列,用于关联数据库中部署应用信息
      */
     @NotBlank(message = "buildSeq不能为空")
+    @Length(max = 64, message = "buildSeq长度超限")
     private String buildSeq;
 }

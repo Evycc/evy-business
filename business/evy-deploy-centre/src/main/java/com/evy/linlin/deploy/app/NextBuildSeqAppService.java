@@ -25,7 +25,7 @@ public class NextBuildSeqAppService extends NextBuildSeqService {
 
     @Override
     public NextDeployBuildSeqOutDTO execute(NextDeployBuildSeqDTO dto) throws BasicException {
-        DeployInsertPO deployInsertPo = DeployAssembler.poConvertToDto(dto);
+        DeployInsertPO deployInsertPo = DeployAssembler.dtoConvertPo(dto);
         dataRepository.insertDeployInfo(deployInsertPo);
         return DeployAssembler.createNextDeployBuildSeqOutDTO(deployInsertPo.getSeq());
     }

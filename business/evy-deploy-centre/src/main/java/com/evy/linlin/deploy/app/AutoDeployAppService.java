@@ -23,7 +23,7 @@ public class AutoDeployAppService extends AutoDeployService {
 
     @Override
     public AutoDeployOutDTO execute(AutoDeployDTO deployDTO) throws BasicException {
-        deployShellRepository.autoDeploy(DeployAssembler.doConvertToDto(deployDTO));
+        deployShellRepository.autoDeploy(DeployAssembler.dtoConvertDo(deployDTO));
         return new AutoDeployOutDTO();
     }
 }

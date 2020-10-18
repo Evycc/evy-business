@@ -27,7 +27,7 @@ public class QryDeployInfosAppService extends QryDeployInfosService {
     public QryDeployInfoOutDTO execute(QryDeployInfoDTO qryDeployInfoDTO) throws BasicException {
         return DeployAssembler.createQryDeployInfoOutDto(
                 dataRepository.qryForUserSeq(
-                        DeployAssembler.poConvertToDto(qryDeployInfoDTO)
+                        DeployAssembler.dtoConvertPo(qryDeployInfoDTO)
                 )
         );
     }

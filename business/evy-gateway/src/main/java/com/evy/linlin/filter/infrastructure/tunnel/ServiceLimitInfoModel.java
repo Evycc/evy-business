@@ -69,8 +69,4 @@ public class ServiceLimitInfoModel {
     public String getServiceFallback() {
         return serviceFallback;
     }
-
-    public static void main(String[] args) {
-        System.out.println();
-    }
 }

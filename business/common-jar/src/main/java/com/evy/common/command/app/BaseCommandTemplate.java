@@ -13,13 +13,13 @@ import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.common.mq.common.app.basic.MqSender;
 import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.JsonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -161,7 +161,12 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
                 }
             }
 
-            commandContent.put("reqContent", JsonUtils.convertToJson(map));
+            String reqContentJson = JsonUtils.convertToJson(map);
+            if (reqContentJson.length() > 2048) {
+                reqContentJson = reqContentJson.substring(0, 2048);
+            }
+
+            commandContent.put("reqContent", reqContentJson);
             String curCode = this.getClass().getName();
             int temp1 = curCode.lastIndexOf(BusinessConstant.POINT);
             curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) +1, curCode.length() -1);
@@ -222,7 +227,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         Set<ConstraintViolation<T>> violations = t.validator(t);
         if (!CollectionUtils.isEmpty(violations)) {
             for (ConstraintViolation<T> violeation : violations) {
-                throw new BasicException(ErrorConstant.ERROR_VALIDATOR, violeation.getPropertyPath() + violeation.getMessage());
+                throw new BasicException(ErrorConstant.ERROR_VALIDATOR, violeation.getMessage());
             }
         }
 
@@ -253,45 +258,26 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     }
 
     /**
-     * 转换DTO [e >> r]
-     * @param r 待转换DTO
-     * @param e 源转换DTO
+     * 转换DTO [source >> target]
+     * @param target 待转换DTO
+     * @param source 源转换DTO
      * @param <E>   一般为与待转换DTO有父子关系的类型
      * @return  返回转换后的DTO对象
      */
     @SuppressWarnings("unchecked")
-    public <E> R convertDto(R r, E e){
+    public <E> R convertDto(R target, E source){
         try {
-            if (r.getClass().equals(e.getClass())) {
-                return (R) e;   
+            if (target.getClass().equals(source.getClass())) {
+                return (R) source;
             }
 
-            List<Field> rfieldList;
-            List<Field> efieldList;
-            Class<?> rtemp = r.getClass();
-            Class<?> etemp = e.getClass();
-
-            rfieldList = Arrays.asList(CommandUtils.getAllField(rtemp));
-            efieldList = Arrays.asList(CommandUtils.getAllField(etemp));
-
-            for (Field rfield : rfieldList) {
-                String toFieldName = rfield.getName();
-                String toFieldValue = BusinessConstant.EMPTY_STR;
-                for (Field efield : efieldList) {
-                    String fromFieldName = efield.getName();
-                    if (fromFieldName.equals(toFieldName)){
-                        toFieldValue = String.valueOf(CommandUtils.fieldAccessGet(efield, e));
-                    }
-                }
-                CommandUtils.fieldAccessSet(rfield, r, toFieldValue);
-
-            }
-        } catch (IllegalAccessException ex) {
+            BeanUtils.copyProperties(source, target);
+        } catch (Exception ex) {
             CommandLog.errorThrow("转换DTO异常", ex);
-            r = whenException(ex, r);
+            target = whenException(ex, target);
         }
 
-        return r;
+        return target;
     }
 
     /**

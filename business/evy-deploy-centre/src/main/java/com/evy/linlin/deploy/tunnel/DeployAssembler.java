@@ -17,25 +17,25 @@ import java.util.stream.Collectors;
  * @Date: 2020/10/3 0:20
  */
 public class DeployAssembler {
-    /*---------------- convertToDto DO转DTO ----------------*/
+    /*---------------- doConvertDto DO转DTO ----------------*/
 
-    public static GetGitBrchansOutDTO dtoConvertToDo(GitBrchanOutDO gitBrchanOutDo) {
+    public static GetGitBrchansOutDTO doConvertDto(GitBrchanOutDO gitBrchanOutDo) {
         return new GetGitBrchansOutDTO(gitBrchanOutDo.getGitPath(), gitBrchanOutDo.getGitBrchans());
     }
 
-    /*---------------- convertToDto DTO转PO ----------------*/
+    /*---------------- dtoConvertPo DTO转PO ----------------*/
 
     /**
      * QryDeployInfoDTO -> DeployQryPO
      */
-    public static DeployQryPO poConvertToDto(QryDeployInfoDTO qryDeployInfoDTO) {
+    public static DeployQryPO dtoConvertPo(QryDeployInfoDTO qryDeployInfoDTO) {
         return DeployAssembler.createFromUserSeq(qryDeployInfoDTO.getUserSeq());
     }
 
     /**
      * NextDeployBuildSeqDTO -> DeployInsertPO
      */
-    public static DeployInsertPO poConvertToDto(NextDeployBuildSeqDTO nextDeployBuildSeqDTO) {
+    public static DeployInsertPO dtoConvertPo(NextDeployBuildSeqDTO nextDeployBuildSeqDTO) {
         String nextSeq = SequenceUtils.getNextSeq();
         String projectName = subProjectNameFromGitPath(nextDeployBuildSeqDTO.getGitPath());
         return new DeployInsertPO(nextSeq, nextDeployBuildSeqDTO.getUserSeq(), projectName, nextDeployBuildSeqDTO.getAppName(),
@@ -43,26 +43,26 @@ public class DeployAssembler {
                 nextDeployBuildSeqDTO.getJvmParam(), nextDeployBuildSeqDTO.getTargetHost(), nextDeployBuildSeqDTO.getSwitchBatchDeploy());
     }
 
-    /*---------------- convertToDto DTO转DO ----------------*/
+    /*---------------- dtoConvertDo DTO转DO ----------------*/
 
     /**
      * AutoDeployDTO -> AutoDeployDO
      */
-    public static AutoDeployDO doConvertToDto(AutoDeployDTO deployDTO) {
+    public static AutoDeployDO dtoConvertDo(AutoDeployDTO deployDTO) {
         return new AutoDeployDO(deployDTO.getBuildSeq());
     }
 
     /**
      * BuildProjectDTO -> BuildInfoDO
      */
-    public static BuildInfoDO doConvertToDto(BuildProjectDTO dto) {
+    public static BuildInfoDO dtoConvertDo(BuildProjectDTO dto) {
         return new BuildInfoDO(dto.getSwitchJunit() == BusinessConstant.ZERO_NUM, dto.getBuildSeq());
     }
 
     /**
      * GetGitBrchansDTO -> GitBrchanDO
      */
-    public static GitBrchanDO doConvertToDto(GetGitBrchansDTO dto) {
+    public static GitBrchanDO dtoConvertDo(GetGitBrchansDTO dto) {
         return new GitBrchanDO(dto.getGitPath());
     }
 
@@ -185,19 +185,19 @@ public class DeployAssembler {
         return buildProjectOutDTO;
     }
 
-    /*---------------- convertToPo PO转DTO ----------------*/
+    /*---------------- poConvertDto PO转DTO ----------------*/
 
     /**
      * DeployStageOutPO -> ReviewStatusOutDTO
      */
-    public static ReviewStatusOutDTO poConvertToDto(DeployStageOutPO deployStageOutPO) {
-        return new ReviewStatusOutDTO(deployStageOutPO.getStageFlag());
+    public static ReviewStatusOutDTO poConvertDto(DeployStageOutPO deployStageOutPo) {
+        return new ReviewStatusOutDTO(deployStageOutPo.getStageFlag());
     }
 
     /**
      * DeployQryOutPO -> DeployInfoDTO
      */
-    public static DeployInfoDTO poConvertToDto(DeployQryOutPO deployQryOutPo) {
+    public static DeployInfoDTO poConvertDto(DeployQryOutPO deployQryOutPo) {
         return new DeployInfoDTO(deployQryOutPo.getBuildSeq(), deployQryOutPo.getUserSeq(), deployQryOutPo.getProjectName(), deployQryOutPo.getAppName(),
                 deployQryOutPo.getGitPath(), deployQryOutPo.getGitBrchan(), deployQryOutPo.getStageFlag(), deployQryOutPo.getSwitchJunit(),
                 deployQryOutPo.getSwitchBatchDeploy(), deployQryOutPo.getJarPath(), deployQryOutPo.getJvmParam(), deployQryOutPo.getTargetHost(),
@@ -207,9 +207,9 @@ public class DeployAssembler {
     /**
      * List<DeployQryOutPO> -> List<DeployInfoDTO>
      */
-    public static List<DeployInfoDTO> poConvertToDto(List<DeployQryOutPO> list) {
+    public static List<DeployInfoDTO> poConvertDto(List<DeployQryOutPO> list) {
         return list.stream()
-                .map(DeployAssembler::poConvertToDto)
+                .map(DeployAssembler::poConvertDto)
                 .collect(Collectors.toList());
     }
 
@@ -217,7 +217,7 @@ public class DeployAssembler {
      * List<DeployQryOutPO> -> QryDeployInfoOutDTO
      */
     public static QryDeployInfoOutDTO createQryDeployInfoOutDto(List<DeployQryOutPO> deployQryOutPos) {
-        return new QryDeployInfoOutDTO(DeployAssembler.poConvertToDto(deployQryOutPos));
+        return new QryDeployInfoOutDTO(DeployAssembler.poConvertDto(deployQryOutPos));
     }
 
     /*---------------- 通用方法 ----------------*/

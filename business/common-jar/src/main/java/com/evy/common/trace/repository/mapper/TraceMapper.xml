@@ -72,15 +72,15 @@
     </insert>
 
     <insert id="redisInfoInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO">
-        INSERT INTO trace_redis_health(trh_redis_ip, trh_redis_flag, trh_slave_ip, trh_cluster_type, trh_rdb_open,
-                                       trh_rdb_file, trh_rdb_save_type, trh_aof_open, trh_aof_file,
+        INSERT INTO trace_redis_health(trh_app_ip, trh_redis_ip, trh_redis_flag, trh_slave_ip, trh_cluster_type,
+                                       trh_rdb_open, trh_rdb_file, trh_rdb_save_type, trh_aof_open, trh_aof_file,
                                        trh_aof_save_type, trh_aof_rdb_open, trh_memory_count,
                                        trh_memory_available_count, trh_memory_peak, trh_memory_fragmentation_ratio,
                                        trh_keyspace_ratio, trh_keys_count, trh_last_rdb_status, trh_last_aof_status,
                                        trh_last_fork_usec, trh_conn_total_count,
                                        trh_conn_cur_count, trh_conn_block_count, trh_log_path, trh_config_path,
                                        trh_sentinel_monitor, trh_sentinel_config_path)
-        VALUES (#{trhRedisIp}, #{trhRedisFlag}, #{trhSlaveIp}, #{trhClusterType}, #{trhRdbOpen}, #{trhRdbFile},
+        VALUES (#{trhAppIp}, #{trhRedisIp}, #{trhRedisFlag}, #{trhSlaveIp}, #{trhClusterType}, #{trhRdbOpen}, #{trhRdbFile},
                 #{trhRdbSaveType}, #{trhAofOpen}, #{trhAofFile}, #{trhAofSaveType},
                 #{trhAofRdbOpen}, #{trhMemoryCount}, #{trhMemoryAvailableCount}, #{trhMemoryPeak},
                 #{trhMemoryFragmentationRatio}, #{trhKeyspaceRatio}, #{trhKeysCount}, #{trhLastRdbStatus},
