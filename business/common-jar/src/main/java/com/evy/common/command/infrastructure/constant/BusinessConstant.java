@@ -115,9 +115,12 @@ public class BusinessConstant {
                 while (enumeration.hasMoreElements()) {
                     InetAddress address = enumeration.nextElement();
                     String addressIp = address.getHostAddress();
-                    if (!defaultIp.equals(addressIp) && (isIPv4Address(addressIp) || isIPv6Address(addressIp))) {
-                        VM_HOST = addressIp;
-                        break;
+                    CommandLog.info("addressIp : {}", addressIp);
+                    if (!defaultIp.equals(addressIp)) {
+                        if (isIPv4Address(addressIp) || isIPv6Address(addressIp)) {
+                            VM_HOST = addressIp;
+                            break;
+                        }
                     }
                 }
             }
