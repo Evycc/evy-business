@@ -6,6 +6,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 /**
  * 常量字段及静态方法
@@ -77,9 +78,22 @@ public class BusinessConstant {
     static {
         Long val = getVmUpTime();
         try {
+            String defaultIp = "127.0.0.1";
             InetAddress inetAddress = InetAddress.getLocalHost();
             VM_HOST = inetAddress.getHostAddress();
             NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
+
+            if (defaultIp.equals(VM_HOST)) {
+                Enumeration<InetAddress> enumeration = networkInterface.getInetAddresses();
+                while (enumeration.hasMoreElements()) {
+                    InetAddress address = enumeration.nextElement();
+                    if (!defaultIp.equals(address.getHostAddress())) {
+                        VM_HOST = address.getHostAddress();
+                        break;
+                    }
+                }
+            }
+
             byte[] bytes = networkInterface.getHardwareAddress();
             if (bytes != null && bytes.length > 1) {
                 for (byte b : bytes) {
