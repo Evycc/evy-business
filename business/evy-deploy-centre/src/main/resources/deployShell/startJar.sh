@@ -43,6 +43,7 @@ for arg in "$@"; do
     fi
     ((i=++i))
 done
+paramJvm=$paramJvm' -DAppLocalhost='$paramTargetIp' '
 
 readonly serverUser='root'
 readonly targetPath='/cdadmin/jar/'

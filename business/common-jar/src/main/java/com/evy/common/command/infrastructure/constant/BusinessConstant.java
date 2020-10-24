@@ -1,6 +1,7 @@
 package com.evy.common.command.infrastructure.constant;
 
 import com.evy.common.log.CommandLog;
+import org.springframework.util.StringUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -83,8 +84,18 @@ public class BusinessConstant {
     static {
         Long val = getVmUpTime();
         try {
+            String defaultIpKey = "AppLocalhost";
+            String defaultIp = "127.0.0.1";
             InetAddress inetAddress = InetAddress.getLocalHost();
             VM_HOST = inetAddress.getHostAddress();
+
+            if (defaultIp.equals(VM_HOST)) {
+                String vmAppIp = System.getProperty(defaultIpKey);
+                if (!StringUtils.isEmpty(vmAppIp)) {
+                    VM_HOST = vmAppIp;
+                }
+            }
+
             NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
 
             byte[] bytes = networkInterface.getHardwareAddress();
