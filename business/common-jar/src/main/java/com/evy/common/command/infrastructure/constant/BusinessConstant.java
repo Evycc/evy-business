@@ -7,14 +7,18 @@ import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.regex.Pattern;
 
 /**
  * 常量字段及静态方法
+ *
  * @Author: EvyLiuu
  * @Date: 2019/10/23 0:12
  */
 public class BusinessConstant {
-    private BusinessConstant(){}
+    private BusinessConstant() {
+    }
+
     public static final String ZERO = "0";
     public static final String ONE = "1";
     public static final int ZERO_NUM = 0;
@@ -35,7 +39,9 @@ public class BusinessConstant {
     public static final String STRIKE_THROUGH_STR = "-";
     public static final String COLON_STR = ":";
     public static final String LINE_FEED_STR = "\n";
-    //临时表通常为<subquery> 尖括号包裹
+    /**
+     * 临时表通常为<subquery> 尖括号包裹
+     */
     public static final String TMP_TABLE_NAME = "<";
     public static final String YES = "yes";
     public static final String NO = "no";
@@ -69,11 +75,32 @@ public class BusinessConstant {
 
     /**
      * jvm运行时间
-     * @return  jvm运行时间 long
+     *
+     * @return jvm运行时间 long
      */
     public static long getVmUpTime() {
         return RUNTIME_MX_BEAN.getUptime();
     }
+
+    /**
+     * IPv4地址的正则表达式
+     */
+    private static final Pattern IPV4_REGEX =
+            Pattern.compile(
+                    "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+    /**
+     * IPv6地址的正则表达式
+     */
+    private static final Pattern IPV6_STD_REGEX =
+            Pattern.compile(
+                    "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
+    /**
+     * IPv6地址的正则表达式
+     */
+    private static final Pattern IPV6_COMPRESS_REGEX =
+            Pattern.compile(
+                    "^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)*[0-9A-Fa-f]{1,4})?)$");
+
 
     static {
         Long val = getVmUpTime();
@@ -87,8 +114,9 @@ public class BusinessConstant {
                 Enumeration<InetAddress> enumeration = networkInterface.getInetAddresses();
                 while (enumeration.hasMoreElements()) {
                     InetAddress address = enumeration.nextElement();
-                    if (!defaultIp.equals(address.getHostAddress())) {
-                        VM_HOST = address.getHostAddress();
+                    String addressIp = address.getHostAddress();
+                    if (!defaultIp.equals(addressIp) && (isIPv4Address(addressIp) || isIPv6Address(addressIp))) {
+                        VM_HOST = addressIp;
                         break;
                     }
                 }
@@ -97,12 +125,37 @@ public class BusinessConstant {
             byte[] bytes = networkInterface.getHardwareAddress();
             if (bytes != null && bytes.length > 1) {
                 for (byte b : bytes) {
-                    val += (long)b;
+                    val += (long) b;
                 }
             }
         } catch (Exception e) {
             CommandLog.errorThrow("当前机器不存在网卡，获取MAC地址失败", e);
         }
         MAC_ID = val;
+    }
+
+    /**
+     * 判断是否为合法IPv4地址
+     *
+     * @param input ip地址
+     * @return true 符合ipv4
+     */
+    public static boolean isIPv4Address(final String input) {
+        return IPV4_REGEX.matcher(input).matches();
+    }
+
+    /**
+     * 判断是否为合法IPv6地址
+     *
+     * @param input ip地址
+     * @return true 符合ipv6
+     */
+    public static boolean isIPv6Address(final String input) {
+        boolean result = false;
+        if (IPV6_STD_REGEX.matcher(input).matches() || IPV6_COMPRESS_REGEX.matcher(input).matches()) {
+            result = true;
+        }
+
+        return result;
     }
 }
