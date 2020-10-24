@@ -6,8 +6,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.regex.Pattern;
 
 /**
  * 常量字段及静态方法
