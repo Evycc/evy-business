@@ -110,19 +110,29 @@ public class BusinessConstant {
             VM_HOST = inetAddress.getHostAddress();
             NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
 
+            CommandLog.info("Enumeration<InetAddress> enumeration : {}", networkInterface.getInetAddresses().hasMoreElements());
+            CommandLog.info("networkInterface.getInterfaceAddresses() : {}", networkInterface.getInterfaceAddresses().size());
+
             if (defaultIp.equals(VM_HOST)) {
                 Enumeration<InetAddress> enumeration = networkInterface.getInetAddresses();
-                while (enumeration.hasMoreElements()) {
-                    InetAddress address = enumeration.nextElement();
-                    String addressIp = address.getHostAddress();
-                    CommandLog.info("addressIp : {}", addressIp);
-                    if (!defaultIp.equals(addressIp)) {
-                        if (isIPv4Address(addressIp) || isIPv6Address(addressIp)) {
-                            VM_HOST = addressIp;
-                            break;
-                        }
-                    }
-                }
+                networkInterface.getInterfaceAddresses()
+                        .stream()
+                        .map(interfaceAddress -> interfaceAddress.getAddress().getHostAddress())
+                        .filter(addressIp -> !defaultIp.equals(addressIp) && (isIPv4Address(addressIp) || isIPv6Address(addressIp)))
+                        .findFirst()
+                        .ifPresent(addressIp -> VM_HOST = addressIp);
+
+//                while (enumeration.hasMoreElements()) {
+//                    InetAddress address = enumeration.nextElement();
+//                    String addressIp = address.getHostAddress();
+//                    CommandLog.info("addressIp : {}", addressIp);
+//                    if (!defaultIp.equals(addressIp)) {
+//                        if (isIPv4Address(addressIp) || isIPv6Address(addressIp)) {
+//                            VM_HOST = addressIp;
+//                            break;
+//                        }
+//                    }
+//                }
             }
 
             byte[] bytes = networkInterface.getHardwareAddress();
