@@ -243,7 +243,7 @@ public class CommandUtils {
      * @return 返回java.lang.reflect.Field类型，不存在返回null
      * @throws NoSuchFieldException
      */
-    private static Field getFieldByObject(Object target, String fieldName) throws NoSuchFieldException {
+    public static Field getFieldByObject(Object target, String fieldName) throws NoSuchFieldException {
         try {
             Field field = null;
             for (Class tclass = target.getClass(); tclass != Object.class; tclass = tclass.getSuperclass()) {

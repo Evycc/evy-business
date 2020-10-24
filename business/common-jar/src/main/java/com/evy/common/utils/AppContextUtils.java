@@ -67,12 +67,11 @@ public class AppContextUtils implements ApplicationContextAware {
             }
             result = ENVIRONMENT.getProperty(param);
         } catch (Exception exception) {
-            CommandLog.error("AppContextUtils#getForEnv异常");
+            if (StringUtils.isEmpty(result)) {
+                result = getPrpoFromTempMap(param);
+            }
         }
 
-        if (StringUtils.isEmpty(result)) {
-            result = getPrpoFromTempMap(param);
-        }
         return result;
     }
 
