@@ -82,58 +82,12 @@ public class BusinessConstant {
         return RUNTIME_MX_BEAN.getUptime();
     }
 
-    /**
-     * IPv4地址的正则表达式
-     */
-    private static final Pattern IPV4_REGEX =
-            Pattern.compile(
-                    "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
-    /**
-     * IPv6地址的正则表达式
-     */
-    private static final Pattern IPV6_STD_REGEX =
-            Pattern.compile(
-                    "^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
-    /**
-     * IPv6地址的正则表达式
-     */
-    private static final Pattern IPV6_COMPRESS_REGEX =
-            Pattern.compile(
-                    "^(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4})*)?)::((([0-9A-Fa-f]{1,4}:)*[0-9A-Fa-f]{1,4})?)$");
-
-
     static {
         Long val = getVmUpTime();
         try {
-            String defaultIp = "127.0.0.1";
             InetAddress inetAddress = InetAddress.getLocalHost();
             VM_HOST = inetAddress.getHostAddress();
             NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
-
-            CommandLog.info("Enumeration<InetAddress> enumeration : {}", networkInterface.getInetAddresses().hasMoreElements());
-            CommandLog.info("networkInterface.getInterfaceAddresses() : {}", networkInterface.getInterfaceAddresses().size());
-
-            if (defaultIp.equals(VM_HOST)) {
-                Enumeration<InetAddress> enumeration = networkInterface.getInetAddresses();
-                networkInterface.getInterfaceAddresses()
-                        .stream()
-                        .map(interfaceAddress -> interfaceAddress.getAddress().getHostAddress())
-                        .filter(addressIp -> !defaultIp.equals(addressIp) && (isIPv4Address(addressIp) || isIPv6Address(addressIp)))
-                        .findFirst()
-                        .ifPresent(addressIp -> VM_HOST = addressIp);
-
-//                while (enumeration.hasMoreElements()) {
-//                    InetAddress address = enumeration.nextElement();
-//                    String addressIp = address.getHostAddress();
-//                    CommandLog.info("addressIp : {}", addressIp);
-//                    if (!defaultIp.equals(addressIp)) {
-//                        if (isIPv4Address(addressIp) || isIPv6Address(addressIp)) {
-//                            VM_HOST = addressIp;
-//                            break;
-//                        }
-//                    }
-//                }
-            }
 
             byte[] bytes = networkInterface.getHardwareAddress();
             if (bytes != null && bytes.length > 1) {
@@ -145,30 +99,5 @@ public class BusinessConstant {
             CommandLog.errorThrow("当前机器不存在网卡，获取MAC地址失败", e);
         }
         MAC_ID = val;
-    }
-
-    /**
-     * 判断是否为合法IPv4地址
-     *
-     * @param input ip地址
-     * @return true 符合ipv4
-     */
-    public static boolean isIPv4Address(final String input) {
-        return IPV4_REGEX.matcher(input).matches();
-    }
-
-    /**
-     * 判断是否为合法IPv6地址
-     *
-     * @param input ip地址
-     * @return true 符合ipv6
-     */
-    public static boolean isIPv6Address(final String input) {
-        boolean result = false;
-        if (IPV6_STD_REGEX.matcher(input).matches() || IPV6_COMPRESS_REGEX.matcher(input).matches()) {
-            result = true;
-        }
-
-        return result;
     }
 }

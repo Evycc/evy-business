@@ -319,7 +319,7 @@ public class DeployShellRepository {
 
             json = readInputStream(bis);
         } catch (Exception e) {
-            CommandLog.errorThrow("execShell异常", e);
+            CommandLog.errorThrow("excelCmd异常", e);
         } finally {
             if (Objects.nonNull(bis)) {
                 try {
