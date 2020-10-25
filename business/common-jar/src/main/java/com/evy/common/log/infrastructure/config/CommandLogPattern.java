@@ -10,6 +10,7 @@ import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,7 +63,8 @@ public class CommandLogPattern extends NamedConverter {
     private String getStackClsInfo(ILoggingEvent iLoggingEvent) {
         try {
             StackTraceElement[] stackTraceElements = iLoggingEvent.getCallerData();
-            if (stackTraceElements[0].getClassName().contains(CommandLog.class.getName())) {
+            if (Arrays.stream(stackTraceElements)
+                    .anyMatch(stackTraceElement -> stackTraceElement.getClassName().contains(CommandLog.class.getName()))) {
                 int start = 2;
                 int end = stackTraceElements.length;
                 //使用CommandLog打印日志，调用栈前两个下标一定是CommandLog的方法，跳过不打印

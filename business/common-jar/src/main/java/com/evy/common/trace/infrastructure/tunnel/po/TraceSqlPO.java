@@ -1,5 +1,6 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -46,6 +47,6 @@ public class TraceSqlPO {
      * 隐藏构造方法细节,构造非explain类型
      */
     public static TraceSqlPO create(String tssReqIp, String tssSlowSql, String tssTakeTime) {
-        return new TraceSqlPO(tssReqIp, tssSlowSql, tssTakeTime, null, null);
+        return new TraceSqlPO(tssReqIp, tssSlowSql, tssTakeTime, BusinessConstant.EMPTY_STR, BusinessConstant.EMPTY_STR);
     }
 }

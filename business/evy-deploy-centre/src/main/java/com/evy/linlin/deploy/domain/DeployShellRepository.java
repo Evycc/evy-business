@@ -13,6 +13,7 @@ import com.evy.linlin.deploy.tunnel.constant.DeployErrorConstant;
 import com.evy.linlin.deploy.tunnel.constant.DeployStageEnum;
 import com.evy.linlin.deploy.tunnel.model.*;
 import com.evy.linlin.deploy.tunnel.po.DeployQryOutPO;
+import com.evy.linlin.deploy.tunnel.po.DeployUpdatePO;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -89,6 +90,7 @@ public class DeployShellRepository {
     public void build(BuildInfoDO buildInfoDo) {
         EXECUTOR_SERVICE.submit(() -> {
             String buildSeq = buildInfoDo.getBuildSeq();
+            ShellOutDO buildJarOutDo = null;
             try {
                 DeployQryOutPO deployQryOutPo = deployDataRepository.qryForSeq(DeployAssembler.createFromBuildSeq(buildSeq));
 
@@ -101,7 +103,7 @@ public class DeployShellRepository {
                 if (checkGitBuildShell(gitBuildShell(projectName, gitPath, deployQryOutPo.getGitBrchan()))) {
                     //2.调用buildJar.sh 获取msg编译后目录
                     String timeStamp = DateUtils.nowStr3().replace(BusinessConstant.WHITE_EMPTY_STR, "T");
-                    ShellOutDO buildJarOutDo = buildJarShell(projectName, deployQryOutPo.getAppName(), buildInfoDo.isSwitchJunit(), timeStamp);
+                    buildJarOutDo = buildJarShell(projectName, deployQryOutPo.getAppName(), buildInfoDo.isSwitchJunit(), timeStamp);
 
                     if (checkBuildJarShell(buildJarOutDo)) {
                         //标记为编译成功
@@ -114,7 +116,14 @@ public class DeployShellRepository {
                 }
             } catch (Exception exception) {
                 //标记为编译失败
-                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePo(DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq));
+                DeployUpdatePO deployUpdatePo;
+                if (Objects.nonNull(buildJarOutDo)) {
+                    deployUpdatePo = DeployAssembler.createDeployUpdatePoBuildLog(buildJarOutDo.getMsg(),
+                            DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq);
+                } else {
+                    deployUpdatePo = DeployAssembler.createDeployUpdatePo(DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq);
+                }
+                deployDataRepository.updateStage(deployUpdatePo);
                 CommandLog.errorThrow("DeployShellRepository#build异常", exception);
             }
         });
@@ -136,7 +145,9 @@ public class DeployShellRepository {
                 //1.调用startJar.sh 部署到指定服务器 (根据服务器列表,是否分批参数,选择并行还是串行)
                 String jarPath = deployQryOutPo.getJarPath();
                 String targetHost = deployQryOutPo.getTargetHost();
-                String jvmParam = deployQryOutPo.getJvmParam() + BusinessConstant.WHITE_EMPTY_STR + JVM_PARAM_DEFAULT;
+                String jvmParam = StringUtils.isEmpty(deployQryOutPo.getJvmParam()) ?
+                        BusinessConstant.WHITE_EMPTY_STR.concat(JVM_PARAM_DEFAULT) :
+                        deployQryOutPo.getJvmParam().concat(BusinessConstant.WHITE_EMPTY_STR + JVM_PARAM_DEFAULT);
                 String[] targetHosts = targetHost.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
                 boolean isMoreHost = targetHost.length() > BusinessConstant.ONE_NUM;
 
@@ -179,7 +190,7 @@ public class DeployShellRepository {
                 deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePo(DeployStageEnum.DEPLOY_SUCCESS.convertToFlag(), buildSeq));
             } catch (Exception exception) {
                 //标记为部署失败
-                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePo(DeployStageEnum.DEPLOY_FAILD.convertToFlag(), buildSeq));
+                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(exception.getMessage(), DeployStageEnum.DEPLOY_FAILD.convertToFlag(), buildSeq));
                 CommandLog.errorThrow("DeployShellRepository#autoDeploy部署异常", exception);
             }
         });
@@ -269,7 +280,12 @@ public class DeployShellRepository {
         if (StringUtils.isEmpty(result)) {
             outDo.setErrorCode(ErrorConstant.ERROR_01);
         } else {
-            outDo = JsonUtils.convertToObject(result, ShellOutDO.class);
+            try {
+                outDo = JsonUtils.convertToObject(result, ShellOutDO.class);
+            } catch (Exception exception) {
+                outDo.setErrorCode(ErrorConstant.ERROR_01);
+                outDo.setMsg(result);
+            }
         }
 
         return outDo;
@@ -320,6 +336,7 @@ public class DeployShellRepository {
             json = readInputStream(bis);
         } catch (Exception e) {
             CommandLog.errorThrow("excelCmd异常", e);
+            json = e.getMessage();
         } finally {
             if (Objects.nonNull(bis)) {
                 try {
