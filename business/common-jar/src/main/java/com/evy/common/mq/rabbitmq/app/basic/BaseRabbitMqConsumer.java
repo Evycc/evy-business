@@ -64,6 +64,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             //执行具体消费逻辑
             int sucess = execute(consumerTag, envelope, properties, body);
             CommandLog.info("Consumer Result: {}", sucess);
+            messageAck(envelope.getDeliveryTag());
             switchMqResult(sucess, sendMessage);
 
             //清除死信队列
@@ -106,7 +107,6 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        messageAck(envelope.getDeliveryTag());
         doExecute(consumerTag, envelope, properties, body);
     }
 }
