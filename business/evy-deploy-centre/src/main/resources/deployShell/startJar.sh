@@ -56,7 +56,7 @@ readonly jarFileName=$(echo $jarPath|awk -F'/' '{print $NF}')
 readonly targetClassPath1='/cdadmin/jar/localClass/classes/'
 readonly targetClassPath2='/cdadmin/jar/localClass/lib/'
 classpathParam='/cdadmin/jar/localClass/classes'
-readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify'
+readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify '
 readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
 readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'

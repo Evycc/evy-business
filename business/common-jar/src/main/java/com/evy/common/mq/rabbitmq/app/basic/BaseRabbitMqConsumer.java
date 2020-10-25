@@ -64,7 +64,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             //执行具体消费逻辑
             int sucess = execute(consumerTag, envelope, properties, body);
             CommandLog.info("Consumer Result: {}", sucess);
-            switchMqResult(sucess, sendMessage, envelope.getDeliveryTag());
+            switchMqResult(sucess, sendMessage);
 
             //清除死信队列
             rabbitMqSender.cleanDlxQueue(tmp);
@@ -79,24 +79,34 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
      *
      * @param result        true : ack对应deliveryTag  false : ack对应deliveryTag，且发送等待消息重试事件
      * @param mqSendMessage 消息体
-     * @param deliveryTag   ack对应deliveryTag
      */
-    private void switchMqResult(int result, MqSendMessage mqSendMessage, long deliveryTag) throws IOException {
-        Channel channel = getChannel();
-        if (channel != null && channel.isOpen()) {
-            CommandLog.info("执行消费确认ack:{}", deliveryTag);
-            getChannel().basicAck(deliveryTag, false);
+    private void switchMqResult(int result, MqSendMessage mqSendMessage) {
+        if (result == BusinessConstant.FAILED) {
+            RabbitMqRetryEvent.waitRetry(mqSendMessage);
+        } else {
+            RabbitMqRetryEvent.hasRetryKey(mqSendMessage);
+        }
+    }
 
-            if (result == BusinessConstant.FAILED) {
-                RabbitMqRetryEvent.waitRetry(mqSendMessage);
-            } else {
-                RabbitMqRetryEvent.hasRetryKey(mqSendMessage);
+    /**
+     * 执行消费确认
+     * @param deliveryTag ack对应deliveryTag
+     */
+    private void messageAck(long deliveryTag) {
+        try {
+            Channel channel = getChannel();
+            if (channel != null && channel.isOpen()) {
+                CommandLog.info("执行消费确认ack:{}", deliveryTag);
+                getChannel().basicAck(deliveryTag, false);
             }
+        } catch (IOException e) {
+            CommandLog.errorThrow("获取rabbitmq channel异常 or ack异常", e);
         }
     }
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+        messageAck(envelope.getDeliveryTag());
         doExecute(consumerTag, envelope, properties, body);
     }
 }

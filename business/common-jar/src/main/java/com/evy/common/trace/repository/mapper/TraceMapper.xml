@@ -16,7 +16,14 @@
     <insert id="mqSendInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
         INSERT INTO trace_mq_flow(tmf_topic, tmf_req_ip, tmf_tag, tmf_msg_id, tmf_mq_content,
                                   tmf_producer_start_timestamp)
-        VALUES (#{tmfTopic}, #{tmfReqIp}, #{tmfTag}, #{tmfMsgId}, #{tmfMsgContent}, #{tmfProducerStartTimestamp});
+        VALUES (#{tmfTopic}, #{tmfReqIp}, #{tmfTag}, #{tmfMsgId}, #{tmfMsgContent}, #{tmfProducerStartTimestamp})
+        ON DUPLICATE KEY UPDATE
+                                tmf_topic=values(tmf_topic),
+                                tmf_req_ip=values(tmf_req_ip),
+                                tmf_tag=values(tmf_tag),
+                                tmf_msg_id=values(tmf_msg_id),
+                                tmf_mq_content=values(tmf_mq_content),
+                                tmf_producer_start_timestamp=values(tmf_producer_start_timestamp);
     </insert>
 
     <insert id="mqConsumerInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO">
@@ -35,6 +42,13 @@
             (#{mqpo.tmfTopic}, #{mqpo.tmfReqIp}, #{mqpo.tmfTag}, #{mqpo.tmfMsgId}, #{mqpo.tmfMsgContent}
             ,#{mqpo.tmfProducerStartTimestamp})
         </foreach>
+        ON DUPLICATE KEY UPDATE
+        tmf_topic=values(tmf_topic),
+        tmf_req_ip=values(tmf_req_ip),
+        tmf_tag=values(tmf_tag),
+        tmf_msg_id=values(tmf_msg_id),
+        tmf_mq_content=values(tmf_mq_content),
+        tmf_producer_start_timestamp=values(tmf_producer_start_timestamp);
     </insert>
 
     <insert id="mqConsumerListInsert" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO">

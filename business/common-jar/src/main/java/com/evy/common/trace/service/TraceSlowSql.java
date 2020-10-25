@@ -77,20 +77,15 @@ public class TraceSlowSql {
                     String slowSql = model.getSlowSql();
                     TraceSqlPO tracesqlpo;
 
-//                    if (!slowSql.contains(select1) || !slowSql.contains(select2)) {
-//                        //非SELECT开头查询语句,不进行explain
-//                        tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()));
-//                    } else {
-//                        ExplainListModel explainListModel = explain(slowSql);
-//                        String explain = handleExplain(explainListModel);
-//                        String exlainContent = explainListModel.toString();
-//                        tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()), explain, exlainContent);
-//                    }
-
-                    ExplainListModel explainListModel = explain(slowSql);
-                    String explain = handleExplain(explainListModel);
-                    String exlainContent = explainListModel.toString();
-                    tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()), explain, exlainContent);
+                    if (!slowSql.contains(select1) || !slowSql.contains(select2)) {
+                        //非SELECT开头查询语句,不进行explain
+                        tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()));
+                    } else {
+                        ExplainListModel explainListModel = explain(slowSql);
+                        String explain = handleExplain(explainListModel);
+                        String exlainContent = explainListModel.toString();
+                        tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()), explain, exlainContent);
+                    }
 
                     DBUtils.insert(SLOW_SQL_INSERT, tracesqlpo);
                 });
