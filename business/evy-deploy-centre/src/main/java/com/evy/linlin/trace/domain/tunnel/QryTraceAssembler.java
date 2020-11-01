@@ -8,6 +8,7 @@ import com.evy.linlin.trace.dto.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -213,7 +214,7 @@ public class QryTraceAssembler {
         return pos.stream()
                 .map(qryMqTraceInfoListPo -> new QryMqTraceInfoModel(
                         qryMqTraceInfoListPo.getTmfTopic(), qryMqTraceInfoListPo.getTmfReqIp(), qryMqTraceInfoListPo.getTmfTag(),
-                        qryMqTraceInfoListPo.getTmfMsgId(), qryMqTraceInfoListPo.getTmfMqContent(), qryMqTraceInfoListPo.getTmfRespIp(),
+                        qryMqTraceInfoListPo.getTmfMsgId(), new String(qryMqTraceInfoListPo.getTmfMqContent(), StandardCharsets.UTF_8), qryMqTraceInfoListPo.getTmfRespIp(),
                         qryMqTraceInfoListPo.getTmfConsumerStartTimestamp(), qryMqTraceInfoListPo.getTmfConsumerStartTimestamp(),
                         qryMqTraceInfoListPo.getTmfConsumerTakeupTimestamp(), qryMqTraceInfoListPo.getGmtModify()
                 ))

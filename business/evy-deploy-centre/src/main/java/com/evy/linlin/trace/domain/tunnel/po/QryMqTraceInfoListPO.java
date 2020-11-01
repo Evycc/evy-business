@@ -14,7 +14,7 @@ public class QryMqTraceInfoListPO {
     private String tmfTopic;
     private String tmfTag;
     private String tmfMsgId;
-    private String tmfMqContent;
+    private byte[] tmfMqContent;
     private String tmfRespIp;
     private String tmfProducerStartTimestamp;
     private String tmfConsumerStartTimestamp;
