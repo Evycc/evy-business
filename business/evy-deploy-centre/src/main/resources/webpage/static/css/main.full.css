@@ -1,0 +1,267 @@
+/*全局样式*/
+*, ::after, ::before {
+    box-sizing: content-box;
+}
+
+body a{
+    text-decoration: none !important;
+}
+
+* {
+    letter-spacing: 0.007em;
+    font-family: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.main-style:after {
+    content:'';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    /*pointer-events: none;*/
+    user-select: none;
+    z-index: -1;
+    left: 0;
+    top: 44px;
+    height: 100%;
+    filter: blur(50.6px);
+    /*TODO 换成正常背景图片*/
+    background: url("../bg.PNG");
+}
+
+/*全局样式 end*/
+
+/*顶部导航栏*/
+#head-nav{
+    top : 0;
+    inline-size: 100%;
+    block-size: 44px;
+    z-index: 1;
+    font-weight: bold;
+}
+
+.head-nav-login {
+    background-color : #ffffff;
+    border-bottom: 1px solid rgba(0,113,241,1);
+}
+
+.head-nav-nologin {
+    background-color : #323232;
+}
+
+#head-nav div{
+    text-align: center;
+    height: 100%;
+}
+
+#head-left-view {
+    text-align: center;
+    margin-left: 16px;
+}
+#head-left-view div {
+    margin-left: 16px;
+}
+
+.head-right-view {
+    margin-right: 16px;
+    right: 10px;
+    position: absolute;
+}
+.head-label {
+    color: #ffffff;
+    margin: 10px 0;
+    display: block;
+}
+.head-label-login{
+    color: #323232;
+    margin: 10px 10px;
+    display: block;
+
+    float: right;
+}
+/*顶部导航栏 end*/
+
+/*body*/
+#main-body {
+    text-align: center;
+    margin: 0 auto;
+
+    height: 600px;
+}
+
+#main-view {
+    min-width: 100%;
+    min-height: 100%;
+    height: 300px;
+    position: relative;
+    z-index: 2;
+    border-radius: 7px;
+}
+
+#main-view div {
+    text-align: center;
+    max-width: 380px;
+    /*margin: 5px auto 13px;*/
+    word-break: break-word;
+
+    border-radius: 7px;
+    width: 300px;
+    margin: 0 auto;
+}
+
+#main-view .logo {
+    width: 100px;
+    z-index: 10;
+}
+
+#main-view .logo .cnsmr-app-image {
+    max-width: 350px;
+    max-height: 100px;
+}
+
+#main-view .logo .form-title {
+    max-width: 380px;
+    margin: 5px auto 13px;
+    word-break: break-word;
+}
+
+.form-table {
+    border: 1px solid #d6d6d6;
+    border-radius: 7px;
+    background-color: #fff;
+    position: relative;
+}
+
+.form-cell {
+    vertical-align: top;
+    direction: ltr;
+    border: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    /*TODO 选中触发边框高亮*/
+    /*-webkit-box-shadow: 0 0 5px rgba(0,113,241,1);*/
+
+    height: 38px;
+}
+
+#form-cell-1 {
+    border-bottom:1px solid rgba(0,113,241,1);
+}
+
+#form-cell-2 {
+    border-top:1px solid rgba(0,113,241,1);
+}
+
+.form-cell input {
+    width: 80%;
+    margin: 6px auto;
+}
+
+.login-btn {
+    position: absolute;
+    border: 1px solid #90949c;
+    right: 10px;
+    padding: 0 1px 0 2px;
+    z-index: 101;
+
+    width: 26px;
+    height: 28px;
+    border-radius: 308px;
+    margin: 3px auto;
+    background: transparent;
+}
+
+#main-deploy-body {
+    text-align: center;
+    margin: 0;
+
+    height: 600px;
+}
+
+.deploy-list {
+    margin: 0 12px;
+}
+
+.deploy-list li{
+    border-bottom: 1px solid rgba(0,113,241,1);
+    list-style: none;
+    background: transparent;
+}
+
+#deploy-info-view {
+    margin: 20px;
+    border-radius: 7px;
+    width: 80%;
+    height: auto;
+    background: #e9ecef;
+
+    padding: 20px;
+}
+
+.info-title {
+    text-align: left;
+}
+
+.deploy-form-table {
+    width: 60%;
+}
+
+.deploy-form-table button {
+    color: rgba(0,113,241,1);
+}
+
+.deploy-form-cell {
+    border-bottom: 1px solid rgba(0,113,241,1);
+    /*margin: 10px 0;*/
+
+    margin: 10px;
+    border-radius: 0 !important;
+}
+
+.deploy-info-btn {
+    width: 130px;
+}
+
+.deploy-checkbox-btn {
+    width: 100px !important;
+    border: none;
+    user-select: none;
+}
+
+.deploy-checkbox-btn input {
+    width: 36px;
+    height: 20px;
+    margin: 4px;
+}
+
+.submit-btn {
+    background: rgba(0,113,241,1);
+    color: #ffffff !important;
+}
+
+/*body end*/
+
+/*底部导航栏*/
+#legal-footer{
+    text-align: center;
+    margin: 0 auto;
+}
+#legal-footer div{
+    color: rgba(0,0,0,.5);
+    padding: 5px 10px 15px;
+    text-align: center;
+    margin: 0 auto;
+}
+/*底部导航栏 end*/
+
+/*函数样式*/
+.InputMouseEnterEvent {
+    -webkit-box-shadow: 0 0 5px rgba(0,113,241,1);
+}
+
+.openCheckBox {
+    background: rgba(0,113,241,1);
+}
+
+.closeCheckBox {
+    background: #ffffff;
+}
