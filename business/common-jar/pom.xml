@@ -16,7 +16,6 @@
     </parent>
 
     <name>common-jar</name>
-    <url>http://www.example.com</url>
 
     <properties>
         <slf4j.version>1.7.28</slf4j.version>

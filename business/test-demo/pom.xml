@@ -29,6 +29,12 @@
     <dependencies>
         <dependency>
             <groupId>com.evy.linlin</groupId>
+            <artifactId>evy-gateway-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.evy.linlin</groupId>
             <artifactId>common-jar</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

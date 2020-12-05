@@ -3,8 +3,7 @@ package com.evy.linlin.app;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
-import com.evy.linlin.filter.ServiceFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.evy.linlin.gateway.filter.ServiceFilter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,12 +23,15 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @SpringBootApplication(scanBasePackages = "com.evy.*")
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.evy.*")
 @EnableDiscoveryClient
 @RestController
 public class EvyGatewayApplication implements CommandLineRunner {
-    @Autowired
-    private ServiceFilter serviceFilter;
+    private final ServiceFilter serviceFilter;
+
+    public EvyGatewayApplication(ServiceFilter serviceFilter) {
+        this.serviceFilter = serviceFilter;
+    }
 
     public static void main(String[] args) {
         try {
@@ -63,7 +65,7 @@ public class EvyGatewayApplication implements CommandLineRunner {
                 )
                 .route("test-demo", predicateSpec ->
                         predicateSpec
-                                .path("/test-demo")
+                                .path("/test-demo/**")
                                 //服务转发时，会带上请求的path，如http://localhost:8080/evygateway，转发时为http://localhost:8081/TEST-DEMO/evygateway
                                 //通过stripPrefix方法去掉path指定位置的参数
                                 .filters(f -> f.stripPrefix(1))
@@ -73,9 +75,10 @@ public class EvyGatewayApplication implements CommandLineRunner {
                         predicateSpec
                                 .readBody(Map.class, map -> !map.isEmpty())
                                 .and()
-                                .path("/evygateway")
-                                .filters(f -> f.filter(serviceFilter))
-                                .uri(ServiceFilter.SERVICE_NO_FOUND)
+                                .path("/EvyGateway")
+                                .filters(f -> f.filter(serviceFilter)
+                                )
+                                .uri("forward:" + ServiceFilter.SERVICE_NO_FOUND)
                 )
                 .build();
     }

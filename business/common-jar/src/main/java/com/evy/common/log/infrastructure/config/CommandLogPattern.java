@@ -2,7 +2,6 @@ package com.evy.common.log.infrastructure.config;
 
 import ch.qos.logback.classic.pattern.NamedConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import com.evy.common.command.app.BaseCommandTemplate;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
@@ -50,7 +49,9 @@ public class CommandLogPattern extends NamedConverter {
     @Override
     protected String getFullyQualifiedName(ILoggingEvent iLoggingEvent) {
         subLogMsgLength(iLoggingEvent);
-        return BusinessConstant.VM_HOST + BusinessConstant.DOUBLE_LINE + getStackClsInfo(iLoggingEvent);
+        return BusinessConstant.LEFT_BRACKET + BusinessConstant.VM_HOST + BusinessConstant.RIGHT_BRACKET
+                + BusinessConstant.WHITE_EMPTY_STR
+                + BusinessConstant.LEFT_BRACKET + getStackClsInfo(iLoggingEvent) + BusinessConstant.RIGHT_BRACKET;
     }
 
     /**
@@ -130,7 +131,7 @@ public class CommandLogPattern extends NamedConverter {
             }
             if (--i < 0) {
                 //遍历到栈的最后一个类，打印其方法
-                stringBuilder.append(BusinessConstant.DOUBLE_LINE)
+                stringBuilder.append(BusinessConstant.SHARE_STR)
                         .append(elements[i + 1].getMethodName());
             }
         }

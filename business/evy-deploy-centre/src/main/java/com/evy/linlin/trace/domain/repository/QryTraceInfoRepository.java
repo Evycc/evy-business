@@ -32,7 +32,7 @@ public class QryTraceInfoRepository {
     /**
      * 根据部署序列号获取对应机器IP
      *
-     * @param getAppIpFromUserSeqDO com.evy.linlin.trace.domain.tunnel.model.GetAppIpFromUserSeqDO
+     * @param getAppIpFromUserSeqDO com.evy.linlin.trace.domain.repository.tunnel.model.GetAppIpFromUserSeqDO
      * @return 返回对应机器IP列表
      */
     public List<String> getAppIpFromUserSeq(GetAppIpFromUserSeqDO getAppIpFromUserSeqDO) {
@@ -65,7 +65,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询应用服务器内存信息集合
      *
-     * @param qryAppMermoryListDo com.evy.linlin.trace.domain.tunnel.model.QryAppMermoryListDO
+     * @param qryAppMermoryListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryListDO
      * @return com.evy.linlin.trace.dto.QryAppMermoryInfoModel
      */
     public List<QryAppMermoryInfoModel> qryAppMermoryInfoList(QryAppMermoryInfoListDO qryAppMermoryListDo) {
@@ -91,7 +91,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询应用Http请求信息
      *
-     * @param httpReqInfoListDo com.evy.linlin.trace.domain.tunnel.model.qryHttpReqInfoListDO
+     * @param httpReqInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.qryHttpReqInfoListDO
      * @return com.evy.linlin.trace.dto.QryHttpInfoModel
      */
     public List<QryHttpInfoModel> qryHttpReqInfoList(QryHttpReqInfoListDO httpReqInfoListDo) {
@@ -115,7 +115,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询MQ发布消费情况
      *
-     * @param qryMqTraceInfoListDO com.evy.linlin.trace.domain.tunnel.model.QryMqTraceInfoListDO
+     * @param qryMqTraceInfoListDO com.evy.linlin.trace.domain.repository.tunnel.model.QryMqTraceInfoListDO
      * @return com.evy.linlin.trace.dto.QryMqTraceInfoModel
      */
     public List<QryMqTraceInfoModel> qryMqTraceInfoList(QryMqTraceInfoListDO qryMqTraceInfoListDO) {
@@ -141,7 +141,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询Redis服务器健康信息
      *
-     * @param qryRedisInfoDo com.evy.linlin.trace.domain.tunnel.model.QryRedisInfoDO
+     * @param qryRedisInfoDo com.evy.linlin.trace.domain.repository.tunnel.model.QryRedisInfoDO
      * @return com.evy.linlin.trace.dto.QryRedisInfoModel
      */
     public List<QryRedisInfoModel> qryRedisInfo(QryRedisInfoDO qryRedisInfoDo) {
@@ -161,7 +161,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询应用服务发布信息
      *
-     * @param qryAppServiceInfoListDo com.evy.linlin.trace.domain.tunnel.model.QryAppServiceInfoListDO
+     * @param qryAppServiceInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppServiceInfoListDO
      * @return com.evy.linlin.trace.dto.QryServiceInfoModel
      */
     public List<QryServiceInfoModel> qryAppServiceInfoList(QryAppServiceInfoListDO qryAppServiceInfoListDo) {
@@ -186,7 +186,7 @@ public class QryTraceInfoRepository {
     /**
      * 查询应用慢SQL情况
      *
-     * @param qryAppSlowSqlListDo com.evy.linlin.trace.domain.tunnel.model.qryAppSlowSqlListDO
+     * @param qryAppSlowSqlListDo com.evy.linlin.trace.domain.repository.tunnel.model.qryAppSlowSqlListDO
      * @return com.evy.linlin.trace.dto.QrySlowSqlInfoModel
      */
     public List<QrySlowSqlInfoModel> qryAppSlowSqlList(QryAppSlowSqlListDO qryAppSlowSqlListDo) {
@@ -209,7 +209,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 查询应用线程信息集合
-     * @param qryAppThreadInfoListDo com.evy.linlin.trace.domain.tunnel.model.QryAppThreadInfoListDO
+     * @param qryAppThreadInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppThreadInfoListDO
      * @return com.evy.linlin.trace.dto.QryThreadsInfoModel
      */
     public List<QryThreadsInfoModel> qryAppThreadInfoList(QryAppThreadInfoListDO qryAppThreadInfoListDo) {

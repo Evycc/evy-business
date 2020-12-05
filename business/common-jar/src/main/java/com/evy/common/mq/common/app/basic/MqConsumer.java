@@ -1,7 +1,7 @@
 package com.evy.common.mq.common.app.basic;
 
-import com.evy.common.command.app.BaseCommandTemplate;
 import com.evy.common.command.domain.factory.CreateFactory;
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.domain.factory.MqFactory;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqConsumerModel;
@@ -10,10 +10,12 @@ import com.evy.common.mq.rabbitmq.app.event.TraceLogEvent;
 import com.evy.common.utils.AppContextUtils;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.concurrent.ExecutorService;
  * @Date: 2019/11/3 13:51
  */
 @Component
-@DependsOn("appContextUtils")
+@DependsOn(BeanNameConstant.APP_CONTEXT_UTILS)
 public class MqConsumer {
     /**
      * MQ 参数工厂
@@ -44,7 +46,16 @@ public class MqConsumer {
      * 存储MQ消费者实例集合
      */
     private static final List<BasicMqConsumer> MQ_CONSUMERS = Collections.synchronizedList(new ArrayList<>());
-
+    /**
+     * 记录日志流水topic
+     */
+    @Value("${evy.traceLog.topic:\"\"}")
+    public String traceLogTopic;
+    /**
+     * 记录日志流水tag
+     */
+    @Value("${evy.traceLog.tag:\"\"}")
+    public String traceLogTag;
 
     public MqConsumer(MqFactory mqFactory) {
         this.mqFactory = mqFactory;
@@ -52,7 +63,9 @@ public class MqConsumer {
 
     /**
      * 初始化消费者监听
-     */ {
+     */
+    @PostConstruct
+    private void init() {
         CommandLog.info("初始化MQ Consumer Service..");
         addTraceLogConsumer();
         executeConsumer();
@@ -107,15 +120,17 @@ public class MqConsumer {
      */
     private void addTraceLogConsumer() {
         try {
+            if (StringUtils.isEmpty(traceLogTopic) || StringUtils.isEmpty(traceLogTag)) {
+                return;
+            }
+
             TraceLogEvent traceLogEvent = AppContextUtils.getBean(TraceLogEvent.class);
             Channel channel = traceLogEvent.getChannel();
-            String topic = BaseCommandTemplate.TRACELOG_TOPIC;
-            String tag = BaseCommandTemplate.TRACELOG_TAG;
-            String queue = MqFactory.dlxBind(channel, topic, tag, null);
+            String queue = MqFactory.dlxBind(channel, traceLogTopic, traceLogTag, null);
             CommandLog.info("创建TraceLog临时消费队列:{}", queue);
             MqConsumerModel mqConsumerModel = new MqConsumerModel();
-            mqConsumerModel.setTopic(topic);
-            mqConsumerModel.setTag(tag);
+            mqConsumerModel.setTopic(traceLogTopic);
+            mqConsumerModel.setTag(traceLogTag);
             mqConsumerModel.setQueue(queue);
             addConsumerBean(RabbitBaseMqConsumer.class, traceLogEvent, new ArrayList<>() {{
                 add(mqConsumerModel);

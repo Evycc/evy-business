@@ -49,6 +49,8 @@ public class BusinessConstant {
     public static final String AT_STR = "@";
     public static final String FORWARD_SLASH_STR = "/";
     public static final String SHARE_STR = "#";
+    public static final String LEFT_BRACKET = "[";
+    public static final String RIGHT_BRACKET = "]";
 
     /**
      * 可用cpu数量

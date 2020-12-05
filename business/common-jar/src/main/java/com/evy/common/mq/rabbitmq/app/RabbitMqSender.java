@@ -1,6 +1,7 @@
 package com.evy.common.mq.rabbitmq.app;
 
 import com.evy.common.command.domain.factory.CreateFactory;
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.app.basic.MqSender;
@@ -30,8 +31,8 @@ import java.util.concurrent.TimeUnit;
  * @Author: EvyLiuu
  * @Date: 2019/11/3 13:47
  */
-@Component("RabbitMqSender")
-@DependsOn("appContextUtils")
+@Component(BeanNameConstant.RABBIT_MQ_SENDER)
+@DependsOn(BeanNameConstant.APP_CONTEXT_UTILS)
 public class RabbitMqSender implements MqSender {
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("RabbitMqSender");
     /**

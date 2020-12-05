@@ -1,10 +1,8 @@
 package com.evy.linlin.trace.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.linlin.trace.dto.QryMqTraceInfoDTO;
 import com.evy.linlin.trace.dto.QryMqTraceInfoOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * 查询MQ消息消费链路、耗时情况

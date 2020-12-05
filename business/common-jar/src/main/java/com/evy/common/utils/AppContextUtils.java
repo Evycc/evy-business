@@ -1,6 +1,7 @@
 package com.evy.common.utils;
 
-import com.evy.common.command.infrastructure.config.BusinessPrpoties;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import org.springframework.beans.BeansException;
@@ -27,15 +28,15 @@ import java.util.function.Predicate;
  * @Author: EvyLiuu
  * @Date: 2019/11/9 15:32
  */
-@Component("appContextUtils")
+@Component(BeanNameConstant.APP_CONTEXT_UTILS)
 public class AppContextUtils implements ApplicationContextAware {
     private static ApplicationContext CONTEXT;
     private static Environment ENVIRONMENT;
-    private static BusinessPrpoties BUSINESS_PRPOTIES;
+    private static BusinessProperties BUSINESS_PRPOTIES;
     private static final Map<String, String> PRPO_TEMP_MAP = new HashMap<>(16);
 
-    public AppContextUtils(final BusinessPrpoties businessPrpoties) {
-        BUSINESS_PRPOTIES = businessPrpoties;
+    public AppContextUtils(final BusinessProperties businessProperties) {
+        BUSINESS_PRPOTIES = businessProperties;
     }
 
     @Override
@@ -43,6 +44,7 @@ public class AppContextUtils implements ApplicationContextAware {
         CONTEXT = applicationContext;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getBean(String beanName) {
         return (T) getApplicationContext().getBean(beanName);
     }
@@ -75,7 +77,7 @@ public class AppContextUtils implements ApplicationContextAware {
         return result;
     }
 
-    public static BusinessPrpoties getPrpo() {
+    public static BusinessProperties getPrpo() {
         return BUSINESS_PRPOTIES;
     }
 
@@ -84,6 +86,7 @@ public class AppContextUtils implements ApplicationContextAware {
      * @param param 配置项
      * @return  配置
      */
+    @SuppressWarnings("unchecked")
     private static String getPrpoFromTempMap(String param) {
         if (CollectionUtils.isEmpty(PRPO_TEMP_MAP)) {
             String postProperties = ".properties";
@@ -135,14 +138,14 @@ public class AppContextUtils implements ApplicationContextAware {
      * 从Resource获取指定格式文件
      * @param resources Resource路径集合
      * @param filter 过滤条件
-     * @return
+     * @return 返回配置项集合
      */
     private static List<String> getFilterFilePath(List<URL> resources, Predicate<String> filter) {
         List<String> result = new ArrayList<>(8);
 
-        for (int i = 0; i < resources.size(); i++) {
+        for (URL resource : resources) {
             try {
-                File temp = new File(resources.get(i).toURI());
+                File temp = new File(resource.toURI());
                 List<String> temp1 = getFilterFile(temp, filter);
                 result.addAll(temp1);
             } catch (URISyntaxException e) {

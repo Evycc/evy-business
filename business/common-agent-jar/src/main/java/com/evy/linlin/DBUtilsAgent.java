@@ -12,6 +12,7 @@ import javassist.CtNewMethod;
  */
 public class DBUtilsAgent {
     private final static String DB_METHOD = "com.mysql.cj.NativeSession";
+    private final static String DB_UTILS_METHOD = "com.evy.common.db.DBUtils";
 
     /**
      * 监听mysql底层com.mysql.cj.NativeSession#execSQL(Query callingQuery, String query, int maxRows,
@@ -31,6 +32,16 @@ public class DBUtilsAgent {
             ctClass.addMethod(ctNewMethod);
 
             stringBuilder.append("{long agentStartTime = System.currentTimeMillis();")
+                    //Trace记录开始 START
+                    //缓存当前线程traceId
+                    .append("String traceId = com.evy.common.trace.TraceLogUtils.getCurTraceId();")
+                    .append("if($1 != null && traceId != null && !\"\".equals(traceId)){")
+                    //获取数据库
+                    .append("String database = ((com.mysql.cj.jdbc.ClientPreparedStatement) $1).getQuery().getCurrentDatabase();")
+                    //Trace记录开始
+                    .append("com.evy.common.trace.TraceLogUtils.setDbTraceId(com.evy.common.trace.TraceLogUtils.buildDbTraceId(), database);")
+                    .append("}")
+                    //Trace记录开始 END
                     .append("Object result= ").append(ctNewMethod.getName()).append("($$);")
                     .append("long agentEndTime = System.currentTimeMillis() -agentStartTime;")
                     .append("if(null != $1 && agentEndTime >= 1000){")
@@ -38,6 +49,11 @@ public class DBUtilsAgent {
                     .append("String slowSql = String.valueOf($1);")
                     .append("slowSql = slowSql.replaceAll(pre,\"\");")
                     .append("com.evy.common.trace.TraceUtils.addTraceSql(slowSql,agentEndTime);}")
+                    //Trace记录结束 START
+                    .append("if($1 != null && traceId != null && !\"\".equals(traceId)){")
+                    .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId(traceId);")
+                    .append("}")
+                    //Trace记录结束 END
                     .append("return ($r)result;")
                     .append("}");
             if (args.contains("DEBUG")) {

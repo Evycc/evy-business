@@ -23,7 +23,7 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询序列对应目标服务器IP列表
-     * @param po    com.evy.linlin.trace.domain.tunnel.po.GetTargetIpFromSeqPO
+     * @param po    com.evy.linlin.trace.domain.repository.tunnel.po.GetTargetIpFromSeqPO
      * @return 返回目标服务器IP, || 分割
      */
     public String getTargetIpFromSeq(GetTargetIpFromSeqPO po) {
@@ -32,8 +32,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询服务器内存信息集合
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryListPO
      */
     public List<QryAppMermoryListPO> qryAppMermoryList(QryAppMermoryPO po) {
         return DBUtils.selectList(QRY_APP_MERMORY_LIST_SQL, po);
@@ -41,8 +41,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询应用线程信息集合
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryAppThreadInfoPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.QryAppThreadInfoListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryAppThreadInfoPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.QryAppThreadInfoListPO
      */
     public List<QryAppThreadInfoListPO> qryAppThreadInfoList(QryAppThreadInfoPO po) {
         return DBUtils.selectList(QRY_APP_THREAD_INFO_LIST_SQL, po);
@@ -50,8 +50,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询应用http请求记录集合
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryAppHttpReqPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.QryAppHttpReqListPO
      */
     public List<QryAppHttpReqListPO> qryAppHttpReqInfoList(QryAppHttpReqPO po) {
         return DBUtils.selectList(QRY_HTTP_REQ_INFO_LIST_SQL, po);
@@ -59,8 +59,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询MQ轨迹
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryMqTraceInfoPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.QryMqTraceInfoListPO
      */
     public List<QryMqTraceInfoListPO> qryMqTraceInfoList(QryMqTraceInfoPO po) {
         return DBUtils.selectList(QRY_MQ_INFO_LIST_SQL, po);
@@ -68,8 +68,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询Redis服务器健康信息
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryRedisInfoPO
-     * @return com.evy.linlin.trace.domain.tunnel.po.QryRedisInfoOutPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryRedisInfoPO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryRedisInfoOutPO
      */
     public QryRedisInfoOutPO qryRedisInfo(QryRedisInfoPO po) {
         return DBUtils.selectOne(QRY_REDIS_INFO_SQL, po);
@@ -77,8 +77,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询应用服务发布信息集合
-     * @param po com.evy.linlin.trace.domain.tunnel.po.qryServiceInfoPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.qryServiceInfoListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.qryServiceInfoPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.qryServiceInfoListPO
      */
     public List<QryServiceInfoListPO> qryServiceInfoList(QryServiceInfoPO po) {
         return DBUtils.selectList(QRY_SERVICE_INFO_LIST_SQL, po);
@@ -86,8 +86,8 @@ public class QryTraceInfoDataRepository {
 
     /**
      * 查询应用慢SQL记录集合
-     * @param po com.evy.linlin.trace.domain.tunnel.po.QryAppSlowSqlPO
-     * @return List集合 com.evy.linlin.trace.domain.tunnel.po.QryAppSlowSqlListPO
+     * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryAppSlowSqlPO
+     * @return List集合 com.evy.linlin.trace.domain.repository.tunnel.po.QryAppSlowSqlListPO
      */
     public List<QryAppSlowSqlListPO> qryAppSlowSqlList(QryAppSlowSqlPO po) {
         return DBUtils.selectList(QRY_SLOW_SQL_LIST_SQL, po);

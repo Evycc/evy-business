@@ -83,10 +83,6 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <!--    忽略Trace打印的SQL语句-->
-    <logger name="com.evy.common.trace.repository.mapper.TraceMapper" level="WARN" additivity="false">
-    </logger>
-
     <logger name="com" level="ERROR" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>

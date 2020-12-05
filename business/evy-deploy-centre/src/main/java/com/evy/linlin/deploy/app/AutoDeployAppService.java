@@ -2,10 +2,10 @@ package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
-import com.evy.linlin.deploy.domain.DeployShellRepository;
+import com.evy.linlin.deploy.domain.repository.DeployShellRepository;
+import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.dto.AutoDeployDTO;
 import com.evy.linlin.deploy.dto.AutoDeployOutDTO;
-import com.evy.linlin.deploy.tunnel.DeployAssembler;
 import org.springframework.web.bind.annotation.RestController;
 
 /**

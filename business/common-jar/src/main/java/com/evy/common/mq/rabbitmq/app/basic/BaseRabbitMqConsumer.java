@@ -52,7 +52,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
      * @param body        mq参数
      */
     public void doExecute(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        long statrTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         try {
             CommandLog.info("Start Consumer Service\tTopic:{}\tConsumerID:{}\t", envelope.getExchange(), properties.getCorrelationId());
             MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
@@ -62,17 +62,17 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             CommandLog.info("param:{}", messageJson);
 
             //执行具体消费逻辑
-            int sucess = execute(consumerTag, envelope, properties, body);
-            CommandLog.info("Consumer Result: {}", sucess);
+            int success = execute(consumerTag, envelope, properties, body);
+            CommandLog.info("Consumer Result: {}", success);
             messageAck(envelope.getDeliveryTag());
-            switchMqResult(sucess, sendMessage);
+            switchMqResult(success, sendMessage);
 
             //清除死信队列
             rabbitMqSender.cleanDlxQueue(tmp);
         } catch (Exception e) {
             CommandLog.errorThrow("消费异常", e);
         }
-        CommandLog.info("End Consumer Service({}ms)", System.currentTimeMillis() - statrTime);
+        CommandLog.info("End Consumer Service({}ms)", System.currentTimeMillis() - startTime);
     }
 
     /**

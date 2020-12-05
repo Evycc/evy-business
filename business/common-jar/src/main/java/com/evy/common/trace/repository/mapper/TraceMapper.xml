@@ -211,12 +211,12 @@
         </foreach>
         ON DUPLICATE KEY UPDATE
         tsi_service_name = VALUES(tsi_service_name),
-        tsi_service_path =
-        CASE
-            WHEN tsi_service_path like CONCAT('%', VALUES(tsi_service_path), '%') OR LENGTH(TRIM(VALUES(tsi_service_path)))=0 THEN tsi_service_path
-            WHEN ISNULL(tsi_service_path) THEN CONCAT(VALUES(tsi_service_path), '||')
-            ELSE CONCAT(CONCAT(VALUES(tsi_service_path), '||'), tsi_service_path)
-        END,
+        tsi_service_path = VALUES(tsi_service_path),
+#         CASE
+#             WHEN tsi_service_path like CONCAT('%', VALUES(tsi_service_path), '%') OR LENGTH(TRIM(VALUES(tsi_service_path)))=0 THEN tsi_service_path
+#             WHEN ISNULL(tsi_service_path) THEN CONCAT(VALUES(tsi_service_path), '||')
+#             ELSE CONCAT(CONCAT(VALUES(tsi_service_path), '||'), tsi_service_path)
+#         END,
         tsi_provider_names =
         CASE
             WHEN tsi_provider_names like CONCAT('%', VALUES(tsi_provider_names), '%') OR LENGTH(TRIM(VALUES(tsi_provider_names)))=0 THEN tsi_provider_names

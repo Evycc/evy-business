@@ -1,6 +1,6 @@
 package com.evy.common.db;
 
-import com.evy.common.command.infrastructure.config.BusinessPrpoties;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  */
 public class DBUtils {
     private static DataSource DATA_SOURCE;
-    private static SqlSessionFactory SQL_SESSIONF_FACTORY;
+    private static SqlSessionFactory SQL_SESSION_FACTORY;
     private static JdbcTransactionFactory JDBC_TRANSACTION_FACTORY;
     private static String MYBATIS_CONF_XML;
     private static int BATCH_INSERT_COUNT;
@@ -47,9 +47,9 @@ public class DBUtils {
 
     private static void init(){
         CommandLog.info("初始化DBUtils");
-        BusinessPrpoties prpoties = AppContextUtils.getPrpo();
-        MYBATIS_CONF_XML = prpoties.getDb().getMybatisXmlPath();
-        BATCH_INSERT_COUNT = prpoties.getDb().getBatchInsertCount();
+        BusinessProperties properties = AppContextUtils.getPrpo();
+        MYBATIS_CONF_XML = properties.getDb().getMybatisXmlPath();
+        BATCH_INSERT_COUNT = properties.getDb().getBatchInsertCount();
         initDataSource();
         initMybatis();
         JDBC_TRANSACTION_FACTORY = new JdbcTransactionFactory();
@@ -61,15 +61,15 @@ public class DBUtils {
     private static void initMybatis() {
         CommandLog.info("DBUtils初始化Mybatis配置");
         try {
-            SQL_SESSIONF_FACTORY = AppContextUtils.getBean(SqlSessionFactory.class);
+            SQL_SESSION_FACTORY = AppContextUtils.getBean(SqlSessionFactory.class);
         } catch (Exception e) {
             CommandLog.errorThrow("initMybatis error!", e);
-            if (SQL_SESSIONF_FACTORY == null) {
+            if (SQL_SESSION_FACTORY == null) {
                 try {
                     //从配置文件初始化Mybatis
-                    SQL_SESSIONF_FACTORY = initMyBatisForXml(MYBATIS_CONF_XML);
+                    SQL_SESSION_FACTORY = initMyBatisForXml(MYBATIS_CONF_XML);
 
-                    if (SQL_SESSIONF_FACTORY == null) {
+                    if (SQL_SESSION_FACTORY == null) {
                         CommandLog.error("Mybatis SqlSessionFactory初始化失败，未找到Bean实例");
                     }
                 } catch (IOException ex) {
@@ -177,7 +177,7 @@ public class DBUtils {
      * @return org.apache.ibatis.session.SqlSession
      */
     public static SqlSession getSqlSession() {
-        SqlSession sqlSession = SQL_SESSIONF_FACTORY.openSession();
+        SqlSession sqlSession = SQL_SESSION_FACTORY.openSession();
         proxyDataSource(sqlSession.getConfiguration().getEnvironment().getDataSource());
 
         return sqlSession;
@@ -197,14 +197,12 @@ public class DBUtils {
 
         switch (type) {
             case BATCH:
-                sqlSession = SQL_SESSIONF_FACTORY.openSession(type);
-                break;
             case REUSE:
             case SIMPLE:
-                sqlSession = SQL_SESSIONF_FACTORY.openSession(type);
+                sqlSession = SQL_SESSION_FACTORY.openSession(type);
                 break;
             default:
-                sqlSession = SQL_SESSIONF_FACTORY.openSession();
+                sqlSession = SQL_SESSION_FACTORY.openSession();
                 break;
         }
         return sqlSession;
@@ -350,48 +348,7 @@ public class DBUtils {
      * @return 批量insert成功的记录数
      */
     public static int insertBatch(String mapper, List<Map<String, String>> input) {
-        SqlSession sqlSession = null;
-        Transaction transaction = null;
-        int result = 0;
-        long start = System.currentTimeMillis();
-
-        try {
-            sqlSession = getSqlSession(ExecutorType.BATCH);
-            transaction = getJdbcTransaction(sqlSession);
-
-            for (Map<String, String> map : input) {
-                sqlSession.insert(mapper, map);
-
-                if (++result % BATCH_INSERT_COUNT == 0) {
-                    CommandLog.info("insertBatch批量提交中..");
-                    sqlSession.commit();
-                    transactionCommit(transaction);
-                }
-            }
-
-            if (sqlSession.flushStatements().size() > 0) {
-                CommandLog.info("insertBatch批量提交中（提交剩余DML）..");
-                sqlSession.commit();
-                transactionCommit(transaction);
-            }
-        } catch (Exception e) {
-            CommandLog.errorThrow("insertBatch批量提交失败", e);
-            try {
-                if (Objects.nonNull(sqlSession)) {
-                    //true  回滚整个事务
-                    transactionRollback(transaction);
-                    sqlSession.rollback();
-                    sqlSession.close();
-                }
-            } catch (Exception ex) {
-                printErrorRollback(ex);
-            }
-        } finally {
-            close(sqlSession, transaction);
-            CommandLog.info("insertBatch耗时:{}ms", (System.currentTimeMillis() - start));
-        }
-
-        return result;
+        return insertBatch(mapper, input, BATCH_INSERT_COUNT);
     }
 
     /**

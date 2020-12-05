@@ -1,7 +1,7 @@
 package com.evy.common.utils;
 
 import com.evy.common.command.domain.factory.CreateFactory;
-import com.evy.common.command.infrastructure.config.BusinessPrpoties;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
@@ -27,7 +27,7 @@ public class CommandUtils {
     private static long EXECUTE_TIME_OUT = 30000;
     private static final String TIMEOUT_ERRORCODE = "TIMEOUT_ERR";
     private static final String TIMEOUT_ERRMSG = "接口调用超时";
-    private static BusinessPrpoties prpoties;
+    private static BusinessProperties prpoties;
     /**
      * lambda表达式内获取值用
      */

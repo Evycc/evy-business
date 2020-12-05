@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public interface INextBuildSeq {
     /**
-     * 获取一个新的buildSeq,用于新部署任务
+     * 获取一个新的buildSeq,用于回查部署任务
      */
     @PostMapping("/nextBuildSeq")
     NextDeployBuildSeqOutDTO nextBuildSeq(@RequestBody NextDeployBuildSeqDTO dto);

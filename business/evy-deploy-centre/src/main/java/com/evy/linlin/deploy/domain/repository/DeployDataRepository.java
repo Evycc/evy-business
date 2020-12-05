@@ -1,7 +1,7 @@
 package com.evy.linlin.deploy.domain.repository;
 
 import com.evy.common.db.DBUtils;
-import com.evy.linlin.deploy.tunnel.po.*;
+import com.evy.linlin.deploy.domain.tunnel.po.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

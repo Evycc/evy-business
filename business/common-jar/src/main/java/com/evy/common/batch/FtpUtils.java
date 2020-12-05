@@ -1,6 +1,6 @@
 package com.evy.common.batch;
 
-import com.evy.common.command.infrastructure.config.BusinessPrpoties;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.AppContextUtils;
 import com.jcraft.jsch.Channel;
@@ -30,7 +30,7 @@ public class FtpUtils {
 
     private static void init(){
         //获取sftp连接超时时间
-        BusinessPrpoties prpoties = AppContextUtils.getPrpo();
+        BusinessProperties prpoties = AppContextUtils.getPrpo();
         SFTP_TIMEOUT = prpoties.getFtp().getLoginTimeout();
     }
 
@@ -40,7 +40,7 @@ public class FtpUtils {
      * @throws Exception 连接sftp异常
      */
     private static void initSftpSession() throws Exception {
-        BusinessPrpoties prpoties = AppContextUtils.getPrpo();
+        BusinessProperties prpoties = AppContextUtils.getPrpo();
         String username = prpoties.getFtp().getUsername();
         String password = prpoties.getFtp().getPassword();
         String passphrase = prpoties.getFtp().getPassphrase();

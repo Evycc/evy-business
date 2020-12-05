@@ -1,5 +1,6 @@
 package com.evy.common.http;
 
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.log.CommandLog;
@@ -9,14 +10,14 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -29,25 +30,13 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * Http请求工具<br/>
- * 配置项:<br/>
- * business.http.connTimeOut http请求连接超时时间，单位ms，默认10s<br/>
- * business.http.reqTimeOut http请求超时时间，单位ms，默认30s<br/>
+ * Http请求工具
  * @Author: EvyLiuu
  * @Date: 2020/5/24 14:40
  */
+@Component
+@DependsOn(BeanNameConstant.APP_CONTEXT_UTILS)
 public class HttpUtils {
-    private static final RequestConfig REQUEST_CONFIG;
-    private static final String HTTP_CONN_TIMEOUT_PRPO = "business.http.connTimeOut";
-    private static final String HTTP_REQ_TIMEOUT_PRPO = "business.http.reqTimeOut";
-    /**
-     * http请求连接超时时间，单位ms，默认10s
-     */
-    private static final int HTTP_CONN_TIMEOUT = 10000;
-    /**
-     * http请求超时时间，单位ms，默认30s
-     */
-    private static final int HTTP_REQUEST_TIMEOUT = 30000;
     /**
      * Basic Authorization 认证 value值
      */
@@ -56,28 +45,6 @@ public class HttpUtils {
      * Basic Authorization 认证 header
      */
     private static final String BASIC_AUTH_HEADER = "Authorization";
-
-    static {
-        int connTimeOut = BusinessConstant.SUCESS;
-        int reqTimeOut = BusinessConstant.SUCESS;
-        try {
-            connTimeOut = Integer.parseInt(AppContextUtils.getForEnv(HTTP_CONN_TIMEOUT_PRPO));
-            reqTimeOut = Integer.parseInt(AppContextUtils.getForEnv(HTTP_REQ_TIMEOUT_PRPO));
-        } catch (Exception e) {
-            CommandLog.error("HttpUtils获取超时配置失败,取用默认值 {}", e.getMessage());
-        } finally {
-            REQUEST_CONFIG = RequestConfig.custom()
-                    //请求连接超时
-                    .setConnectTimeout(connTimeOut == BusinessConstant.ONE_NUM ?
-                            HTTP_CONN_TIMEOUT : connTimeOut)
-                    //获取连接池连接的超时时间
-                    .setConnectionRequestTimeout(HTTP_CONN_TIMEOUT)
-                    //响应超时
-                    .setSocketTimeout(reqTimeOut == BusinessConstant.ONE_NUM ?
-                            HTTP_REQUEST_TIMEOUT : reqTimeOut)
-                    .build();
-        }
-    }
 
     /**
      * 发起Http请求
@@ -89,9 +56,9 @@ public class HttpUtils {
      * @throws URISyntaxException   URI构建异常
      * @throws IOException  http请求异常
      */
-    public static <T, P extends HttpRequestBase> T httpRequest(HttpRequestDTO<P> httpRequestDTO,
+    public <T, P extends HttpRequestBase> T httpRequest(HttpRequestDTO<P> httpRequestDTO,
                                                                Function<HttpResponse, T> function) throws IOException, URISyntaxException {
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        CloseableHttpClient httpClient = AppContextUtils.getBean(CloseableHttpClient.class);
         HttpRequestBase httpRequestBase = httpRequestDTO.getRequestBase();
         List<NameValuePair> nameValuePairList = httpRequestDTO.getNvparams();
         List<Header> headers = httpRequestDTO.getHeaders();
@@ -103,7 +70,6 @@ public class HttpUtils {
         try {
             URI uri = uriBuilder(path, nameValuePairList).build();
             httpRequestBase.setURI(uri);
-            httpRequestBase.setConfig(REQUEST_CONFIG);
             if (!CollectionUtils.isEmpty(headers)) {
                 httpRequestBase.setHeaders(headers.toArray(new Header[]{}));
             }
@@ -144,19 +110,19 @@ public class HttpUtils {
      * @param password  密码
      * @return org.apache.http.Header
      */
-    public static Header buildBasicAuth(String username, String password){
+    public Header buildBasicAuth(String username, String password){
         byte[] value = (username + BusinessConstant.COLON_STR + password).getBytes(StandardCharsets.UTF_8);
         return new BasicHeader(BASIC_AUTH_HEADER,
                 BASIC_AUTH_VALUE.concat(Base64.getEncoder().encodeToString(value)));
     }
 
-    public static URIBuilder uriBuilder(String path) {
+    public URIBuilder uriBuilder(String path) {
         URIBuilder uriBuilder = new URIBuilder(URI.create(path));
         uriBuilder.setCharset(StandardCharsets.UTF_8);
         return uriBuilder;
     }
 
-    public static URIBuilder uriBuilder(String path, List<NameValuePair> pairs) {
+    public URIBuilder uriBuilder(String path, List<NameValuePair> pairs) {
         URIBuilder uriBuilder = uriBuilder(path);
         if (!Objects.isNull(pairs)) {
             uriBuilder.addParameters(pairs);

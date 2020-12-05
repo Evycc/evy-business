@@ -1,6 +1,6 @@
 package com.evy.common.mq.common.domain.factory;
 
-import com.evy.common.command.infrastructure.config.BusinessPrpoties;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.CommandUtils;
 import com.rabbitmq.client.Channel;
@@ -26,7 +26,7 @@ public class MqFactory {
     @Getter
     private ConnectionFactory rabbitmqConnFactory;
     private final String rabbitmqUser;
-    private String rabbitmqPassword;
+    private final String rabbitmqPassword;
     private final String rabbitmqHost;
     private final int rabbitmqPort;
     /**
@@ -74,18 +74,18 @@ public class MqFactory {
      */
     public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
 
-    public MqFactory(BusinessPrpoties businessPrpoties) {
-        rabbitmqUser = businessPrpoties.getMq().getRabbitmq().getUser();
-        rabbitmqPassword = businessPrpoties.getMq().getRabbitmq().getPassword();
+    public MqFactory(BusinessProperties businessProperties) {
+        rabbitmqUser = businessProperties.getMq().getRabbitmq().getUser();
+        rabbitmqPassword = businessProperties.getMq().getRabbitmq().getPassword();
 
-        rabbitmqHost = businessPrpoties.getMq().getRabbitmq().getHost();
-        rabbitmqPort = businessPrpoties.getMq().getRabbitmq().getPort();
-        DELIVERY_MODE = businessPrpoties.getMq().getRabbitmq().getDeliveryMode();
-        PRIORITY = businessPrpoties.getMq().getRabbitmq().getPriority();
-        AUTO_ACK = businessPrpoties.getMq().getRabbitmq().isAutoAck();
-        AUTO_RECOVERY = businessPrpoties.getMq().getRabbitmq().isAutoRecovery();
-        CONN_RETRY_COUNT = businessPrpoties.getMq().getRabbitmq().getConnRetryCount();
-        BASICEQOS = businessPrpoties.getMq().getRabbitmq().getBasicQos();
+        rabbitmqHost = businessProperties.getMq().getRabbitmq().getHost();
+        rabbitmqPort = businessProperties.getMq().getRabbitmq().getPort();
+        DELIVERY_MODE = businessProperties.getMq().getRabbitmq().getDeliveryMode();
+        PRIORITY = businessProperties.getMq().getRabbitmq().getPriority();
+        AUTO_ACK = businessProperties.getMq().getRabbitmq().isAutoAck();
+        AUTO_RECOVERY = businessProperties.getMq().getRabbitmq().isAutoRecovery();
+        CONN_RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConnRetryCount();
+        BASICEQOS = businessProperties.getMq().getRabbitmq().getBasicQos();
     }
 
     /**

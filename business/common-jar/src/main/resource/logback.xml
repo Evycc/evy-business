@@ -7,7 +7,7 @@
     <!-- 普通 -->
     <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||${hostname}||%replace(%replace(%caller{2}){'\s|\S|^.*|\t|\r|\n|[Caller.1]$',''}){'\t|\r|\n|(Caller.{1}[0-9]{1})+|\\(.*\\)| |at',''} => %logger - %msg%n"/>
     <!-- TracrLog用 -->
-    <property name="TracrLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}||%-5level||[%t]||%evylogger - %msg%n"/>
+    <property name="TraceLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] [%X{traceId}] %evylogger - %msg%n"/>
     <!--日志存放目录-->
     <property name="logDir" value="/applog/current"/>
     <!--历史日志存放目录-->
@@ -20,7 +20,7 @@
     <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logDir}/app.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${TracrLogPattern}</pattern>
+            <pattern>${TraceLogPattern}</pattern>
         </encoder>
     </appender>
 
@@ -36,17 +36,17 @@
             <maxFileSize>100MB</maxFileSize>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${TracrLogPattern}</pattern>
+            <pattern>${TraceLogPattern}</pattern>
         </encoder>
     </appender>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${TracrLogPattern}</pattern>
+            <pattern>${TraceLogPattern}</pattern>
         </encoder>
     </appender>
 
-    <appender name="asny_roll_file" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="asyn_roll_file" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="logfile"/>
         <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
         <neverBlock>true</neverBlock>
@@ -56,7 +56,7 @@
         <discardingThreshold>0</discardingThreshold>
     </appender>
 
-    <appender name="asny_history_file" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="asyn_history_file" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="log_history_file"/>
         <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
         <neverBlock>true</neverBlock>
@@ -66,7 +66,7 @@
         <discardingThreshold>0</discardingThreshold>
     </appender>
 
-    <appender name="asny_console" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="asyn_console" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="STDOUT"/>
         <!--ArrayBlockingQueue.offer(E)添加日志到队列,队列满则不进行添加,默认false通过死循环put直到添加队列成功-->
         <neverBlock>true</neverBlock>

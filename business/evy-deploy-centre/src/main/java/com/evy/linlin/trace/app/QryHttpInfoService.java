@@ -1,10 +1,8 @@
 package com.evy.linlin.trace.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.linlin.trace.dto.QryHttpInfoDTO;
 import com.evy.linlin.trace.dto.QryHttpInfoOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * Http请求耗时及响应信息收集

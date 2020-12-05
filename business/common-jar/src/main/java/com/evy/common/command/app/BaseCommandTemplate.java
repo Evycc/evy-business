@@ -3,6 +3,7 @@ package com.evy.common.command.app;
 import com.evy.common.command.app.inceptor.BaseCommandInceptor;
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.domain.factory.ErrorFactory;
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
@@ -16,6 +17,7 @@ import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -42,13 +44,15 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     /**
      * 记录日志流水topic
      */
-    public static final String TRACELOG_TOPIC = "topic-tracelog";
+    @Value("${evy.traceLog.topic:\"\"}")
+    public String traceLogTopic;
     /**
      * 记录日志流水tag
      */
-    public static final String TRACELOG_TAG = "tag-tracelog";
+    @Value("${evy.traceLog.tag:\"\"}")
+    public String traceLogTag;
     @Autowired
-    @Qualifier("RabbitMqSender")
+    @Qualifier(BeanNameConstant.RABBIT_MQ_SENDER)
     private MqSender mqSender;
     /**
      * 当前command上下文
@@ -139,18 +143,22 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * @param outDTO   出参
      */
     private void traceLog(T inputDTO, R outDTO) {
+        if (StringUtils.isEmpty(traceLogTopic) || StringUtils.isEmpty(traceLogTag)) {
+            return;
+        }
+
         //存储到上下文，用于记录@TraceLog
         Class curClass = this.getClass();
         TraceLog traceLog;
         traceLog = (TraceLog) curClass.getAnnotation(TraceLog.class);
         if (traceLog != null) {
             String reqContent = traceLog.reqContent();
-            Map<String, String> map = null;
+            Map<String, Object> map = null;
 
             if (StringUtils.isEmpty(reqContent)) {
                 map = new HashMap<>(2);
-                map.put("input", JsonUtils.convertToJson(inputDTO));
-                map.put("ouput", JsonUtils.convertToJson(outDTO));
+                map.put("input", inputDTO);
+                map.put("output", outDTO);
             } else {
                 String[] reqs = reqContent.split(BusinessConstant.SPLIT_LINE);
                 CommandUtils.conveterFromDto(inputDTO, commandContent);
@@ -169,7 +177,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             commandContent.put("reqContent", reqContentJson);
             String curCode = this.getClass().getName();
             int temp1 = curCode.lastIndexOf(BusinessConstant.POINT);
-            curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) +1, curCode.length() -1);
+            curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) + 1, curCode.length() - 1);
             commandContent.put("code", curCode);
             commandContent.put("serverIp", BusinessConstant.VM_HOST);
             commandContent.put("clientIp", inputDTO.getClientIp());
@@ -180,7 +188,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             String json = JsonUtils.convertToJson(commandContent);
 
             CommandLog.info("Log reqContent: {}", json);
-            mqSender.sendAndConfirm(TRACELOG_TOPIC, TRACELOG_TAG, BusinessConstant.EMPTY_STR, json);
+            mqSender.sendAndConfirm(traceLogTopic, traceLogTag, BusinessConstant.EMPTY_STR, json);
         }
     }
 
@@ -200,10 +208,10 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         }
 
         if (errCode != null) {
-            outDTO.setErrorCode(be.getErrorCode());   
+            outDTO.setErrorCode(be.getErrorCode());
         }
         if (errMsg != null) {
-            outDTO.setErrorMsg(errMsg);   
+            outDTO.setErrorMsg(errMsg);
         } else {
             errorFactory.handleErrorCode(outDTO);
         }
@@ -223,19 +231,22 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     public R before(T t) throws BasicException {
         R outDTO = null;
 
-        //校验入参
-        Set<ConstraintViolation<T>> violations = t.validator(t);
-        if (!CollectionUtils.isEmpty(violations)) {
-            for (ConstraintViolation<T> violeation : violations) {
-                throw new BasicException(ErrorConstant.ERROR_VALIDATOR, violeation.getMessage());
+        if (Objects.nonNull(t)) {
+            //校验入参
+            Set<ConstraintViolation<T>> violations = t.validator(t);
+            if (!CollectionUtils.isEmpty(violations)) {
+                for (ConstraintViolation<T> violeation : violations) {
+                    throw new BasicException(ErrorConstant.ERROR_VALIDATOR, violeation.getMessage());
+                }
+            }
+
+            if (COMMAND_INCEPTORS.size() > 0 && tempInceptor != null) {
+                for (BaseCommandInceptor inceptor : tempInceptor) {
+                    inceptor.beforeCommand(t);
+                }
             }
         }
 
-        if (COMMAND_INCEPTORS.size() > 0 && tempInceptor != null) {
-            for (BaseCommandInceptor inceptor : tempInceptor) {
-                inceptor.beforeCommand(t);
-            }
-        }
         return outDTO;
     }
 
@@ -259,13 +270,14 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
 
     /**
      * 转换DTO [source >> target]
+     *
      * @param target 待转换DTO
      * @param source 源转换DTO
-     * @param <E>   一般为与待转换DTO有父子关系的类型
-     * @return  返回转换后的DTO对象
+     * @param <E>    一般为与待转换DTO有父子关系的类型
+     * @return 返回转换后的DTO对象
      */
     @SuppressWarnings("unchecked")
-    public <E> R convertDto(R target, E source){
+    public <E> R convertDto(R target, E source) {
         try {
             if (target.getClass().equals(source.getClass())) {
                 return (R) source;

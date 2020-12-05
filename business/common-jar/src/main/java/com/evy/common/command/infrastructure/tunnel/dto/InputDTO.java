@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * 接口入参DTO
@@ -12,18 +13,19 @@ import javax.validation.constraints.NotNull;
  * @Date: 2019/10/23 0:11
  */
 @ToString
-public class InputDTO{
+public class InputDTO implements Serializable {
+    private static final long serialVersionUID = 546422L;
     @Getter
     @Setter
-    @NotNull
+    @NotNull(message = "srcSendNo不能为空")
     private String srcSendNo;
     @Getter
     @Setter
-    @NotNull
+    @NotNull(message = "requestTime不能为空")
     private String requestTime;
     @Getter
     @Setter
-    @NotNull
+    @NotNull(message = "clientIp不能为空")
     private String clientIp;
     @Getter
     @Setter

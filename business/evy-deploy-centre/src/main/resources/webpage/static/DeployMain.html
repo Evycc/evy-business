@@ -9,7 +9,8 @@
     <link rel="preload" as="font" href="fonts/SFUIText-Light.woff" type="font/woff">
     <link rel="preload" as="font" href="fonts/SFUIText-Light.woff" type="font/woff">
     <link rel="preload" as="font" href="fonts/fontawesome-webfont.woff" type="font/woff">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <link rel="stylesheet" href="css/font-awesome.css">
     <link rel="stylesheet" href="css/main.full.css">
     <title>Evy持续集成中心</title>
@@ -17,21 +18,26 @@
 <body class="ng-cloak main-style" ng-app="DeployApp" ng-controller="DeployMainController as main">
 <!--顶部导航栏-->
 <header>
-    <nav id="head-nav" class="nav nav-default navbar-static-top" role="navigation" ng-class="{true : 'head-nav-login', false : 'head-nav-nologin'}[main.isLogin]">
+    <nav id="head-nav" class="nav nav-default navbar-static-top" role="navigation"
+         ng-class="{true : 'head-nav-login', false : 'head-nav-nologin'}[main.isLogin]">
         <div id="head-left-view" class="col-xs-6">
             <span>
-                <a href="https://github.com/Evycc/evy-business" target="_blank" ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]">Evy持续集成中心</a>
+                <a href="https://github.com/Evycc/evy-business" target="_blank"
+                   ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]">Evy持续集成中心</a>
             </span>
         </div>
         <div class="col-xs-6 head-right-view" ng-show="main.isLogin">
             <span>
-                <label type="text" class="head-label" ng-bind="main.cur.user" ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"></label>
+                <label type="text" class="head-label" ng-bind="main.cur.user"
+                       ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"></label>
             </span>
             <span>
-                <label type="text" class="head-label" ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"> | </label>
+                <label type="text" class="head-label"
+                       ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"> | </label>
             </span>
             <span>
-                <label type="text" class="head-label" ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]">
+                <label type="text" class="head-label"
+                       ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]">
                     当前分支:{{main.cur.branch}}
                 </label>
             </span>
@@ -55,13 +61,19 @@
                 <div id="stepEl" class="form-table">
                     <div id="form-cell-1" class="form-cell">
                         <input id="form-cell-input-1" type="text" placeholder="用户名" style="border:none;outline:medium;"
-                               ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-1')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-1')">
+                               ng-model="main.loginUser.username"
+                               ng-mouseenter="main.InputMouseEnterEvent('form-cell-1')"
+                               ng-mouseleave="main.InputMouseLevelEvent('form-cell-1')">
                     </div>
                     <div id="form-cell-2" class="form-cell">
-                        <input id="form-cell-input-2" type="password" placeholder="密码" style="border:none;outline:medium;"
-                               ng-model="main.loginUser.password" ng-mouseenter="main.InputMouseEnterEvent('form-cell-2')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-2')">
-                        <button class="login-btn" type="submit" aria-label="登陆">
-                            <span class="icon-arrow-right"></span>
+                        <input id="form-cell-input-2" type="password" placeholder="密码"
+                               style="border:none;outline:medium;"
+                               ng-model="main.loginUser.password"
+                               ng-mouseenter="main.InputMouseEnterEvent('form-cell-2')"
+                               ng-mouseleave="main.InputMouseLevelEvent('form-cell-2')">
+                        <button id="login-form-btn" class="login-btn btn" type="submit" aria-label="登陆"
+                                ng-click="main.SubmitLogin($event)">
+                            <span id="login-form-btn-span" class="icon-arrow-right"></span>
                         </button>
                     </div>
                 </div>
@@ -75,72 +87,236 @@
 <div id="main-deploy-body" ng-show="main.isLogin">
     <div id="main-deploy-view" class="row">
         <ul class="list-group deploy-list">
-            <li id="deploy-list-0" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-0')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-0')"
-                style="background: rgba(0,113,241,1);color: #fff;" ng-click="main.setDeployInfoTitle('新增部署应用')">新增部署应用</li>
-            <li id="deploy-list-select" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-select')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-select')" ng-click="main.setDeployInfoTitle('切换分支')">
+            <li id="deploy-list-0" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-0')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-0')"
+                style="background: rgba(0,113,241,1);color: #fff;" ng-click="main.showDeployCreateView('新增部署应用')">新增部署应用
+            </li>
+            <li id="deploy-list-autodeploy" class="list-group-item"
+                ng-mouseenter="main.InputMouseEnterEvent('deploy-list-autodeploy')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-autodeploy')"
+                ng-click="main.setDeployInfoTitle('自动化部署')">自动化部署
+            </li>
+            <li id="deploy-list-select" class="list-group-item"
+                ng-mouseenter="main.InputMouseEnterEvent('deploy-list-select')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-select')"
+                ng-click="main.setDeployInfoTitle('切换分支')">
                 <span class="icon-reorder"> 切换分支</span>
             </li>
-            <!--        TODO 用户不存在配置信息时,隐藏-->
-            <li id="deploy-list-1" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-1')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-1')" ng-click="main.setDeployInfoTitle('应用内存信息')">应用内存信息</li>
-            <li id="deploy-list-2" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-2')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-2')" ng-click="main.setDeployInfoTitle('应用线程信息')">应用线程信息</li>
-            <li id="deploy-list-3" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-3')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-3')" ng-click="main.setDeployInfoTitle('MQ消息中心')">MQ消息中心</li>
-            <li id="deploy-list-4" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-4')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-4')" ng-click="main.setDeployInfoTitle('慢SQL')">慢SQL</li>
-            <li id="deploy-list-5" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-5')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-5')" ng-click="main.setDeployInfoTitle('服务治理')">服务治理</li>
-            <li id="deploy-list-6" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-6')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-6')" ng-click="main.setDeployInfoTitle('Redis缓存中心')">Redis缓存中心</li>
-            <li id="deploy-list-7" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-7')" ng-mouseleave="main.InputMouseLevelEvent('deploy-list-7')" ng-click="main.setDeployInfoTitle('Http请求查询')">Http请求查询</li>
+            <li id="deploy-list-1" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-1')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-1')" ng-click="main.setDeployInfoTitle('应用内存信息')">
+                应用内存信息
+            </li>
+            <li id="deploy-list-2" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-2')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-2')" ng-click="main.setDeployInfoTitle('应用线程信息')">
+                应用线程信息
+            </li>
+            <li id="deploy-list-3" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-3')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-3')" ng-click="main.setDeployInfoTitle('MQ消息中心')">
+                MQ消息中心
+            </li>
+            <li id="deploy-list-4" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-4')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-4')" ng-click="main.setDeployInfoTitle('慢SQL')">
+                慢SQL
+            </li>
+            <li id="deploy-list-5" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-5')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-5')" ng-click="main.setDeployInfoTitle('服务治理')">
+                服务治理
+            </li>
+            <li id="deploy-list-6" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-6')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-6')"
+                ng-click="main.setDeployInfoTitle('Redis缓存中心')">Redis缓存中心
+            </li>
+            <li id="deploy-list-7" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-7')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-7')"
+                ng-click="main.setDeployInfoTitle('Http请求查询')">Http请求查询
+            </li>
         </ul>
 
         <div id="deploy-info-view" class="col-xs-8">
             <span>
                 <h3 class="info-title">{{main.deployInfo.title}}</h3>
             </span>
-            <div id="deploy-stepEl" class="form-table deploy-form-table">
+            <!--            新增部署应用正文-->
+            <div id="{{main.viewId.createView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.createViewShow">
                 <div id="form-cell-3" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-3" type="text" placeholder="应用名称 (如: test-demo)" style="border:none;outline:medium;"
-                           ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-3')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-3')">
+                    <input id="form-cell-input-3" type="text" placeholder="应用名称 (如: test-demo)"
+                           style="border:none;outline:medium;"
+                           ng-model="main.deployForm.appName" ng-mouseenter="main.InputMouseEnterEvent('form-cell-3')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-3')">
                 </div>
                 <div id="form-cell-4" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-4" type="text" placeholder="git路径 (如: https://github.com/Evycc/evy-business)" style="border:none;outline:medium;"
-                           ng-model="main.loginUser.password" ng-mouseenter="main.InputMouseEnterEvent('form-cell-4')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-4')">
-                    <button id="form-cell-input-4-btn" class="login-btn deploy-info-btn" type="submit" aria-label="获取分支列表">
-                        获取分支列表 <span class="icon-arrow-right"></span>
+                    <input id="form-cell-input-4" type="text"
+                           placeholder="git路径 (如: https://github.com/Evycc/evy-business)"
+                           style="border:none;outline:medium;"
+                           ng-model="main.deployForm.gitPath" ng-mouseenter="main.InputMouseEnterEvent('form-cell-4')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-4')">
+                    <button id="form-cell-input-4-btn" class="login-btn deploy-info-btn btn" type="submit"
+                            aria-label="获取分支列表"
+                            ng-click="main.GetGitBeanchList($event)">
+                        {{main.GetGitBeanchListBtnText.isSubmit ? main.GetGitBeanchListBtnText.SubmitText : main.GetGitBeanchListBtnText.noSubmitText}}
+                        <span id="form-cell-input-4-btn-span" class="icon-arrow-right"></span>
                     </button>
                 </div>
                 <div id="form-cell-5" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-5" type="text" placeholder="git分支 (如: YD_202011 默认master)" style="border:none;outline:medium;"
-                           ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-5')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-5')">
+                    <input id="form-cell-input-5" type="text" placeholder="git分支 (如: YD_202011 默认master)"
+                           style="border:none;outline:medium;"
+                           ng-model="main.deployForm.branchName"
+                           ng-mouseenter="main.InputMouseEnterEvent('form-cell-5')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-5')">
                 </div>
                 <div id="form-cell-6" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-6" type="text" placeholder="服务器列表" style="border:none;outline:medium; pointer-events: none;"
-                           ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-6')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-6')">
-                    <button id="form-cell-input-6-btn" class="login-btn deploy-info-btn popover-options" type="submit" aria-label="批量添加服务器Ip" style="width: 160px !important;">
-                        批量添加服务器Ip <span class="icon-arrow-right"></span>
-                    </button>
+                    <input id="form-cell-input-6" type="text" placeholder="服务器列表 (通过逗号分割)"
+                           style="border:none;outline:medium;"
+                           ng-model="main.deployForm.targetHost"
+                           ng-mouseenter="main.InputMouseEnterEvent('form-cell-6')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-6')">
                 </div>
                 <div id="form-cell-7" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-7" type="text" placeholder="开启Junit测试" style="border:none;outline:medium; pointer-events: none;"
-                           ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-7')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-7')">
-                    <button id="form-cell-input-7-btn" class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit" aria-label="开启Junit测试" disabled="disabled">
-<!--                        TODO 获取勾选项-->
-                        <input type="checkbox" value="">
+                    <input id="form-cell-input-7" type="text" placeholder="开启Junit测试"
+                           style="border:none;outline:medium; pointer-events: none;"
+                           ng-mouseenter="main.InputMouseEnterEvent('form-cell-7')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-7')">
+                    <button id="form-cell-input-7-btn"
+                            class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
+                            aria-label="开启Junit测试" disabled="disabled">
+                        <label>
+                            <input id="JunitCheckBox" type="checkbox"/>
+                        </label>
                     </button>
                 </div>
                 <div id="form-cell-8" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-8" type="text" placeholder="是否开启分批部署" style="border:none;outline:medium;"
-                           ng-model="main.loginUser.username" ng-mouseenter="main.InputMouseEnterEvent('form-cell-8')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-8')">
-                    <button id="form-cell-input-8-btn" class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit" aria-label="开启Junit测试" disabled="disabled">
-                        <!--                        TODO 获取勾选项-->
-                        <input type="checkbox" value="">
+                    <input id="form-cell-input-8" type="text" placeholder="开启分批部署"
+                           style="border:none;outline:medium; pointer-events: none;"
+                           ng-mouseenter="main.InputMouseEnterEvent('form-cell-8')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-8')">
+                    <button id="form-cell-input-8-btn"
+                            class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
+                            aria-label="开启Junit测试" disabled="disabled">
+                        <label>
+                            <input id="BatchDeployCheckBox" type="checkbox"/>
+                        </label>
                     </button>
                 </div>
                 <div id="form-cell-9" class="form-cell deploy-form-cell">
-                    <input id="form-cell-input-9" type="text" placeholder="Jvm参数 (如: -Xms1024m -Xmx2048m)" style="border:none;outline:medium;"
-                           ng-model="main.loginUser.password" ng-mouseenter="main.InputMouseEnterEvent('form-cell-9')" ng-mouseleave="main.InputMouseLevelEvent('form-cell-9')">
+                    <input id="form-cell-input-9" type="text" placeholder="Jvm参数 (如: -Xms1024m -Xmx2048m)"
+                           style="border:none;outline:medium;"
+                           ng-model="main.deployForm.jvmParam" ng-mouseenter="main.InputMouseEnterEvent('form-cell-9')"
+                           ng-mouseleave="main.InputMouseLevelEvent('form-cell-9')">
                 </div>
                 <div id="form-cell-10" class="form-cell deploy-form-cell">
-                    <button id="form-cell-input-10-btn" class="login-btn deploy-info-btn popover-options submit-btn" type="submit" aria-label="批量添加服务器Ip" style="width: 160px !important;">
-                        提交 <span class="icon-arrow-right"></span>
+                    <button id="form-cell-input-10-btn" class="login-btn deploy-info-btn popover-options submit-btn btn"
+                            type="submit" aria-label="提交"
+                            ng-click="main.SubmitNewDeployInfo($event)">
+                        {{main.SubmitNewDeployInfoText.isSubmit ? main.SubmitNewDeployInfoText.SubmitText : main.SubmitNewDeployInfoText.noSubmitText}}
+                        <span id="form-cell-input-10-btn-span" class="icon-arrow-right"></span>
                     </button>
+                </div>
+            </div>
+            <!--            选择分支列表-->
+            <div class="form-table deploy-form-table left-div result-div" ng-show="main.deployViewReq.show">
+                <div class="list-group-item title-div">{{main.deployViewReq.title}}</div>
+                <div class="content-div">
+                    <div class="list-group-item" ng-repeat="list in main.deployViewReqList">
+                        <a href="javascript:void(0);" ng-click="main.setBranchName($event)">{{list.branchName}}</a>
+                    </div>
+                </div>
+            </div>
+            <!--            选择分支模块-->
+            <div id="{{main.viewId.selectBranchView}}"
+                 class="form-table deploy-form-table left-div select-branch-super-div"
+                 ng-show="main.viewShow.selectBranchViewShow"
+                 ng-repeat="branchModel in main.selectBranch">
+                <div class="form-table deploy-form-table left-div select-branch">
+                    <div>
+                        <span class="title-span">应用名称</span>
+                        <span class="text-span">{{branchModel.appName}}</span>
+                    </div>
+                    <div>
+                        <span class="title-span">分支</span>
+                        <span class="text-span">{{branchModel.branchName}}</span>
+                    </div>
+                    <div>
+                        <span class="title-span">git</span>
+                        <span class="text-span">{{branchModel.gitPath}}</span>
+                    </div>
+                    <div>
+                        <span class="title-span">服务器IP</span>
+                        <span class="text-span">{{branchModel.serverIp}}</span>
+                    </div>
+                    <div>
+                        <input type="submit" class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
+                               value="选取分支"
+                               ng-click="main.selectBranchSubmit(branchModel.deploySeq)">
+                    </div>
+                </div>
+            </div>
+            <!--            应用配置主页面-->
+            <div id="{{main.viewId.mainView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.mainViewShow">
+                <div class="form-cell deploy-form-cell">
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="重新部署">
+                        重新部署 <span class="icon-repeat"></span>
+                    </button>
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="部署记录">
+                        部署记录 <span class="icon-list"></span>
+                    </button>
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="一键部署">
+                        一键部署 <span class="icon-play"></span>
+                    </button>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span id="build-status-text" class="title-span left-span span-success">编译成功<span class="icon-ok"></span></span>
+                    <span id="deploy-status-text" class="title-span left-span span-faild">部署失败<span class="icon-remove"></span></span>
+                    <span id="check-service-status-text" class="title-span left-span span-checking">检查服务
+                        <span id="check-service-status-text-span" class="icon-spinner icon-spin"></span>
+                    </span>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">部署时间</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
+                           value="2020-11-27 00:00:00">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">应用名称</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
+                           value="deploy-centors-appp">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">Junit测试</span>
+                    <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
+                            aria-label="开启Junit测试" disabled="disabled">
+                        <label>
+                            <input type="checkbox"/>
+                        </label>
+                    </button>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">分批部署</span>
+                    <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
+                            aria-label="开启Junit测试" disabled="disabled">
+                        <label>
+                            <input type="checkbox"/>
+                        </label>
+                    </button>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">git</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
+                           value="https://github.com/Evycc/evy-business">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">服务器IP</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
+                           value="127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">JVM参数</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="JVM参数">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">备注</span>
+                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注">
                 </div>
             </div>
         </div>

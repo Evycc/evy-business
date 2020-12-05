@@ -3,7 +3,11 @@
     box-sizing: content-box;
 }
 
-body a{
+body {
+    margin: 0;
+}
+
+body a {
     text-decoration: none !important;
 }
 
@@ -13,7 +17,7 @@ body a{
 }
 
 .main-style:after {
-    content:'';
+    content: '';
     position: absolute;
     right: 0;
     bottom: 0;
@@ -31,8 +35,8 @@ body a{
 /*全局样式 end*/
 
 /*顶部导航栏*/
-#head-nav{
-    top : 0;
+#head-nav {
+    top: 0;
     inline-size: 100%;
     block-size: 44px;
     z-index: 1;
@@ -40,15 +44,15 @@ body a{
 }
 
 .head-nav-login {
-    background-color : #ffffff;
-    border-bottom: 1px solid rgba(0,113,241,1);
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
 }
 
 .head-nav-nologin {
-    background-color : #323232;
+    background-color: #323232;
 }
 
-#head-nav div{
+#head-nav div {
     text-align: center;
     height: 100%;
 }
@@ -57,6 +61,7 @@ body a{
     text-align: center;
     margin-left: 16px;
 }
+
 #head-left-view div {
     margin-left: 16px;
 }
@@ -66,18 +71,21 @@ body a{
     right: 10px;
     position: absolute;
 }
+
 .head-label {
     color: #ffffff;
     margin: 10px 0;
     display: block;
 }
-.head-label-login{
+
+.head-label-login {
     color: #323232;
     margin: 10px 10px;
     display: block;
 
     float: right;
 }
+
 /*顶部导航栏 end*/
 
 /*body*/
@@ -144,11 +152,11 @@ body a{
 }
 
 #form-cell-1 {
-    border-bottom:1px solid rgba(0,113,241,1);
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
 }
 
 #form-cell-2 {
-    border-top:1px solid rgba(0,113,241,1);
+    border-top: 1px solid rgba(0, 113, 241, 1);
 }
 
 .form-cell input {
@@ -174,15 +182,20 @@ body a{
     text-align: center;
     margin: 0;
 
-    height: 600px;
+    min-height: 600px;
+    height: auto;
+}
+
+#main-deploy-view {
+    margin: 0;
 }
 
 .deploy-list {
-    margin: 0 12px;
+    margin: 0;
 }
 
-.deploy-list li{
-    border-bottom: 1px solid rgba(0,113,241,1);
+.deploy-list li {
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
     list-style: none;
     background: transparent;
 }
@@ -195,6 +208,7 @@ body a{
     background: #e9ecef;
 
     padding: 20px;
+    min-width: 1200px;
 }
 
 .info-title {
@@ -206,11 +220,11 @@ body a{
 }
 
 .deploy-form-table button {
-    color: rgba(0,113,241,1);
+    color: rgba(0, 113, 241, 1);
 }
 
 .deploy-form-cell {
-    border-bottom: 1px solid rgba(0,113,241,1);
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
     /*margin: 10px 0;*/
 
     margin: 10px;
@@ -234,32 +248,172 @@ body a{
 }
 
 .submit-btn {
-    background: rgba(0,113,241,1);
+    background: rgba(0, 113, 241, 1);
     color: #ffffff !important;
+    width: 160px !important;
+}
+
+.left-div {
+    float: left;
+}
+
+.result-div {
+    border-radius: 7px;
+    margin: 0 20px;
+    width: 200px;
+    border: none;
+}
+
+.result-div .title-div {
+    background: rgba(0, 113, 241, 1);
+    color: #ffffff !important;
+    letter-spacing: 12px;
+    border: none !important;
+    font-size: 21px;
+}
+
+.result-div div {
+    border: none;
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
+    border-left: none;
+    border-right: none;
+}
+
+.result-div .content-div {
+    overflow: auto;
+    height: 220px;
+    margin: 10px;
+    border-bottom: none;
+}
+
+.result-div .content-div div {
+    margin: 0;
+    padding: 6px;
+}
+
+.result-div .content-div div a {
+    color: black;
+}
+
+.result-div .content-div::-webkit-scrollbar { /*滚动条整体样式*/
+    width: 0; /*高宽分别对应横竖滚动条的尺寸*/
+    height: 0;
+}
+
+.select-branch-super-div {
+    width: auto;
+    height: auto;
+    min-height: 100px;
+    float: left;
+    margin: 10px 20px;
+}
+
+.select-branch {
+    width: auto;
+    height: auto;
+    margin: 10px;
+    background: #e9ecef;
+    user-select: none;
+}
+
+.select-branch div {
+    text-align: left;
+    margin: 4px 10px;
+    padding: 0 10px;
+    border-bottom: 1px solid rgba(0, 113, 241, 1);
+    user-select: none;
+}
+
+.select-branch div span {
+    user-select: none;
+}
+
+.title-span {
+    margin: 4px;
+    background: #0071f1;
+    border-radius: 7px;
+    height: 24px;
+    width: 84px;
+    display: inline-block;
+    text-align: center;
+    color: #fff;
+}
+
+.select-branch-btn {
+    height: 24px !important;
+    width: 84px !important;
+    background: #ffffff;
+    color: #0b2e13 !important;
+    margin: 4px;
+    padding: 0;
+    border: 1px solid rgba(0, 113, 241, 1);
+    border-radius: 14px;
+}
+
+.left-span {
+    float: left;
+    margin: 4px 0 0 24px;
+    padding: 0 10px;
+}
+
+.right-btn {
+    float: right;
+    position: relative;
+    margin: 0 4px;
+}
+
+.left-btn {
+    float: left;
+    position: relative;
+    margin: 0 0 0 34px;
+}
+
+.show-input:disabled {
+    background: #ffffff;
+}
+
+.span-success {
+    background: #1e7e34;
+}
+
+.span-faild {
+    background: #dc3545;
+}
+
+.span-checking {
+    background: #c69500;
 }
 
 /*body end*/
 
 /*底部导航栏*/
-#legal-footer{
+#legal-footer {
     text-align: center;
     margin: 0 auto;
 }
-#legal-footer div{
-    color: rgba(0,0,0,.5);
+
+#legal-footer div {
+    color: rgba(0, 0, 0, .5);
     padding: 5px 10px 15px;
     text-align: center;
     margin: 0 auto;
 }
+
+#deploy-main-view {
+    height: auto;
+    min-height: 200px;
+    background: #fff;
+}
+
 /*底部导航栏 end*/
 
 /*函数样式*/
 .InputMouseEnterEvent {
-    -webkit-box-shadow: 0 0 5px rgba(0,113,241,1);
+    -webkit-box-shadow: 0 0 5px rgba(0, 113, 241, 1);
 }
 
 .openCheckBox {
-    background: rgba(0,113,241,1);
+    background: rgba(0, 113, 241, 1);
 }
 
 .closeCheckBox {

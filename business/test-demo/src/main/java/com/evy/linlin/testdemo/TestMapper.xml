@@ -14,7 +14,7 @@
     </resultMap>
 
     <select id="selectCount" resultType="int">
-        SELECT COUNT(*) FROM test_table;
+        SELECT COUNT(*) FROM trace_services_info;
     </select>
     <select id="selectOne" resultType="Map">
         SELECT * FROM test_table limit 1;

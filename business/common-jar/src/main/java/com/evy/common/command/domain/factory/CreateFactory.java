@@ -1,5 +1,7 @@
 package com.evy.common.command.domain.factory;
 
+import com.evy.common.command.infrastructure.config.BusinessProperties;
+import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.AppContextUtils;
@@ -7,6 +9,11 @@ import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.SequenceUtils;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnection;
@@ -22,8 +29,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Date: 2020/5/7 23:45
  */
 @Component
-@DependsOn("appContextUtils")
+@DependsOn(BeanNameConstant.APP_CONTEXT_UTILS)
 public class CreateFactory {
+    private final BusinessProperties businessProperties;
+    public CreateFactory(BusinessProperties businessProperties) {
+        this.businessProperties = businessProperties;
+    }
+
     /**
      * 返回基于CPU核心数的线程池
      * @return java.util.concurrent.ExecutorService
@@ -73,7 +85,7 @@ public class CreateFactory {
      * 参照java.util.concurrent.Executors.DefaultThreadFactory
      */
     private static class DefaultThreadFactory implements ThreadFactory {
-        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         private final ThreadGroup group;
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix;
@@ -95,7 +107,7 @@ public class CreateFactory {
             group = (s != null) ? s.getThreadGroup() :
                     Thread.currentThread().getThreadGroup();
             namePrefix = name + BusinessConstant.STRIKE_THROUGH_STR +
-                    poolNumber.getAndIncrement() + BusinessConstant.STRIKE_THROUGH_STR;
+                    POOL_NUMBER.getAndIncrement() + BusinessConstant.STRIKE_THROUGH_STR;
             flag = 1;
         }
 
@@ -178,5 +190,29 @@ public class CreateFactory {
             builder.withPassword(CommandUtils.decodeEnc(pass));
         }
         return RedisClient.create(builder.build());
+    }
+
+    /**
+     * HttpClient配置
+     * @return org.apache.http.impl.client.CloseableHttpClient
+     */
+    @Bean(BeanNameConstant.EVY_HTTP_CLIENT)
+    public HttpClient httpClient() {
+        BusinessProperties.http http = businessProperties.getHttp();
+        int connTimeout = http.getConnTimeOut();
+        int reqTimeout = http.getReqTimeOut();
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                //请求连接超时
+                .setConnectTimeout(connTimeout)
+                //获取连接池连接的超时时间
+                .setConnectionRequestTimeout(reqTimeout)
+                //响应超时
+                .setSocketTimeout(reqTimeout)
+                .build();
+        return HttpClientBuilder.create()
+                .setDefaultRequestConfig(requestConfig)
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .build();
     }
 }

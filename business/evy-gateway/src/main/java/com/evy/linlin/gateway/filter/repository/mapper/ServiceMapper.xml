@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.evy.linlin.gateway.filter.repository.mapper.ServiceMapper">
+    <resultMap id="serviceInfoPO" type="com.evy.linlin.gateway.filter.repository.po.ServiceInfoPO">
+        <result column="tsi_service_bean_name" property="tsiServiceBeanName" jdbcType="VARCHAR"/>
+        <result column="tsi_provider" property="tsiProvider" jdbcType="VARCHAR"/>
+        <result column="tsi_service_path" property="tsiServicePath" jdbcType="VARCHAR"/>
+        <result column="tsi_consumer_names" property="tsiConsumerNames" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="serviceLimitInfoPO" type="com.evy.linlin.gateway.filter.repository.po.ServiceLimitInfoPO">
+        <result column="sli_service_bean_name" property="sliServiceBeanName" jdbcType="VARCHAR"/>
+        <result column="sli_qps_limit" property="sliQpsLimit" jdbcType="SMALLINT"/>
+        <result column="sli_fallback" property="sliFallback" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryServiceAndConsumer" resultMap="serviceInfoPO">
+        SELECT tsi_service_bean_name,tsi_provider,tsi_service_path,tsi_consumer_names FROM trace_services_info;
+    </select>
+
+    <select id="queryServiceLimitInfo" resultMap="serviceLimitInfoPO">
+        SELECT sli_service_bean_name,sli_qps_limit,sli_fallback FROM service_limit_info;
+    </select>
+</mapper>

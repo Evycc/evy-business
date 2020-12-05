@@ -1,7 +1,6 @@
 package com.evy.linlin.trace.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.linlin.trace.dto.QryThreadsInfoDTO;
 import com.evy.linlin.trace.dto.QryThreadsInfoOutDTO;
 

@@ -14,6 +14,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class DeployInfoDTO {
     private String buildSeq;
+    private String deploySeq;
     private String userSeq;
     private String projectName;
     private String appName;

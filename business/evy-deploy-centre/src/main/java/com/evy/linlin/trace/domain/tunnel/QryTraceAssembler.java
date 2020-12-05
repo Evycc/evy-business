@@ -9,7 +9,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class QryTraceAssembler {
      * QryThreadsInfoDTO -> QryAppThreadInfoListDO
      *
      * @param dto com.evy.linlin.trace.dto.QryThreadsInfoDTO
-     * @return com.evy.linlin.trace.domain.tunnel.model.QryAppThreadInfoListDO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppThreadInfoListDO
      */
     public static QryAppThreadInfoListDO dtoConvertDo(QryThreadsInfoDTO dto) {
         return new QryAppThreadInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getThreadName());
@@ -36,7 +35,7 @@ public class QryTraceAssembler {
      * QrySlowSqlInfoDTO -> QryAppSlowSqlListDO
      *
      * @param dto com.evy.linlin.trace.dto.QrySlowSqlInfoDTO
-     * @return com.evy.linlin.trace.domain.tunnel.model.QryAppSlowSqlListDO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppSlowSqlListDO
      */
     public static QryAppSlowSqlListDO dtoConvertDo(QrySlowSqlInfoDTO dto) {
         int limit = BusinessConstant.ZERO_NUM;
@@ -50,7 +49,7 @@ public class QryTraceAssembler {
      * QryAppMermoryInfoDTO -> QryAppMermoryListDO
      *
      * @param dto com.evy.linlin.trace.dto.QryAppMermoryInfoDTO
-     * @return com.evy.linlin.trace.domain.tunnel.model.QryAppMermoryListDO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryListDO
      */
     public static QryAppMermoryInfoListDO dtoConvertDo(QryAppMermoryInfoDTO dto) {
         int limit = BusinessConstant.ZERO_NUM;
@@ -101,8 +100,8 @@ public class QryTraceAssembler {
     /**
      * 创建PO GetTargetIpFromSeqPO
      *
-     * @param inputDo com.evy.linlin.trace.domain.tunnel.model.GetAppIpFromUserSeqDO
-     * @return com.evy.linlin.trace.domain.tunnel.po.GetTargetIpFromSeqPO
+     * @param inputDo com.evy.linlin.trace.domain.repository.tunnel.model.GetAppIpFromUserSeqDO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.po.GetTargetIpFromSeqPO
      */
     public static GetTargetIpFromSeqPO doConvertPo(GetAppIpFromUserSeqDO inputDo) {
         return new GetTargetIpFromSeqPO(inputDo.getSeq(), inputDo.getUserSeq());
@@ -121,8 +120,8 @@ public class QryTraceAssembler {
      * 创建实例 : QryAppMermoryPO
      *
      * @param targetIp 目标服务器IP
-     * @param qryAppMermoryInfoListDo    com.evy.linlin.trace.domain.tunnel.model.QryAppMermoryInfoListDO
-     * @return com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryPO
+     * @param qryAppMermoryInfoListDo    com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryInfoListDO
+     * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryPO
      */
     public static QryAppMermoryPO createQryAppMermoryPO(String targetIp, QryAppMermoryInfoListDO qryAppMermoryInfoListDo) {
         int limit = qryAppMermoryInfoListDo.getLimit();
@@ -133,7 +132,7 @@ public class QryTraceAssembler {
     /**
      * List<QryAppMermoryListPO> -> List<QryAppMermoryInfoModel>
      *
-     * @param pos com.evy.linlin.trace.domain.tunnel.po.QryAppMermoryListPO
+     * @param pos com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryListPO
      * @return com.evy.linlin.trace.dto.QryAppMermoryInfoModel
      */
     public static List<QryAppMermoryInfoModel> createQryAppMermoryInfoModel(List<QryAppMermoryListPO> pos) {
@@ -154,7 +153,7 @@ public class QryTraceAssembler {
     /**
      * List<QryServiceInfoListPO> -> List<QryServiceInfoModel>
      *
-     * @param pos com.evy.linlin.trace.domain.tunnel.po.QryServiceInfoListPO
+     * @param pos com.evy.linlin.trace.domain.repository.tunnel.po.QryServiceInfoListPO
      * @return com.evy.linlin.trace.dto.QryServiceInfoModel
      */
     public static List<QryServiceInfoModel> createQryServiceInfoModel(List<QryServiceInfoListPO> pos) {

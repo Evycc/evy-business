@@ -248,11 +248,19 @@ public class TraceService {
      */
     private static String buildMethodReqPath(Method method) {
         CommandLog.info("buildMethodReqPath#method {}", method);
+        String[] values;
+        String reqPath = "/";
         if (Objects.nonNull(method.getAnnotation(RequestMapping.class))) {
             RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-            return method.getName().concat(BusinessConstant.SHARE_STR).concat(requestMapping.value()[0]);
+            values = requestMapping.value();
+        } else {
+            values = method.getAnnotation(PostMapping.class).value();
         }
 
-        return method.getName().concat(BusinessConstant.SHARE_STR).concat(method.getAnnotation(PostMapping.class).value()[0]);
+        if (values.length > 0) {
+            reqPath = values[0];
+        }
+
+        return method.getName().concat(BusinessConstant.SHARE_STR).concat(reqPath);
     }
 }

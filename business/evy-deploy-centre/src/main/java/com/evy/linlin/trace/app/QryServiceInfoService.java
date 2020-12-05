@@ -1,10 +1,8 @@
 package com.evy.linlin.trace.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.linlin.trace.dto.QryServiceInfoDTO;
 import com.evy.linlin.trace.dto.QryServiceInfoOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * @Author: EvyLiuu
