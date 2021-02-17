@@ -83,6 +83,7 @@
                gmt_modify        as gmtModify
         FROM trace_http_flow
         WHERE thf_req_ip = #{appIp}
+        order by gmt_modify desc
         <if test="limit != null or limit != ''">
             LIMIT #{limit};
         </if>
@@ -195,6 +196,7 @@
                gmt_modify          as gmtModify
         FROM trace_slow_sql
         WHERE tss_req_ip = #{appIp}
+        order by gmt_modify desc
         <if test="limit != null or limit != ''">
             LIMIT #{limit};
         </if>

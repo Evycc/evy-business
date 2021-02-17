@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
+import com.evy.linlin.command.constant.ServiceCodeConstant;
 import com.evy.linlin.deploy.domain.repository.DeployDataRepository;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.domain.tunnel.po.DeployInsertPO;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: EvyLiuu
  * @Date: 2020/10/3 0:00
  */
-@RestController
+@RestController(ServiceCodeConstant.NEXT_BUILD_SEQ_SERVICE_CODE)
 @TraceLog
 public class NextBuildSeqAppService extends NextBuildSeqService {
     private final DeployDataRepository dataRepository;

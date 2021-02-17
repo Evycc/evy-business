@@ -67,7 +67,7 @@ public class QryTraceAssembler {
         if (!StringUtils.isEmpty(dto.getLimit())) {
             limit = Integer.parseInt(dto.getLimit());
         }
-        return new QryHttpReqInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), limit);
+        return new QryHttpReqInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getPath(), limit);
     }
 
     /**

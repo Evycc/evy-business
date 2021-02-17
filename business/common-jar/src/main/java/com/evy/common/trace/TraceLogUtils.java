@@ -2,6 +2,8 @@ package com.evy.common.trace;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.service.TraceTracking;
+import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.SequenceUtils;
 import org.springframework.util.StringUtils;
 
@@ -28,6 +30,25 @@ public class TraceLogUtils {
      * Http调用,非服务化
      */
     private static final int HTTP_TYPE = 2;
+    /**
+     * 当前应用名
+     */
+    private static final String APP_NAME = getAppName();
+
+    /**
+     * 获取应用名
+     *
+     * @return 应用名
+     */
+    private static String getAppName() {
+        String appName = "Undefined-App";
+        try {
+            appName = AppContextUtils.getForEnv("spring.application.name");
+        } catch (Exception ignore) {
+        }
+
+        return appName;
+    }
 
     /**
      * 构建trace,服务化调用类型
@@ -80,6 +101,7 @@ public class TraceLogUtils {
             var = buildServiceTraceId();
         }
         setLogTraceId(var);
+        TraceTracking.saveTraceService(var, APP_NAME);
     }
 
     /**
@@ -93,6 +115,7 @@ public class TraceLogUtils {
             var = buildDbTraceId();
         }
         setLogTraceId(var);
+        TraceTracking.saveTraceDb(var, databaseName);
     }
 
     /**
@@ -105,6 +128,7 @@ public class TraceLogUtils {
             var = buildHttpTraceId();
         }
         setLogTraceId(var);
+        TraceTracking.saveTraceHttp(var);
     }
 
     /**

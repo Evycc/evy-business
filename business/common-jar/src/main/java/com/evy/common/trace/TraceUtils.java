@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2020/5/23 16:49
  */
 public class TraceUtils {
-    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(7,
+    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(8,
             CreateFactory.createThreadFactory("TraceUtils"));
 
     public static void init(){
@@ -34,6 +34,7 @@ public class TraceUtils {
         EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceAppMemoryInfo::executeMemoryInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(TraceTracking::execute, initialDelay, delay, TimeUnit.MILLISECONDS);
     }
 
     /**

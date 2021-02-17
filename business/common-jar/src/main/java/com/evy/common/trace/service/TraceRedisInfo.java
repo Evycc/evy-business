@@ -164,6 +164,9 @@ public class TraceRedisInfo {
                                                     //获取服务器及从服务器IP信息
                                                     int port = Integer.parseInt(properties.getProperty(TCP_PORT));
                                                     String trhRedisIp = redisConnection.getConfig(BIND_IP).getProperty(BIND_IP);
+                                                    if (StringUtils.isEmpty(trhRedisIp)) {
+                                                        trhRedisIp = k.substring(0, k.indexOf(BusinessConstant.COLON_STR));
+                                                    }
                                                     String trhRedisFlag = properties.getProperty(ROLE);
                                                     String trhSlaveIp = BusinessConstant.EMPTY_STR;
                                                     if (master.equals(trhRedisFlag)) {

@@ -29,7 +29,13 @@ public class QryMqTraceInfoDTO extends InputDTO implements ValidatorDTO<QryMqTra
     @NotBlank(message = "userSeq不能为空")
     @Length(max = 64, message = "userSeq长度超限")
     private String userSeq;
+    /**
+     * 查询topic
+     */
     private String topic;
+    /**
+     * 查询消息msgId
+     */
     private String msgId;
     /**
      * 查询记录数

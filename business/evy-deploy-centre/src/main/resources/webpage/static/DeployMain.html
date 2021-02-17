@@ -18,6 +18,7 @@
 <body class="ng-cloak main-style" ng-app="DeployApp" ng-controller="DeployMainController as main">
 <!--顶部导航栏-->
 <header>
+    <nav id="{{main.tips.id}}" style="display: none">{{main.tips.pre + main.tips.post}}</nav>
     <nav id="head-nav" class="nav nav-default navbar-static-top" role="navigation"
          ng-class="{true : 'head-nav-login', false : 'head-nav-nologin'}[main.isLogin]">
         <div id="head-left-view" class="col-xs-6">
@@ -30,6 +31,16 @@
             <span>
                 <label type="text" class="head-label" ng-bind="main.cur.user"
                        ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"></label>
+            </span>
+            <span>
+                <label type="text" class="head-label"
+                       ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]"> | </label>
+            </span>
+            <span>
+                <label type="text" class="head-label"
+                       ng-class="{true : 'head-label-login', false : 'head-label'}[main.isLogin]">
+                    当前应用:{{main.cur.appName}}
+                </label>
             </span>
             <span>
                 <label type="text" class="head-label"
@@ -94,41 +105,45 @@
             <li id="deploy-list-autodeploy" class="list-group-item"
                 ng-mouseenter="main.InputMouseEnterEvent('deploy-list-autodeploy')"
                 ng-mouseleave="main.InputMouseLevelEvent('deploy-list-autodeploy')"
-                ng-click="main.setDeployInfoTitle('自动化部署')">自动化部署
+                ng-click="main.showDeployMainView('自动化部署')">自动化部署
             </li>
             <li id="deploy-list-select" class="list-group-item"
                 ng-mouseenter="main.InputMouseEnterEvent('deploy-list-select')"
                 ng-mouseleave="main.InputMouseLevelEvent('deploy-list-select')"
-                ng-click="main.setDeployInfoTitle('切换分支')">
+                ng-click="main.showSelectBranchView('切换分支')">
                 <span class="icon-reorder"> 切换分支</span>
             </li>
             <li id="deploy-list-1" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-1')"
-                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-1')" ng-click="main.setDeployInfoTitle('应用内存信息')">
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-1')" ng-click="main.showQueryMemoryView('应用内存信息')">
                 应用内存信息
             </li>
             <li id="deploy-list-2" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-2')"
-                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-2')" ng-click="main.setDeployInfoTitle('应用线程信息')">
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-2')" ng-click="main.showQueryThreadView('应用线程信息')">
                 应用线程信息
             </li>
             <li id="deploy-list-3" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-3')"
-                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-3')" ng-click="main.setDeployInfoTitle('MQ消息中心')">
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-3')" ng-click="main.showQueryMqView('MQ消息中心')">
                 MQ消息中心
             </li>
             <li id="deploy-list-4" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-4')"
-                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-4')" ng-click="main.setDeployInfoTitle('慢SQL')">
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-4')" ng-click="main.showQuerySlowSqlView('慢SQL')">
                 慢SQL
             </li>
             <li id="deploy-list-5" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-5')"
-                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-5')" ng-click="main.setDeployInfoTitle('服务治理')">
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-5')" ng-click="main.showQueryServiceView('服务治理')">
                 服务治理
             </li>
             <li id="deploy-list-6" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-6')"
                 ng-mouseleave="main.InputMouseLevelEvent('deploy-list-6')"
-                ng-click="main.setDeployInfoTitle('Redis缓存中心')">Redis缓存中心
+                ng-click="main.showQueryRedisView('Redis缓存中心')">Redis缓存中心
             </li>
             <li id="deploy-list-7" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-7')"
                 ng-mouseleave="main.InputMouseLevelEvent('deploy-list-7')"
-                ng-click="main.setDeployInfoTitle('Http请求查询')">Http请求查询
+                ng-click="main.showQueryHttpView('Http请求查询')">Http请求查询
+            </li>
+            <li id="deploy-list-8" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-8')"
+                ng-mouseleave="main.InputMouseLevelEvent('deploy-list-8')"
+                ng-click="main.showTraceView('全链路查询')">全链路查询
             </li>
         </ul>
 
@@ -153,9 +168,11 @@
                            ng-mouseleave="main.InputMouseLevelEvent('form-cell-4')">
                     <button id="form-cell-input-4-btn" class="login-btn deploy-info-btn btn" type="submit"
                             aria-label="获取分支列表"
-                            ng-click="main.GetGitBeanchList($event)">
-                        {{main.GetGitBeanchListBtnText.isSubmit ? main.GetGitBeanchListBtnText.SubmitText : main.GetGitBeanchListBtnText.noSubmitText}}
+                            ng-click="main.GetGitBranchList($event)">
+                        {{main.GetGitBranchListBtnText.isSubmit ? main.GetGitBranchListBtnText.SubmitText : main.GetGitBranchListBtnText.noSubmitText}}
                         <span id="form-cell-input-4-btn-span" class="icon-arrow-right"></span>
+                        <span id="form-cell-input-4-text-span" class="icon-spinner icon-spin"
+                              ng-show="{{main.GetGitBranchListBtnText.lodingSpan}}"></span>
                     </button>
                 </div>
                 <div id="form-cell-5" class="form-cell deploy-form-cell">
@@ -210,6 +227,8 @@
                             ng-click="main.SubmitNewDeployInfo($event)">
                         {{main.SubmitNewDeployInfoText.isSubmit ? main.SubmitNewDeployInfoText.SubmitText : main.SubmitNewDeployInfoText.noSubmitText}}
                         <span id="form-cell-input-10-btn-span" class="icon-arrow-right"></span>
+                        <span id="form-cell-input-10-text-span" class="icon-spinner icon-spin"
+                              ng-show="{{main.SubmitNewDeployInfoText.lodingSpan}}"></span>
                     </button>
                 </div>
             </div>
@@ -266,10 +285,26 @@
                     </button>
                 </div>
                 <div class="form-cell deploy-form-cell">
-                    <span id="build-status-text" class="title-span left-span span-success">编译成功<span class="icon-ok"></span></span>
-                    <span id="deploy-status-text" class="title-span left-span span-faild">部署失败<span class="icon-remove"></span></span>
-                    <span id="check-service-status-text" class="title-span left-span span-checking">检查服务
-                        <span id="check-service-status-text-span" class="icon-spinner icon-spin"></span>
+                    <span id="build-status-text" class="title-span left-span span-success">
+                        {{main.deployInfoStyle.buildInfo.title}}
+                        <span class="icon-ok" ng-show="{{main.deployInfoStyle.buildInfo.buildSuccessStatus}}"></span>
+                        <span class="icon-remove" ng-show="{{main.deployInfoStyle.buildInfo.buildFalidStatus}}"></span>
+                        <span class="icon-spinner icon-spin"
+                              ng-show="{{main.deployInfoStyle.buildInfo.buildCheckStatus}}"></span>
+                    </span>
+                    <span id="deploy-status-text" class="title-span left-span span-faild">
+                        {{main.deployInfoStyle.deployInfo.title}}
+                        <span class="icon-ok" ng-show="{{main.deployInfoStyle.deployInfo.deploySuccessStatus}}"></span>
+                        <span class="icon-remove" ng-show="{{main.deployInfoStyle.deployInfo.deployFalidStatus}}"></span>
+                        <span class="icon-spinner icon-spin"
+                              ng-show="{{main.deployInfoStyle.deployInfo.deployCheckStatus}}"></span>
+                    </span>
+                    <span id="check-service-status-text" class="title-span left-span span-checking">
+                        {{main.deployInfoStyle.checkInfo.title}}
+                        <span class="icon-ok" ng-show="{{main.deployInfoStyle.checkInfo.checkSuccessStatus}}"></span>
+                        <span class="icon-remove" ng-show="{{main.deployInfoStyle.checkInfo.checkFalidStatus}}"></span>
+                        <span class="icon-spinner icon-spin"
+                              ng-show="{{main.deployInfoStyle.checkInfo.checkCheckStatus}}"></span>
                     </span>
                 </div>
                 <div class="form-cell deploy-form-cell">
@@ -319,6 +354,332 @@
                     <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注">
                 </div>
             </div>
+            <!--            应用内存信息-->
+            <div id="{{main.viewId.queryMemoryView}}" class="form-table deploy-form-table left-div view-div transparent-form"
+                ng-show="main.viewShow.queryMemoryView">
+                <div id="appCpuView" style="max-width:800px;height:400px;padding: 4px;"></div>
+                <div id="appMemoryView" style="max-width:800px;height:400px;padding: 4px;"></div>
+            </div>
+            <!--            应用线程信息-->
+            <div id="{{main.viewId.queryThreadView}}" class="form-table deploy-form-table left-div transparent-form"
+                 style="width: 100%;" ng-show="main.viewShow.queryThreadView">
+                <ul class="ul-div-style bottom-border-solid">
+                    <li>
+                        <label>
+                            当前服务器ip:
+                            <select class="main-border-color main-select-style">
+                                <option>127.0.0.1</option>
+                            </select>
+                        </label>
+                    </li>
+                    <li class="main-font-color">/</li>
+                    <li>Jvm启动以来创建线程总数:</li>
+                </ul>
+                <ul class="ul-div-style bottom-border-solid xs-font-size twelve-ul-style">
+                    <li>线程ID</li><li class="main-font-color">/</li>
+                    <li>线程名称</li><li class="main-font-color">/</li>
+                    <li>线程状态</li><li class="main-font-color">/</li>
+                    <li>线程运行时间(ms)</li><li class="main-font-color">/</li>
+                    <li>死锁阻止进入线程的总数</li><li class="main-font-color">/</li>
+                    <li>死锁累计运行时间(ms)</li><li class="main-font-color">/</li>
+                    <li>等待的死锁线程名</li><li class="main-font-color">/</li>
+                    <li>等待的死锁线程id</li><li class="main-font-color">/</li>
+                    <li>线程等待总数</li><li class="main-font-color">/</li>
+                    <li>线程等待时间(ms)</li><li class="main-font-color">/</li>
+                    <li>最后检查时间</li><li class="main-font-color">/</li>
+                    <li>堆栈查看</li>
+                </ul>
+<!--                通过循环生成ul线程信息-->
+            </div>
+            <!--            MQ消息中心-->
+            <div id="{{main.viewId.queryMqView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.queryMqView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳消息轨迹查询"/>
+                    </label>
+                </div>
+                <div id="mq-form-cell-1" class="form-cell deploy-form-cell">
+                    <input type="text" placeholder="topic" class="main-input-text-style"
+                           ng-model="main.mqForm.topic" ng-mouseenter="main.InputMouseEnterEvent('mq-form-cell-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('mq-form-cell-1')">
+                </div>
+                <div id="mq-form-cell-2" class="form-cell deploy-form-cell">
+                    <input type="text" placeholder="messageId" class="main-input-text-style"
+                           ng-model="main.mqForm.messageId" ng-mouseenter="main.InputMouseEnterEvent('mq-form-cell-2')"
+                           ng-mouseleave="main.InputMouseLevelEvent('mq-form-cell-2')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <input type="number" min="1" placeholder="查询记录数,默认1" ng-model="main.mqForm.limit" class="main-input-text-style">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit" aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                        提交
+                        <span class="icon-arrow-right"></span>
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                </div>
+            </div>
+            <div id="{{main.viewId.queryMqQueryResultView}}" class="form-table deploy-form-table left-div" style="width: 100%;margin-top: 4px;"
+                 ng-show="main.viewShow.queryMqQueryResultView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳消息轨迹查询结果"/>
+                    </label>
+                </div>
+                <ul class="ul-div-style bottom-border-solid xs-font-size ten_2_one_ul">
+                    <li>topic</li><li class="main-font-color">/</li>
+                    <li>tag</li><li class="main-font-color">/</li>
+                    <li>messageId</li><li class="main-font-color">/</li>
+                    <li>消息正文</li><li class="main-font-color">/</li>
+                    <li>发布者IP</li><li class="main-font-color">/</li>
+                    <li>发布时间</li><li class="main-font-color">/</li>
+                    <li>消费者IP</li><li class="main-font-color">/</li>
+                    <li>消费时间</li><li class="main-font-color">/</li>
+                    <li>消费耗时</li><li class="main-font-color">/</li>
+                    <li>消息记录时间</li>
+                </ul>
+                <!--                通过循环生成ul线程信息-->
+            </div>
+            <!--            慢SQL-->
+            <div id="{{main.viewId.querySlowSqlView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
+                 ng-show="main.viewShow.querySlowSqlView">
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="six_ul_style">服务器ip</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">慢sql</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">慢sql耗时</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">explain</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">优化建议</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">慢sql记录时间</li>
+                </ul>
+            </div>
+            <!--            服务治理-->
+            <div id="{{main.viewId.queryServiceView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
+                ng-show="main.viewShow.queryServiceView">
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="nine_ul_style">服务器ip</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">服务Bean</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">服务名</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">服务路径</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">发布者应用</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">消费者应用</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">服务发布方</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">服务消费方</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">更新时间</li><li class="main-font-color">/</li>
+                    <li class="nine_ul_style">
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn" type="submit" aria-label="提交"
+                                ng-click="main.SubmitServiceAdd($event)">
+                            服务新增
+                            <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                        </button>
+                    </li>
+                </ul>
+                <!-- 通过循环生成ul服务信息,并赋值btn点击事件 -->
+<!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
+<!--                    <li class="nine_ul_style">服务器ip</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">服务码</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">服务接口</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">服务路径</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">发布者应用</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">消费者应用</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">服务发布方</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">服务消费方</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">更新时间</li><li class="main-font-color">/</li>-->
+<!--                    <li class="nine_ul_style">-->
+<!--                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn" type="submit" aria-label="提交" -->
+<!--                                ng-click="main.SubmitServiceLimit($event)">-->
+<!--                            限流降级-->
+<!--                            <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>-->
+<!--                        </button>-->
+<!--                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn" type="submit" aria-label="提交" -->
+<!--                                ng-click="main.SubmitServiceAuth($event)">-->
+<!--                            鉴权管理-->
+<!--                            <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>-->
+<!--                        </button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+            </div>
+            <div id="{{main.viewId.queryServiceLimitView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
+                 ng-show="main.viewShow.queryServiceLimitView">
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="six_ul_style">服务码</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">服务接口</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">限流数</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">降级地址</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">新建时间</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">更新时间</li>
+                </ul>
+            </div>
+            <div id="{{main.viewId.queryServiceAuthView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
+                 ng-show="main.viewShow.queryServiceAuthView">
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="six_ul_style">服务码</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">服务接口</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">发布应用名</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">消费应用名(用'|'分隔)</li><li class="main-font-color">/</li>
+                </ul>
+<!--                服务新增与服务鉴权是否可以用同一个模板?服务鉴权填充原有服务内容,只做服务更新-->
+            </div>
+            <!--            Redis视图-->
+            <div id="{{main.viewId.queryRedisView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
+                ng-show="main.viewShow.queryRedisView">
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="senven_ul_style">redis服务器</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">redis类型</li><li class="main-font-color">/</li>
+                    <!--如果redis类型是主从或集群,则显示'从服务器'标签-->
+                    <li class="senven_ul_style">从服务器</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">redis日志</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">redis配置文件</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">sentinel列表</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">sentinel配置文件</li>
+                </ul>
+<!--                test-->
+<!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
+<!--                    <li class="senven_ul_style">127.0.0.1:6379</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">-->
+<!--                        <span class="success-span-status">集群模式</span>-->
+<!--                    </li><li class="main-font-color">/</li>-->
+<!--                    &lt;!&ndash;如果redis类型是主从或集群,则显示'从服务器'标签&ndash;&gt;-->
+<!--                    <li class="senven_ul_style">127.0.0.1:6381</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">/usr/setup/download/redis.log/download/redis.log/download/redis.log</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">127.0.1.1:6399,127.0.0.1:6388</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">/usr/setup/download/redis.log</li>-->
+<!--                </ul>-->
+                <!--在此动态添加redis服务器及配置信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <!--如果持久化类型开启,则显示对应rdb与aof标签-->
+                    <li class="eight_ul_style">持久化类型</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">RDB文件路径</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">RDB保存规则</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">RDB状态</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">最近一次RDB状态</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">AOF文件路径</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">AOF保存规则</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">AOF状态</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">最近一次AOF状态</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">上次fork阻塞时间(微秒)</li>
+                </ul>
+<!--                test-->
+<!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
+<!--                    &lt;!&ndash;如果持久化类型开启,则显示对应rdb与aof标签&ndash;&gt;-->
+<!--                    <li class="eight_ul_style">混合持久化</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">3600 1 300 100 60 10000</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">-->
+<!--                        <span class="warn-span-status">开启</span></li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">成功</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">3600 1 300 100 60 10000</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">开启</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">成功</li><li class="main-font-color">/</li>-->
+<!--                    <li class="eight_ul_style">4600</li>-->
+<!--                </ul>-->
+                <!--在此动态添加redis持久化信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="senven_ul_style">服务器总内存(kb)</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">redis占用内存(kb)</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">redis占用内存峰值(kb)</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">内存碎片率</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">最大连接数</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">当前连接数</li><li class="main-font-color">/</li>
+                    <li class="senven_ul_style">当前阻塞连接数</li>
+                </ul>
+<!--                test-->
+<!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
+<!--                    <li class="senven_ul_style">17009004544</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">931616</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">1015912</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">2.02</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">10000</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">2</li><li class="main-font-color">/</li>-->
+<!--                    <li class="senven_ul_style">0</li>-->
+<!--                </ul>-->
+                <!--在此动态添加redis服务器内存信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="six_ul_style">redis key总数</li><li class="main-font-color">/</li>
+                    <li class="six_ul_style">redis命中率</li>
+                </ul>
+<!--                test-->
+<!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
+<!--                    <li class="six_ul_style">db0||keys=3,expires=0,avg_ttl=0</li><li class="main-font-color">/</li>-->
+<!--                    <li class="six_ul_style">100%</li>-->
+<!--                </ul>-->
+            </div>
+            <!--            Http视图-->
+            <div id="{{main.viewId.queryHttpView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.queryHttpView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳Http请求查询"/>
+                    </label>
+                </div>
+                <div id="http-form-cell-1" class="form-cell deploy-form-cell">
+                    <input type="text" placeholder="请求路径,支持模糊查询" class="main-input-text-style"
+                           ng-model="main.mqForm.messageId" ng-mouseenter="main.InputMouseEnterEvent('http-form-cell-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('http-form-cell-1')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <input type="number" min="1" placeholder="查询记录数,默认1" ng-model="main.mqForm.limit" class="main-input-text-style">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit" aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                        提交
+                        <span class="icon-arrow-right"></span>
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                </div>
+            </div>
+            <div id="{{main.viewId.queryHttpResultView}}" class="form-table deploy-form-table left-div" style="width: 100%;margin-top: 4px;"
+                 ng-show="main.viewShow.queryHttpResultView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳Http请求查询结果"/>
+                    </label>
+                </div>
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="eight_ul_style">请求应用服务器IP</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">请求路径</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">请求时间</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">请求耗时</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">请求结果</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">request</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">response</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">最后记录时间</li>
+                </ul>
+                <!--                通过循环生成http请求列表信息-->
+            </div>
+            <!--            全链路查询-->
+            <div id="{{main.viewId.queryTrackingView}}" class="form-table deploy-form-table left-div"
+                ng-show="main.viewShow.queryTrackingView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳全链路查询"/>
+                    </label>
+                </div>
+                <div id="trace-form-cell-1" class="form-cell deploy-form-cell">
+                    <input type="text" placeholder="traceId" class="main-input-text-style"
+                           ng-model="main.mqForm.messageId" ng-mouseenter="main.InputMouseEnterEvent('trace-form-cell-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('trace-form-cell-1')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit" aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                        提交
+                        <span class="icon-arrow-right"></span>
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                </div>
+            </div>
+            <div id="{{main.viewId.queryTrackingResultView}}" class="form-table deploy-form-table left-div" style="width: 100%;margin-top: 4px;"
+                 ng-show="main.viewShow.queryTrackingResultView">
+                <div class="form-cell deploy-form-cell">
+                    <label>
+                        <input type="text" class="main-input-text-style" value="✳Http请求查询结果"/>
+                    </label>
+                </div>
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li class="eight_ul_style">traceId</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">请求类型</li><li class="main-font-color">/</li>
+                    <li class="eight_ul_style">备注</li><li class="main-font-color">/</li>
+                </ul>
+                <!--                通过循环生成trace链路信息-->
+            </div>
         </div>
     </div>
 </div>
@@ -342,5 +703,10 @@
 <script type="text/javascript" src="../js/deploy/app.js"></script>
 <script type="text/javascript" src="../js/deploy/deploy.controller.js"></script>
 <script type="text/javascript" src="../js/deploy/deploy.service.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/modules/series-label.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/modules/oldie.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
 </body>
 </html>

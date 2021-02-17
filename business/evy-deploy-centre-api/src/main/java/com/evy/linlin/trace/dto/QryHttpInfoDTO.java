@@ -30,6 +30,11 @@ public class QryHttpInfoDTO extends InputDTO implements ValidatorDTO<QryHttpInfo
     @Length(max = 64, message = "userSeq长度超限")
     private String userSeq;
     /**
+     * 请求路径,模糊查询
+     */
+    @Length(max = 1000, message = "userSeq长度超限")
+    private String path;
+    /**
      * 查询记录数
      */
     @Min(7)

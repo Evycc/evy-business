@@ -22,6 +22,10 @@ import reactor.core.publisher.Flux;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * 网关启动类
+ * @author Evyliuu
+ */
 @SpringBootApplication(scanBasePackages = "com.evy.*")
 @EnableFeignClients(basePackages = "com.evy.*")
 @EnableDiscoveryClient
@@ -49,28 +53,13 @@ public class EvyGatewayApplication implements CommandLineRunner {
 
     /**
      * 服务化路由 path("lb://{服务名}")<br/>
-     * 服务需要在这里进行注册路由,由ServiceFilter进行统一路由到对应服务
+     * 服务需要在这里进行注册路由,由ServiceFilter进行统一路由到对应服务<br/>
+     * 也可通过路由表td_router进行动态路由配置
      */
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder
                 .routes()
-                .route("test", predicateSpec ->
-                        predicateSpec
-                                .path("/test")
-                                //服务转发时，会带上请求的path，如http://localhost:8080/evygateway，转发时为http://localhost:8081/TEST-DEMO/evygateway
-                                //通过stripPrefix方法去掉path指定位置的参数
-                                .filters(f -> f.stripPrefix(1))
-                                .uri("https://www.hao123.com/?1585230673")
-                )
-                .route("test-demo", predicateSpec ->
-                        predicateSpec
-                                .path("/test-demo/**")
-                                //服务转发时，会带上请求的path，如http://localhost:8080/evygateway，转发时为http://localhost:8081/TEST-DEMO/evygateway
-                                //通过stripPrefix方法去掉path指定位置的参数
-                                .filters(f -> f.stripPrefix(1))
-                                .uri("lb://TEST-DEMO")
-                )
                 .route("service", predicateSpec ->
                         predicateSpec
                                 .readBody(Map.class, map -> !map.isEmpty())

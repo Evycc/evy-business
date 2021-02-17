@@ -3,6 +3,7 @@ package com.evy.linlin.deploy.app;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
+import com.evy.linlin.command.constant.ServiceCodeConstant;
 import com.evy.linlin.deploy.domain.repository.DeployShellRepository;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.domain.tunnel.model.GitBrchanOutDO;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: EvyLiuu
  * @Date: 2020/9/5 23:18
  */
-@RestController
+@RestController(ServiceCodeConstant.GET_BRANCH_SERVICE_CODE)
 @TraceLog
 public class GetGitBrchansAppService extends GetGitBrchansService {
     private final DeployShellRepository deployShellRepository;

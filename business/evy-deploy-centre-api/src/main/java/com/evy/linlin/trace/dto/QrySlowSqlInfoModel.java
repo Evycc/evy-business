@@ -12,10 +12,28 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 public class QrySlowSqlInfoModel {
-    private String appIp;
-    private String slowSql;
-    private String takeTime;
-    private String explain;
-    private String explainContent;
-    private String gmtModify;
+    /**
+     * 请求的服务器IP
+     */
+    private final String appIp;
+    /**
+     * 慢sql
+     */
+    private final String slowSql;
+    /**
+     * sql耗时
+     */
+    private final String takeTime;
+    /**
+     * sql explain完整语句
+     */
+    private final String explain;
+    /**
+     * sql explain优化建议
+     */
+    private final String explainContent;
+    /**
+     * 最后记录时间
+     */
+    private final String gmtModify;
 }

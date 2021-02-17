@@ -26,7 +26,7 @@ import java.time.Duration;
  * @Date: 2020/5/9 0:29
  */
 @Deprecated
-public class RabbitMqRadisRetryEvent {
+public class RabbitMqRedisRetryEvent {
     private static final String RETRY_KEY = "rabbitmq:retry:";
     private static final String RETRY_EXPIRED_KEY = "rabbitmq:retry:expired:";
     /**
@@ -54,9 +54,9 @@ public class RabbitMqRadisRetryEvent {
         ReactiveRedisConnectionFactory factory = AppContextUtils.getBean(ReactiveRedisConnectionFactory.class);
         template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
         rabbitMqSender = AppContextUtils.getBean(RabbitMqSender.class);
-        BusinessProperties prpoties = AppContextUtils.getPrpo();
-        RETRY_TIME = Duration.ofSeconds(prpoties.getMq().getRabbitmq().getConsumerRetryTime());
-        RETRY_COUNT = prpoties.getMq().getRabbitmq().getConsumerRetryCount();
+        BusinessProperties properties = AppContextUtils.getPrpo();
+        RETRY_TIME = Duration.ofSeconds(properties.getMq().getRabbitmq().getConsumerRetryTime());
+        RETRY_COUNT = properties.getMq().getRabbitmq().getConsumerRetryCount();
     }
 
     /**

@@ -4,6 +4,7 @@ import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
 import com.evy.linlin.trace.domain.tunnel.model.*;
 import com.evy.linlin.trace.domain.tunnel.po.GetTargetIpFromSeqPO;
+import com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqListPO;
 import com.evy.linlin.trace.dto.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -100,6 +101,20 @@ public class QryTraceInfoRepository {
         if (!CollectionUtils.isEmpty(targetIpList)) {
             targetIpList.stream()
                     .map(targetIp -> dataRepository.qryAppHttpReqInfoList(QryTraceAssembler.createQryAppHttpReqPO(targetIp, httpReqInfoListDo)))
+                    .map(qryAppHttpReqListPos -> {
+                        String path = httpReqInfoListDo.getPath();
+                        if (StringUtils.isEmpty(path)) {
+                            return qryAppHttpReqListPos;
+                        } else {
+                            List<QryAppHttpReqListPO> temp = new ArrayList<>();
+                            for (QryAppHttpReqListPO qryAppHttpReqListPo : qryAppHttpReqListPos) {
+                                if (qryAppHttpReqListPo.getThfUrl().contains(path)) {
+                                    temp.add(qryAppHttpReqListPo);
+                                }
+                            }
+                            return temp;
+                        }
+                    })
                     .map(QryTraceAssembler::createQryHttpInfoModel)
                     .filter(models -> !CollectionUtils.isEmpty(models))
                     .reduce((list1, list2) -> {

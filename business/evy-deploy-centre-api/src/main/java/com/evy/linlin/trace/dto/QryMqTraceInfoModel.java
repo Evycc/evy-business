@@ -12,14 +12,44 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 public class QryMqTraceInfoModel {
+    /**
+     * 消息topic
+     */
     private String topic;
+    /**
+     * 发送方IP
+     */
     private String reqIp;
+    /**
+     * 消息tag
+     */
     private String tag;
+    /**
+     * 消息msgId
+     */
     private String msgId;
+    /**
+     * 消息正文
+     */
     private String mqContent;
+    /**
+     * 消费方IP
+     */
     private String respIp;
+    /**
+     * 发生时间戳
+     */
     private String startTimestamp;
+    /**
+     * 消费时间戳
+     */
     private String endTimestamp;
+    /**
+     * 消费耗时
+     */
     private String takeUpTimestamp;
+    /**
+     * 消息记录时间戳
+     */
     private String gmtModify;
 }

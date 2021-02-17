@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -52,7 +49,15 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     private static final Map<String, ServiceInfoModel> SERVICE_MAP = new HashMap<>(16);
     /**
-     * 限流信息临时Map
+     * 临时服务列表
+     */
+    private static final Map<String, ServiceInfoModel> SERVICE_TEMP_MAP = new HashMap<>(16);
+    /**
+     * 缓存服务集合，用于对比数据库是否存在变化
+     */
+    private static final List<ServiceInfoPO> CACHE_SERVICE_LIST = new ArrayList<>();
+    /**
+     * 限流信息Map
      */
     private static final Map<String, ServiceLimitInfoModel> SERVICE_LIMIT_INFO_MAP = new HashMap<>(8);
     /**
@@ -60,9 +65,13 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     private static final Map<String, ServiceLimitInfoModel> SERVICE_LIMIT_INFO_TEMP_MAP = new HashMap<>(8);
     /**
+     * 缓存限流信息集合，用于对比数据库是否存在变化
+     */
+    private static final List<ServiceLimitInfoPO> CACHE_SERVICE_LIMIT_LIST = new ArrayList<>();
+    /**
      * 定时调度器
      */
-    private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
+    private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(2,
             CreateFactory.createThreadFactory(ServiceFilter.class.getName()));
     /**
      * 未找到指定服务,跳转到降级方法
@@ -78,7 +87,6 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     private static final OutDTO SERVICE_LIMIT_ERR_OUT_DTO = new OutDTO();
     private static final String LOCATION = "Location";
     private static final String CACHE_REQUEST_BODY_OBJECT_KEY = "cachedRequestBodyObject";
-    private static final String FILED_TRACE_ID = "traceId";
     /**
      * IPV6格式
      */
@@ -111,14 +119,14 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpResponse response = exchange.getResponse();
         try {
-            //定时从服务器获取限流信息,降级信息
-
             //取出post请求的body参数
+            //已在过滤器进行参数过滤，参数为空返回404
             Map<String, String> map = exchange.getAttribute(CACHE_REQUEST_BODY_OBJECT_KEY);
-            String srvCode = String.valueOf(map.get(BODY_HEAD_SERVICE_CODE));
+            String srvCode = String.valueOf(map.getOrDefault(BODY_HEAD_SERVICE_CODE, BusinessConstant.EMPTY_STR));
             //带方法的服务
             String[] srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
             srvCode = srvAndMethod[0];
+
             //取出报文中serviceCode,进行服务鉴权,没有则直接返回错误
             if (!CollectionUtils.isEmpty(map) && !buildServiceNotFoundResponse(response, srvCode)) {
                 String method = srvAndMethod.length > BusinessConstant.ONE_NUM ? srvAndMethod[1] : BusinessConstant.EMPTY_STR;
@@ -150,10 +158,17 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     public void initServiceLimitInfo() {
         executorService.scheduleWithFixedDelay(() -> {
             List<ServiceLimitInfoPO> serviceLimitInfoPoS = repository.queryServiceLimitInfos();
-            if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)) {
+            if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)
+                    || serviceLimitInfoPoS.hashCode() != CACHE_SERVICE_LIMIT_LIST.hashCode()
+                    || serviceLimitInfoPoS.size() != CACHE_SERVICE_LIMIT_LIST.size()) {
+                //保存缓存记录
+                CACHE_SERVICE_LIMIT_LIST.clear();
+                CACHE_SERVICE_LIMIT_LIST.addAll(serviceLimitInfoPoS);
                 //防止并发时限流信息丢失,先保存到临时map
+                SERVICE_LIMIT_INFO_TEMP_MAP.clear();
                 SERVICE_LIMIT_INFO_TEMP_MAP.putAll(serviceLimitInfoPoS.stream()
                         .collect(Collectors.toMap(ServiceLimitInfoPO::getSliServiceBeanName, ServiceLimitInfoModel::convert)));
+                SERVICE_LIMIT_INFO_MAP.clear();
                 SERVICE_LIMIT_INFO_MAP.putAll(SERVICE_LIMIT_INFO_TEMP_MAP);
             }
         }, 0L, 10L, TimeUnit.MINUTES);
@@ -163,12 +178,21 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      * 初始化服务码及对应消费者信息
      */
     public void initServiceInfo() {
-        List<ServiceInfoPO> serviceInfoPoS = repository.queryServiceAndConsumers();
-        if (!CollectionUtils.isEmpty(serviceInfoPoS)) {
-            SERVICE_MAP.putAll(serviceInfoPoS
-                    .stream()
-                    .collect(Collectors.toMap(ServiceInfoPO::getTsiServiceBeanName, ServiceInfoModel::convert)));
-        }
+        executorService.scheduleWithFixedDelay(() -> {
+            List<ServiceInfoPO> serviceInfoPoS = repository.queryServiceAndConsumers();
+            if (!CollectionUtils.isEmpty(serviceInfoPoS)
+                    || serviceInfoPoS.hashCode() != CACHE_SERVICE_LIST.hashCode()
+                    || serviceInfoPoS.size() != CACHE_SERVICE_LIST.size()) {
+                CACHE_SERVICE_LIST.clear();
+                CACHE_SERVICE_LIST.addAll(serviceInfoPoS);
+                SERVICE_TEMP_MAP.clear();
+                SERVICE_TEMP_MAP.putAll(serviceInfoPoS
+                        .stream()
+                        .collect(Collectors.toMap(ServiceInfoPO::getTsiServiceBeanName, ServiceInfoModel::convert)));
+                SERVICE_MAP.clear();
+                SERVICE_MAP.putAll(SERVICE_TEMP_MAP);
+            }
+        }, 0L, 10L, TimeUnit.MINUTES);
     }
 
     /**
@@ -179,12 +203,8 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      * @return true : 进行限流或降级 false : 未配置限流或降级
      */
     private boolean buildLimitResponse(ServerHttpResponse response, String srvCode) {
-        ServiceLimitInfoModel infoModel;
-        if (SERVICE_LIMIT_INFO_TEMP_MAP.containsKey(srvCode)) {
-            infoModel = SERVICE_LIMIT_INFO_TEMP_MAP.get(srvCode);
-        } else if (SERVICE_LIMIT_INFO_MAP.containsKey(srvCode)) {
-            infoModel = SERVICE_LIMIT_INFO_MAP.get(srvCode);
-        } else {
+        ServiceLimitInfoModel infoModel = getServiceLimit(srvCode);
+        if (Objects.isNull(infoModel)) {
             return false;
         }
 
@@ -216,9 +236,9 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      * @param srvCode  服务码
      */
     private void buildRouteResponse(ServerHttpResponse response, ServerWebExchange exchange, String srvCode, String method) {
-        ServiceInfoModel model = SERVICE_MAP.get(srvCode);
+        ServiceInfoModel model = getServiceInfo(srvCode);
         String forwardPath = BusinessConstant.FORWARD_SLASH_STR.concat(model.getServiceName());
-        String methodPath = BusinessConstant.EMPTY_STR;
+        String methodPath;
         //服务码存在#,表示路由到指定方法
         String postPaths = model.getPostPath();
         if (!StringUtils.isEmpty(method) && postPaths.contains(method)) {
@@ -227,7 +247,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
                     .map(methodPath1 -> methodPath1.split(BusinessConstant.SHARE_STR, -1)[1])
                     .findFirst()
                     .orElse(BusinessConstant.EMPTY_STR);
-        } else if (postPaths.contains(method)){
+        } else if (postPaths.contains(method)) {
             methodPath = Arrays.stream(postPaths.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1))
                     .findFirst()
                     .map(methodPath1 -> methodPath1.split(BusinessConstant.SHARE_STR, -1)[1])
@@ -258,7 +278,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     private boolean buildServiceNoAuthResponse(ServerHttpResponse response, ServerWebExchange exchange, String srvCode) {
         String consumerHost = exchange.getRequest().getURI().getHost();
-        String dbConsumerHost = SERVICE_MAP.get(srvCode).getConsumerHost();
+        String dbConsumerHost = getServiceInfo(srvCode).getConsumerHost();
 
         //如果获取到的是域名,转换为ip地址
         if (!switchHost(consumerHost)) {
@@ -291,12 +311,12 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      * 构建服务不存在响应
      *
      * @param response 响应信息
-     * @param srvCode 服务码
+     * @param srvCode  服务码
      * @return true : 服务不存在
      */
     private boolean buildServiceNotFoundResponse(ServerHttpResponse response, String srvCode) {
         if (StringUtils.isEmpty(srvCode)
-                || !SERVICE_MAP.containsKey(srvCode)) {
+                || Objects.nonNull(getServiceInfo(srvCode))) {
             //设置状态码为303,用于get类型转发,未上送服务码,返回错误信息
             response.setStatusCode(HttpStatus.SEE_OTHER);
             response.getHeaders().set(LOCATION, SERVICE_NO_FOUND);
@@ -348,11 +368,40 @@ public class ServiceFilter implements GatewayFilter, Ordered {
 
     /**
      * 判断是IP地址还是域名
+     *
      * @param host 入参host
      * @return true : ip false : 域名
      */
     private boolean switchHost(String host) {
         String localhost = "localhost";
         return IPV4_PATTERN.matcher(host).matches() || IPV6_PATTERN.matcher(host).matches() || localhost.equals(host);
+    }
+
+    /**
+     * 根据服务码获取服务信息,不存在则返回空
+     * @param srvCode   服务码
+     * @return com.evy.linlin.gateway.filter.tunnel.ServiceInfoModel
+     */
+    private ServiceInfoModel getServiceInfo(String srvCode) {
+        ServiceInfoModel model = SERVICE_MAP.get(srvCode);
+        if (Objects.isNull(model)) {
+            model = SERVICE_TEMP_MAP.get(srvCode);
+        }
+
+        return model;
+    }
+
+    /**
+     * 根据服务码获取服务限流信息,不存在则返回空
+     * @param srvCode   服务码
+     * @return com.evy.linlin.gateway.filter.tunnel.ServiceLimitInfoModel
+     */
+    private ServiceLimitInfoModel getServiceLimit(String srvCode) {
+        ServiceLimitInfoModel infoModel = SERVICE_LIMIT_INFO_MAP.get(srvCode);
+        if (Objects.isNull(infoModel)) {
+            infoModel = SERVICE_LIMIT_INFO_TEMP_MAP.get(srvCode);
+        }
+
+        return infoModel;
     }
 }

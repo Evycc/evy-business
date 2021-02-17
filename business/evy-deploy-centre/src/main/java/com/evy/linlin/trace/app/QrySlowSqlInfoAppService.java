@@ -2,6 +2,7 @@ package com.evy.linlin.trace.app;
 
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
+import com.evy.linlin.command.constant.ServiceCodeConstant;
 import com.evy.linlin.trace.domain.repository.QryTraceInfoRepository;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
 import com.evy.linlin.trace.dto.QrySlowSqlInfoDTO;
@@ -16,7 +17,7 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/10/18 13:34
  */
-@RestController
+@RestController(ServiceCodeConstant.QRY_SLOW_SQL_SERVICE_CODE)
 @TraceLog
 public class QrySlowSqlInfoAppService extends QrySlowSqlInfoService {
     private final QryTraceInfoRepository repository;

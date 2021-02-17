@@ -76,8 +76,17 @@ public class QryRedisInfoModel {
      * redis命中率
      */
     private String keyspaceRatio;
+    /**
+     * key总数
+     */
     private String keysCount;
+    /**
+     * 最近一次rdb状态
+     */
     private String lastRdbStatus;
+    /**
+     * 最近一次aof状态
+     */
     private String lastAofStatus;
     /**
      * 上次fork阻塞时间，单位微秒
@@ -95,8 +104,20 @@ public class QryRedisInfoModel {
      * 当前阻塞连接数
      */
     private String connBlockCount;
+    /**
+     * redis日志路径
+     */
     private String redisLogPath;
+    /**
+     * redis配置文件路径
+     */
     private String redisConfigPath;
+    /**
+     * redis哨兵列表
+     */
     private String sentinelMonitor;
+    /**
+     * 哨兵配置文件路径
+     */
     private String sentinelConfigPath;
 }

@@ -65,7 +65,7 @@ public class TraceAppMemoryInfo {
         //系统可用物理内存
         long sysAvailableMemory = sysMaxMemory - sysFreeMemory;
         //应用占用内存
-        long appUseMemory = SYSTEM_MX_BEAN.getTotalSwapSpaceSize();
+        long appUseMemory = Runtime.getRuntime().totalMemory();
         //cpu 负载 单位%
         double sysCpuLoad = new BigDecimal(String.valueOf(SYSTEM_MX_BEAN.getSystemCpuLoad()))
                 .setScale(2, RoundingMode.HALF_UP)

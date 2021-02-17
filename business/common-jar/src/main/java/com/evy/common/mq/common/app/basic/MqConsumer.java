@@ -49,12 +49,12 @@ public class MqConsumer {
     /**
      * 记录日志流水topic
      */
-    @Value("${evy.traceLog.topic:\"\"}")
+    @Value("${evy.traceLog.topic:}")
     public String traceLogTopic;
     /**
      * 记录日志流水tag
      */
-    @Value("${evy.traceLog.tag:\"\"}")
+    @Value("${evy.traceLog.tag:}")
     public String traceLogTag;
 
     public MqConsumer(MqFactory mqFactory) {

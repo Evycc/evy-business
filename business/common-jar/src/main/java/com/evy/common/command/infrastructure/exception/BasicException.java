@@ -27,6 +27,10 @@ public class BasicException extends Exception {
         setErrorMessage(errorMessage);
     }
 
+    public BasicException(String errorCode) {
+        setErrorCode(errorCode);
+    }
+
     public BasicException(String errorCode, String errorMessage, Throwable throwable) {
         super(throwable);
         setErrorCode(errorCode);

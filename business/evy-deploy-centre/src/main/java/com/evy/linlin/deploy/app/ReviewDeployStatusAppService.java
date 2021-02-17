@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
+import com.evy.linlin.command.constant.ServiceCodeConstant;
 import com.evy.linlin.deploy.domain.repository.DeployDataRepository;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.dto.ReviewStatusDTO;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: EvyLiuu
  * @Date: 2020/10/3 13:12
  */
-@RestController
+@RestController(ServiceCodeConstant.REVIEW_STATUS_SERVICE_CODE)
 @TraceLog
 public class ReviewDeployStatusAppService extends ReviewDeployStatusService {
     private final DeployDataRepository dataRepository;

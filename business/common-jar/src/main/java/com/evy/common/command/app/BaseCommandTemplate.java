@@ -44,12 +44,12 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     /**
      * 记录日志流水topic
      */
-    @Value("${evy.traceLog.topic:\"\"}")
+    @Value("${evy.traceLog.topic:}")
     public String traceLogTopic;
     /**
      * 记录日志流水tag
      */
-    @Value("${evy.traceLog.tag:\"\"}")
+    @Value("${evy.traceLog.tag:}")
     public String traceLogTag;
     @Autowired
     @Qualifier(BeanNameConstant.RABBIT_MQ_SENDER)
