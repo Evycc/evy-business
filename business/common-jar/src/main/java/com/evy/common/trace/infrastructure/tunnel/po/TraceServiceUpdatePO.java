@@ -11,6 +11,17 @@ public class TraceServiceUpdatePO {
     private String tsiConsumerName;
     private String tsiProvider;
     private String tsiServicePath;
+    private String tsiConsumer;
+
+    public TraceServiceUpdatePO(String tsiServiceBeanName, String tsiProviderName, String tsiServiceName, String tsiConsumerName, String tsiProvider, String tsiServicePath, String tsiConsumer) {
+        this.tsiServiceBeanName = tsiServiceBeanName;
+        this.tsiProviderName = tsiProviderName;
+        this.tsiServiceName = tsiServiceName;
+        this.tsiConsumerName = tsiConsumerName;
+        this.tsiProvider = tsiProvider;
+        this.tsiServicePath = tsiServicePath;
+        this.tsiConsumer = tsiConsumer;
+    }
 
     private TraceServiceUpdatePO(String tsiServiceBeanName, String tsiProviderName, String tsiServiceName, String tsiProvider, String tsiServicePath) {
         this.tsiServiceBeanName = tsiServiceBeanName;
@@ -33,8 +44,10 @@ public class TraceServiceUpdatePO {
         return new TraceServiceUpdatePO(tsiServiceBeanName, tsiProviderName, tsiServiceName, tsiProvider, tsiServicePath);
     }
 
-    public static TraceServiceUpdatePO createUpdateConsumer(String tsiServiceBeanName, String tsiConsumerName) {
-        return new TraceServiceUpdatePO(tsiServiceBeanName, tsiConsumerName, 1);
+    public static TraceServiceUpdatePO createUpdateConsumer(String tsiServiceBeanName, String tsiConsumerName, String tsiConsumer) {
+        TraceServiceUpdatePO updatePo = new TraceServiceUpdatePO(tsiServiceBeanName, tsiConsumerName, 1);
+        updatePo.tsiConsumer = tsiConsumer;
+        return updatePo;
     }
 
     public static TraceServiceUpdatePO createCleanIp(String tsiProviderName, String tsiConsumerName) {

@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @RequestMapping
 public interface HelloService<T extends InputDTO, R extends OutDTO>{
-    @PostMapping("/")
+    @PostMapping("/hello")
     R hello(@RequestBody T t);
 }

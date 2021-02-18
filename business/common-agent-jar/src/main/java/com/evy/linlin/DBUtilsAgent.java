@@ -18,6 +18,8 @@ public class DBUtilsAgent {
      * 监听mysql底层com.mysql.cj.NativeSession#execSQL(Query callingQuery, String query, int maxRows,
      * NativePacketPayload packet, boolean streamResults, ProtocolEntityFactory<T, NativePacketPayload> resultSetFactory,
      * String catalog, ColumnDefinition cachedMetadata, boolean isBatch)
+     *
+     * mysql需要使用8.0.17以上的版本,否则或提示找不到方法com.mysql.cj.Query#getCurrentDatabase()
      */
     public static byte[] agentExecute(String args) {
         try {

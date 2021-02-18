@@ -30,8 +30,14 @@ import java.util.stream.Collectors;
 public class TraceService {
     private static final String SERVICE_TIMING_PRPO = "evy.trace.service.timing.flag";
     private static final ConcurrentLinkedQueue<TraceServiceModel> SERVICES_INFO_LIST = new ConcurrentLinkedQueue<>();
-    private static final Map<String, String> SERVICES_MAP = new HashMap<>(16);
-    private static Map<String, String> SERVICES_TEMP_MAP = new HashMap<>(16);
+    /**
+     * bean与消费者map对象 k:beanName v:consumer
+     */
+    private static final Map<String, String> SERVICES_BEAN_NAME_CONSUMER_MAP = new HashMap<>(16);
+    /**
+     * bean与消费者map临时对象 k:beanName v:consumer
+     */
+    private static Map<String, String> SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = new HashMap<>(16);
     /**
      * 查找服务bean名称及对应服务者名称
      */
@@ -48,6 +54,7 @@ public class TraceService {
      * 清除发布者/消费者信息
      */
     private static final String UPDATE_CLEAN_IP = "com.evy.common.trace.repository.mapper.TraceMapper.cleanServiceByAppIp";
+    private static final String QRY_ALL_SERVICE_BEAN = "com.evy.common.trace.repository.mapper.TraceMapper.queryAllServiceName";
     /**
      * 应用名
      */
@@ -64,7 +71,9 @@ public class TraceService {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 String ip = buildProviderName(APP_NAME);
-                DBUtils.update(UPDATE_CLEAN_IP, TraceServiceUpdatePO.createUpdateConsumer(ip, ip));
+                //test
+                CommandLog.info("shutdown service info ip:{}", ip);
+                DBUtils.update(UPDATE_CLEAN_IP, TraceServiceUpdatePO.createCleanIp(ip, ip));
             } catch (Exception e) {
                 CommandLog.errorThrow("cleanServiceInfo error", e);
             }
@@ -78,46 +87,54 @@ public class TraceService {
         Optional.ofNullable(AppContextUtils.getForEnv(SERVICE_TIMING_PRPO))
                 .ifPresent(flag -> {
                     if (BusinessConstant.ZERO.equals(flag)) {
-                        SERVICES_TEMP_MAP = initConsumersMap();
-                        if (!CollectionUtils.isEmpty(SERVICES_TEMP_MAP)) {
-                            SERVICES_MAP.clear();
-                            SERVICES_MAP.putAll(SERVICES_TEMP_MAP);
-                            SERVICES_TEMP_MAP = null;
+                        SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = initConsumersMap();
+                        if (!CollectionUtils.isEmpty(SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP)) {
+                            SERVICES_BEAN_NAME_CONSUMER_MAP.clear();
+                            SERVICES_BEAN_NAME_CONSUMER_MAP.putAll(SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP);
+                            SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = null;
                         }
                     }
                 });
+
+        List<TraceServiceUpdatePO> poList = new ArrayList<>(8);
+        List<TraceServiceUpdatePO> cList = new ArrayList<>(8);
+
+        //更新消费者服务方信息
+        String appName = buildProviderName(APP_NAME);
+        //添加消费者信息
+        if (!CollectionUtils.isEmpty(SERVICES_BEAN_NAME_CONSUMER_MAP)) {
+            SERVICES_BEAN_NAME_CONSUMER_MAP.forEach((beanName, consumer) -> {
+                if (consumer.contains(APP_NAME)) {
+                    cList.add(TraceServiceUpdatePO.createUpdateConsumer(beanName, appName, consumer));
+                }
+            });
+        }
+        if (!CollectionUtils.isEmpty(cList)) {
+            //更新消费者机器信息
+            if (cList.size() > BusinessConstant.ONE_NUM) {
+                //大于1,进行批量update
+                DBUtils.batchAny(cList.stream()
+                        .map(updatePo -> DBUtils.BatchModel.create(UPDATE_SERVICES_CONSUMER, updatePo, DBUtils.BatchType.UPDATE))
+                        .collect(Collectors.toList())
+                );
+            } else {
+                cList.forEach(updatePo -> DBUtils.update(UPDATE_SERVICES_CONSUMER, updatePo));
+            }
+        }
+
+        //更新发布者服务方信息
         if (!CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
             try {
                 List<TraceServiceModel> temp = new ArrayList<>(SERVICES_INFO_LIST);
 
-                List<TraceServiceUpdatePO> poList = new ArrayList<>(temp.size());
-                List<TraceServiceUpdatePO> cList = new ArrayList<>(temp.size());
-
-                temp.forEach(traceServiceModel -> {
-                    String beanName = traceServiceModel.getBeanName();
-                    String appName = buildProviderName(APP_NAME);
-                    //添加消费者信息
-                    if (!CollectionUtils.isEmpty(SERVICES_MAP) && SERVICES_MAP.containsValue(APP_NAME)) {
-                        cList.add(TraceServiceUpdatePO.createUpdateConsumer(beanName, appName));
-                    }
-
-                    //添加发布者信息
-                    poList.add(TraceServiceUpdatePO.createUpdateProvider(traceServiceModel.getBeanName(),
-                            appName, traceServiceModel.getSpcServiceName(), APP_NAME, traceServiceModel.getPostPath()));
-                });
-
-                if (!CollectionUtils.isEmpty(cList)) {
-                    //更新消费者机器信息
-                    if (cList.size() > BusinessConstant.ONE_NUM) {
-                        //大于1,进行批量update
-                        DBUtils.batchAny(cList.stream()
-                                .map(updatePo -> DBUtils.BatchModel.create(UPDATE_SERVICES_CONSUMER, updatePo, DBUtils.BatchType.UPDATE))
-                                .collect(Collectors.toList())
-                        );
-                    } else {
-                        cList.forEach(updatePo -> DBUtils.update(UPDATE_SERVICES_CONSUMER, updatePo));
-                    }
-                }
+                temp.stream()
+                        //只筛选出trace_services_info表已配置服务码的记录进行更新
+                        .filter(traceServiceModel -> SERVICES_BEAN_NAME_CONSUMER_MAP.containsKey(traceServiceModel.getBeanName()))
+                        .forEach(traceServiceModel -> {
+                            //添加发布者信息
+                            poList.add(TraceServiceUpdatePO.createUpdateProvider(traceServiceModel.getBeanName(),
+                                    appName, traceServiceModel.getSpcServiceName(), APP_NAME, traceServiceModel.getPostPath()));
+                        });
                 if (!CollectionUtils.isEmpty(poList)) {
                     //更新发布者机器信息
                     DBUtils.insert(INSERT_SERVICES_BEAN, TraceServiceUpdateListPO.create(poList));
@@ -162,13 +179,17 @@ public class TraceService {
      * @return k : bean name v : 消费者应用名
      */
     private static Map<String, String> initConsumersMap() {
+        Map<String, String> result = new HashMap<>();
         List<TraceServiceBeanAndConsumerPO> beanAndConsumerPos = DBUtils.selectList(QUERY_CONSUMERS);
-        if (!CollectionUtils.isEmpty(beanAndConsumerPos)) {
-            return beanAndConsumerPos.stream()
-                    .filter(po -> po.getTsiConsumer().equals(APP_NAME))
+         boolean hasAppConsumerService = !CollectionUtils.isEmpty(beanAndConsumerPos) &&
+                 beanAndConsumerPos.stream().anyMatch(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME));
+        if (hasAppConsumerService) {
+            result = beanAndConsumerPos
+                    .stream()
+                    .filter(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME))
                     .collect(Collectors.toMap(TraceServiceBeanAndConsumerPO::getTsiServiceBeanName, TraceServiceBeanAndConsumerPO::getTsiConsumer));
         }
-        return null;
+        return result;
     }
 
     /**
@@ -206,7 +227,6 @@ public class TraceService {
     private static String getBeanAllReqPath(Object bean) {
         String path = BusinessConstant.EMPTY_STR;
         Method[] methods = bean.getClass().getMethods();
-        Class<?>[] classes = bean.getClass().getInterfaces();
 
         //遍历获取方法下所有@RequestMapping(method = RequestMethod.POST)、@PostMapping注解路径
         String methodsPath = Arrays.stream(methods)
@@ -218,25 +238,91 @@ public class TraceService {
                 .reduce((s1, s2) -> s1 + BusinessConstant.DOUBLE_LINE + s2)
                 .orElse(BusinessConstant.EMPTY_STR);
 
-        //遍历获取接口下所有@RequestMapping(method = RequestMethod.POST)、@PostMapping注解路径
-        String classesPath = Arrays.stream(classes)
+        String classesPath = getReqMappingStr(bean.getClass());
+
+        if (!StringUtils.isEmpty(methodsPath)) {
+            path = path.concat(methodsPath);
+        }
+        if (!StringUtils.isEmpty(classesPath)) {
+            if (!StringUtils.isEmpty(path)) {
+                path = path.concat(BusinessConstant.LINE);
+            }
+            path = path.concat(classesPath);
+        }
+
+        return path;
+    }
+
+    /**
+     * 遍历类名下所有的post方法路径
+     *
+     * @param beanClass 目标类
+     * @return 参照com.evy.common.trace.service.TraceService#buildMethodReqPath(java.lang.reflect.Method)
+     */
+    private static String getReqMappingStr(Class<?> beanClass) {
+        String classesPath = BusinessConstant.EMPTY_STR;
+
+        String var = BusinessConstant.EMPTY_STR;
+        Class<?>[] classes = beanClass.getInterfaces();
+        if (classes.length != 0) {
+            var = buildClassesPath(var, getClassesReqPath(classes));
+            for (Class<?> aClass : classes) {
+                var = buildClassesPath(var, getReqMappingStr(aClass));
+            }
+        }
+        classes = beanClass.getClasses();
+        if (classes.length != 0) {
+            var = buildClassesPath(var, getClassesReqPath(classes));
+            for (Class<?> aClass : classes) {
+                var = buildClassesPath(var, getReqMappingStr(aClass));
+            }
+        }
+        if (Objects.nonNull(beanClass.getGenericSuperclass()) && beanClass.getGenericSuperclass() instanceof Class) {
+            classes = ((Class) beanClass.getGenericSuperclass()).getClasses();
+            if (classes.length != 0) {
+                var = buildClassesPath(var, getClassesReqPath(classes));
+                for (Class<?> aClass : classes) {
+                    var = buildClassesPath(var, getReqMappingStr(aClass));
+                }
+            }
+            classes = ((Class) beanClass.getGenericSuperclass()).getInterfaces();
+            if (classes.length != 0) {
+                var = buildClassesPath(var, getClassesReqPath(classes));
+                for (Class<?> aClass : classes) {
+                    var = buildClassesPath(var, getReqMappingStr(aClass));
+                }
+            }
+        }
+
+        classesPath = buildClassesPath(var, classesPath);
+
+        return classesPath;
+    }
+
+    private static String getClassesReqPath(Class<?>[] classes) {
+        return Arrays.stream(classes)
                 .flatMap(clss -> Arrays.stream(clss.getMethods()))
                 .filter(method -> Objects.nonNull(method.getAnnotation(RequestMapping.class))
                         && Arrays.stream(method.getAnnotation(RequestMapping.class).method())
                         .anyMatch(requestMethod -> RequestMethod.POST.name().equals(requestMethod.name()))
                         || Objects.nonNull(method.getAnnotation(PostMapping.class)))
                 .map(TraceService::buildMethodReqPath)
-                .reduce((s1, s2) -> s1 + BusinessConstant.DOUBLE_LINE + s2)
+                .reduce((s1, s2) -> s1 + BusinessConstant.LINE + s2)
                 .orElse(BusinessConstant.EMPTY_STR);
+    }
 
-        if (!StringUtils.isEmpty(methodsPath)) {
-            path = path.concat(methodsPath);
-        }
-        if (!StringUtils.isEmpty(classesPath)) {
-            path = path.concat(classesPath);
+    private static String buildClassesPath(String var, String classesPath) {
+        if (!classesPath.contains(var)) {
+            if (!StringUtils.isEmpty(var)) {
+                if (StringUtils.isEmpty(classesPath)) {
+                    classesPath = var;
+                } else {
+                    classesPath = classesPath.concat(BusinessConstant.LINE).concat(var);
+                }
+            }
         }
 
-        return path;
+        return classesPath;
     }
 
     /**

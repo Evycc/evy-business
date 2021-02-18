@@ -3,6 +3,7 @@ package com.evy.linlin.deploy.app;
 import com.evy.linlin.deploy.dto.LoginServiceDTO;
 import com.evy.linlin.deploy.dto.LoginServiceOutDTO;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -13,5 +14,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public interface ILoginService {
     @PostMapping("/login")
-    LoginServiceOutDTO login(LoginServiceDTO loginServiceDto);
+    LoginServiceOutDTO login(@RequestBody LoginServiceDTO loginServiceDto);
 }

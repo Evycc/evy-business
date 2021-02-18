@@ -8,6 +8,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -109,6 +110,7 @@ public class MqFactory {
      * @return com.rabbitmq.client.Channel
      */
     @Bean
+    @Lazy
     public Channel getRabbitMqChannel(){
         if (rabbitmqConnFactory == null) {
             initConnectionFactory();

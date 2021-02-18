@@ -122,6 +122,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
             //取出post请求的body参数
             //已在过滤器进行参数过滤，参数为空返回404
             Map<String, String> map = exchange.getAttribute(CACHE_REQUEST_BODY_OBJECT_KEY);
+            CommandLog.info("服务码化路由 url:{} body:{}", exchange.getRequest().getURI(), map);
             String srvCode = String.valueOf(map.getOrDefault(BODY_HEAD_SERVICE_CODE, BusinessConstant.EMPTY_STR));
             //带方法的服务
             String[] srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
@@ -157,19 +158,24 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     public void initServiceLimitInfo() {
         executorService.scheduleWithFixedDelay(() -> {
-            List<ServiceLimitInfoPO> serviceLimitInfoPoS = repository.queryServiceLimitInfos();
-            if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)
-                    || serviceLimitInfoPoS.hashCode() != CACHE_SERVICE_LIMIT_LIST.hashCode()
-                    || serviceLimitInfoPoS.size() != CACHE_SERVICE_LIMIT_LIST.size()) {
-                //保存缓存记录
-                CACHE_SERVICE_LIMIT_LIST.clear();
-                CACHE_SERVICE_LIMIT_LIST.addAll(serviceLimitInfoPoS);
-                //防止并发时限流信息丢失,先保存到临时map
-                SERVICE_LIMIT_INFO_TEMP_MAP.clear();
-                SERVICE_LIMIT_INFO_TEMP_MAP.putAll(serviceLimitInfoPoS.stream()
-                        .collect(Collectors.toMap(ServiceLimitInfoPO::getSliServiceBeanName, ServiceLimitInfoModel::convert)));
-                SERVICE_LIMIT_INFO_MAP.clear();
-                SERVICE_LIMIT_INFO_MAP.putAll(SERVICE_LIMIT_INFO_TEMP_MAP);
+            try {
+                CommandLog.info("获取服务限流降级信息");
+                List<ServiceLimitInfoPO> serviceLimitInfoPoS = repository.queryServiceLimitInfos();
+                if (!CollectionUtils.isEmpty(serviceLimitInfoPoS)
+                        || serviceLimitInfoPoS.hashCode() != CACHE_SERVICE_LIMIT_LIST.hashCode()
+                        || serviceLimitInfoPoS.size() != CACHE_SERVICE_LIMIT_LIST.size()) {
+                    //保存缓存记录
+                    CACHE_SERVICE_LIMIT_LIST.clear();
+                    CACHE_SERVICE_LIMIT_LIST.addAll(serviceLimitInfoPoS);
+                    //防止并发时限流信息丢失,先保存到临时map
+                    SERVICE_LIMIT_INFO_TEMP_MAP.clear();
+                    SERVICE_LIMIT_INFO_TEMP_MAP.putAll(serviceLimitInfoPoS.stream()
+                            .collect(Collectors.toMap(ServiceLimitInfoPO::getSliServiceBeanName, ServiceLimitInfoModel::convert)));
+                    SERVICE_LIMIT_INFO_MAP.clear();
+                    SERVICE_LIMIT_INFO_MAP.putAll(SERVICE_LIMIT_INFO_TEMP_MAP);
+                }
+            } catch (Exception exception) {
+                CommandLog.errorThrow("获取限流信息异常", exception);
             }
         }, 0L, 10L, TimeUnit.MINUTES);
     }
@@ -179,18 +185,24 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     public void initServiceInfo() {
         executorService.scheduleWithFixedDelay(() -> {
-            List<ServiceInfoPO> serviceInfoPoS = repository.queryServiceAndConsumers();
-            if (!CollectionUtils.isEmpty(serviceInfoPoS)
-                    || serviceInfoPoS.hashCode() != CACHE_SERVICE_LIST.hashCode()
-                    || serviceInfoPoS.size() != CACHE_SERVICE_LIST.size()) {
-                CACHE_SERVICE_LIST.clear();
-                CACHE_SERVICE_LIST.addAll(serviceInfoPoS);
-                SERVICE_TEMP_MAP.clear();
-                SERVICE_TEMP_MAP.putAll(serviceInfoPoS
-                        .stream()
-                        .collect(Collectors.toMap(ServiceInfoPO::getTsiServiceBeanName, ServiceInfoModel::convert)));
-                SERVICE_MAP.clear();
-                SERVICE_MAP.putAll(SERVICE_TEMP_MAP);
+            try {
+                CommandLog.info("获取服务码信息");
+                List<ServiceInfoPO> serviceInfoPoS = repository.queryServiceAndConsumers();
+                if (!CollectionUtils.isEmpty(serviceInfoPoS)
+                        || serviceInfoPoS.hashCode() != CACHE_SERVICE_LIST.hashCode()
+                        || serviceInfoPoS.size() != CACHE_SERVICE_LIST.size()) {
+                    CACHE_SERVICE_LIST.clear();
+                    CACHE_SERVICE_LIST.addAll(serviceInfoPoS);
+                    SERVICE_TEMP_MAP.clear();
+                    SERVICE_TEMP_MAP.putAll(serviceInfoPoS
+                            .stream()
+                            .collect(Collectors.toMap(ServiceInfoPO::getTsiServiceBeanName, ServiceInfoModel::convert)));
+                    SERVICE_MAP.clear();
+                    SERVICE_MAP.putAll(SERVICE_TEMP_MAP);
+                }
+            } catch (Exception exception) {
+                //不用try-catch异常了不会抛日志
+                CommandLog.errorThrow("获取服务码异常", exception);
             }
         }, 0L, 10L, TimeUnit.MINUTES);
     }
@@ -261,6 +273,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
             forwardPath = forwardPath.concat(methodPath);
         }
 
+        CommandLog.info("服务化路由 路由URL:{}", forwardPath);
         //设置状态码为307,用于post类型转发,服务调用需要post类型
         response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
         //根据服务码路由到对应服务
@@ -316,7 +329,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     private boolean buildServiceNotFoundResponse(ServerHttpResponse response, String srvCode) {
         if (StringUtils.isEmpty(srvCode)
-                || Objects.nonNull(getServiceInfo(srvCode))) {
+                || Objects.isNull(getServiceInfo(srvCode))) {
             //设置状态码为303,用于get类型转发,未上送服务码,返回错误信息
             response.setStatusCode(HttpStatus.SEE_OTHER);
             response.getHeaders().set(LOCATION, SERVICE_NO_FOUND);
@@ -342,7 +355,6 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      */
     @RequestMapping(value = SERVICE_NO_FOUND, method = {RequestMethod.GET, RequestMethod.POST})
     public Mono<OutDTO> serviceNoFound() {
-        CommandLog.info("serviceNoFound()");
         return Mono.just(SERVICE_NOT_FOUND_OUT_DTO);
     }
 
