@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 @Component
 public class ErrorFactory {
     private Map<String, String> errorCodeMap;
-    private final static String QUERY_ALL_ERROR_CODE = "com.evy.common.command.repository.mapper.ErrorMapMapper";
+    private final static String QUERY_ALL_ERROR_CODE = "ErrorMapMapper.queryAllErrorCode";
 
     /**
      * 从数据库加载错误码表，并缓存到内存
      */
     private void loadErrorMap() {
         List<ErrorInfoPO> errorInfoPos = DBUtils.selectList(QUERY_ALL_ERROR_CODE);
-        if (!CollectionUtils.isEmpty(errorCodeMap)) {
+        if (!CollectionUtils.isEmpty(errorInfoPos)) {
             errorCodeMap = errorInfoPos.stream()
                     .collect(Collectors.toMap(ErrorInfoPO::getErrorCode, ErrorInfoPO::getErrorMsg));
         }
@@ -45,6 +45,8 @@ public class ErrorFactory {
         String msg = errorCodeMap.get(outDto.getErrorCode());
         if (!StringUtils.isEmpty(msg)) {
             outDto.setErrorMsg(msg);
+        } else {
+            outDto.setErrorMsg("系统繁忙");
         }
     }
 }

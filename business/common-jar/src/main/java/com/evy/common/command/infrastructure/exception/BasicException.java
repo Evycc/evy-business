@@ -1,5 +1,6 @@
 package com.evy.common.command.infrastructure.exception;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public class BasicException extends Exception {
     private String errorCode = ErrorConstant.ERROR_01;
     @Getter
     @Setter
-    private String errorMessage = "系统繁忙";
+    private String errorMessage;
 
     public BasicException(Throwable throwable) {
         super(throwable);
@@ -29,6 +30,7 @@ public class BasicException extends Exception {
 
     public BasicException(String errorCode) {
         setErrorCode(errorCode);
+        errorMessage = BusinessConstant.EMPTY_STR;
     }
 
     public BasicException(String errorCode, String errorMessage, Throwable throwable) {

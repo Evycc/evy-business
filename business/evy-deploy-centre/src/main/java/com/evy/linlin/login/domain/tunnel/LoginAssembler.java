@@ -1,9 +1,9 @@
 package com.evy.linlin.login.domain.tunnel;
 
-import com.evy.linlin.deploy.dto.LoginServiceDTO;
-import com.evy.linlin.deploy.dto.LoginServiceOutDTO;
 import com.evy.linlin.login.domain.tunnel.model.LoginInfoDO;
 import com.evy.linlin.login.domain.tunnel.model.LoginInfoOutDO;
+import com.evy.linlin.login.dto.LoginServiceDTO;
+import com.evy.linlin.login.dto.LoginServiceOutDTO;
 
 /**
  *  用于装配DTO、DO、PO之间的关系<br/>

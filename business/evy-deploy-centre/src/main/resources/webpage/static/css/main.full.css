@@ -28,7 +28,7 @@ body a {
     /*pointer-events: none;*/
     user-select: none;
     z-index: -1;
-    left: 0;
+    left: -140px;
     top: 44px;
     height: 100%;
     filter: blur(50.6px);

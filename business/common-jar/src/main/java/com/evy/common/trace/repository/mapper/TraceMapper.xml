@@ -229,4 +229,9 @@
             tsi_consumer_names = REPLACE(tsi_consumer_names, CONCAT(#{tsiConsumerName}, '||'), '')
         WHERE 1 = 1;
     </update>
+
+    <select id="queryAllServiceName" parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO"
+        resultType="java.lang.String">
+        SELECT tsi_service_bean_name FROM trace_services_info WHERE tsi_provider = #{tsiProvider};
+    </select>
 </mapper>

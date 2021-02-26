@@ -385,6 +385,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
      * @return true : ip false : 域名
      */
     private boolean switchHost(String host) {
+        //从本地localhost请求获取不到真正的机器IP，暂时放行localhost
         String localhost = "localhost";
         return IPV4_PATTERN.matcher(host).matches() || IPV6_PATTERN.matcher(host).matches() || localhost.equals(host);
     }

@@ -129,7 +129,9 @@ public class TraceService {
 
                 temp.stream()
                         //只筛选出trace_services_info表已配置服务码的记录进行更新
-                        .filter(traceServiceModel -> SERVICES_BEAN_NAME_CONSUMER_MAP.containsKey(traceServiceModel.getBeanName()))
+                        .filter(traceServiceModel -> DBUtils.selectList(QRY_ALL_SERVICE_BEAN, TraceServiceUpdatePO.createTsiProvider(APP_NAME))
+                                                        .stream()
+                                                        .anyMatch(serviceName -> traceServiceModel.getBeanName().equals(serviceName)))
                         .forEach(traceServiceModel -> {
                             //添加发布者信息
                             poList.add(TraceServiceUpdatePO.createUpdateProvider(traceServiceModel.getBeanName(),

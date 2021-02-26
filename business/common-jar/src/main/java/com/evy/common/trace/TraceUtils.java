@@ -33,7 +33,7 @@ public class TraceUtils {
         EXECUTOR.scheduleWithFixedDelay(TraceRedisInfo::executeRedisInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceAppMemoryInfo::executeMemoryInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, 0L, delay, TimeUnit.MILLISECONDS);
         EXECUTOR.scheduleWithFixedDelay(TraceTracking::execute, initialDelay, delay, TimeUnit.MILLISECONDS);
     }
 

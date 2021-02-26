@@ -1,7 +1,7 @@
-package com.evy.linlin.deploy.app;
+package com.evy.linlin.login.app;
 
-import com.evy.linlin.deploy.dto.LoginServiceDTO;
-import com.evy.linlin.deploy.dto.LoginServiceOutDTO;
+import com.evy.linlin.login.dto.LoginServiceDTO;
+import com.evy.linlin.login.dto.LoginServiceOutDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

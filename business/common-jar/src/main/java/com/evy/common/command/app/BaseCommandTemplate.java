@@ -207,10 +207,10 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             outDTO = (R) new OutDTO();
         }
 
-        if (errCode != null) {
+        if (!StringUtils.isEmpty(errCode)) {
             outDTO.setErrorCode(be.getErrorCode());
         }
-        if (errMsg != null) {
+        if (!StringUtils.isEmpty(errMsg)) {
             outDTO.setErrorMsg(errMsg);
         } else {
             errorFactory.handleErrorCode(outDTO);

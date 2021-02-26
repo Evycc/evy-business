@@ -1,4 +1,4 @@
-package com.evy.linlin.deploy.dto;
+package com.evy.linlin.login.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import lombok.AllArgsConstructor;

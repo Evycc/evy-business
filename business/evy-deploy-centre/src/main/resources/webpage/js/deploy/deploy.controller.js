@@ -650,9 +650,42 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         let spanClass = event.target.attributes.item(1).nodeValue;
         self.btnDisplay(btnId, true);
         self.BtnLodingStyle(spanId);
-        //TODO 登陆service
+
+        if (self.loginUser.username === '' || self.loginUser.password === '') {
+            self.showTips('登录项不能填空');
+        } else {
+            self.loginUser.password = DeployMainService.encCode(self.loginUser.password);
+            DeployMainService.login(DeployMainService.buildPublicBody(self.loginUser))
+                .then(function (response) {
+                    console.log(response);
+                    if (response.errorCode !== '0') {
+                        self.showTips('登录失败 ' + response.errorMsg);
+                    } else {
+                        //登录成功处理
+                        self.loginSuccess(self.loginUser.username, response.userSeq);
+                    }
+                    self.loginUser.password = '';
+                }, function (err){
+                    self.showTips('登录失败 ' + err);
+                    self.loginUser.username = '';
+                    self.loginUser.password = '';
+                });
+        }
+
         self.btnDisplay(btnId, false);
         self.SetNewClass(spanId, spanClass);
+    }
+
+    /**
+     * 登录成功处理
+     * @param userName 登录用户名
+     * @param userSeq  用户标识userSeq
+     */
+    self.loginSuccess = function (userName, userSeq) {
+        self.isLogin = true;
+        self.loginToken = userSeq;
+        self.cur.user = userName;
+        self.cur.userSeq = userSeq;
     }
 
     /**

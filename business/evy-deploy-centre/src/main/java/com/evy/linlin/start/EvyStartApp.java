@@ -3,7 +3,6 @@ package com.evy.linlin.start;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.TraceUtils;
-import com.evy.common.trace.service.TraceService;
 import com.evy.common.utils.AppContextUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +17,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class EvyStartApp implements CommandLineRunner
 {
+
     public static void main( String[] args )
     {
         try {
@@ -32,6 +32,5 @@ public class EvyStartApp implements CommandLineRunner
     public void run(String... args) throws Exception {
         //Trace链路信息收集
         TraceUtils.init();
-        TraceService.executeService();
     }
 }

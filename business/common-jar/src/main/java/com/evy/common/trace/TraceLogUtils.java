@@ -109,7 +109,6 @@ public class TraceLogUtils {
      * @param traceId 唯一序列
      */
     public synchronized static void setDbTraceId(String traceId, String databaseName) {
-        System.out.println(traceId + "\t" + databaseName);
         String var = traceId;
         if (StringUtils.isEmpty(var)) {
             var = buildDbTraceId();
