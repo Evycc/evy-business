@@ -179,7 +179,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
     function sendPostReq(serviceCode, reqBody) {
         reqBody.serviceCode = serviceCode;
         let deferred = $q.defer();	//生成异步对象
-        $http.post(GATEWAY_PATH, reqBody)
+        $http.post(GATEWAY_PATH, buildPublicBody(reqBody))
             .then(function (response) {
                     deferred.resolve(response.data);
                 },
@@ -194,7 +194,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
      * 自定义加密<br/>
      * 加密 : 将字符串以字符的形式分解后,左移16位,形成加密串(若字符是英文字母形式,则转成ascii码后再进行左移)<br/>
      * @param pass 明文
-     * @return pass 密文
+     * @return string 密文
      */
     function encCode(pass) {
         let chars = pass.split('');

@@ -274,32 +274,35 @@
             <div id="{{main.viewId.mainView}}" class="form-table deploy-form-table left-div"
                  ng-show="main.viewShow.mainViewShow">
                 <div class="form-cell deploy-form-cell">
-                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="重新部署">
-                        重新部署 <span class="icon-repeat"></span>
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="重新部署"
+                            ng-click="main.redeployment($event)">
+                        编译应用 <span class="icon-repeat"></span>
                     </button>
-                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="部署记录">
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="部署记录"
+                            ng-click="main.deployRecord($event)">
                         部署记录 <span class="icon-list"></span>
                     </button>
-                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="一键部署">
+                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="一键部署"
+                            ng-click="main.autoDeploySubmit($event)">
                         一键部署 <span class="icon-play"></span>
                     </button>
                 </div>
                 <div class="form-cell deploy-form-cell">
-                    <span id="build-status-text" class="title-span left-span span-success">
+                    <span id="build-status-text" class="title-span left-span span-success" ng-show="{{main.deployInfoStyle.buildInfo.show}}">
                         {{main.deployInfoStyle.buildInfo.title}}
                         <span class="icon-ok" ng-show="{{main.deployInfoStyle.buildInfo.buildSuccessStatus}}"></span>
                         <span class="icon-remove" ng-show="{{main.deployInfoStyle.buildInfo.buildFalidStatus}}"></span>
                         <span class="icon-spinner icon-spin"
                               ng-show="{{main.deployInfoStyle.buildInfo.buildCheckStatus}}"></span>
                     </span>
-                    <span id="deploy-status-text" class="title-span left-span span-faild">
+                    <span id="deploy-status-text" class="title-span left-span span-faild" ng-show="{{main.deployInfoStyle.deployInfo.show}}">
                         {{main.deployInfoStyle.deployInfo.title}}
                         <span class="icon-ok" ng-show="{{main.deployInfoStyle.deployInfo.deploySuccessStatus}}"></span>
                         <span class="icon-remove" ng-show="{{main.deployInfoStyle.deployInfo.deployFalidStatus}}"></span>
                         <span class="icon-spinner icon-spin"
                               ng-show="{{main.deployInfoStyle.deployInfo.deployCheckStatus}}"></span>
                     </span>
-                    <span id="check-service-status-text" class="title-span left-span span-checking">
+                    <span id="check-service-status-text" class="title-span left-span span-checking" ng-show="{{main.deployInfoStyle.checkInfo.show}}">
                         {{main.deployInfoStyle.checkInfo.title}}
                         <span class="icon-ok" ng-show="{{main.deployInfoStyle.checkInfo.checkSuccessStatus}}"></span>
                         <span class="icon-remove" ng-show="{{main.deployInfoStyle.checkInfo.checkFalidStatus}}"></span>
@@ -309,20 +312,18 @@
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">部署时间</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           value="2020-11-27 00:00:00">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled ng-model="main.lastDeployForm.deployTime">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">应用名称</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           value="deploy-centors-appp">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled ng-model="main.lastDeployForm.appName">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">Junit测试</span>
                     <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
                             aria-label="开启Junit测试" disabled="disabled">
                         <label>
-                            <input type="checkbox"/>
+                            <input type="checkbox" ng-model="main.lastDeployForm.switchBatchDeploy"/>
                         </label>
                     </button>
                 </div>
@@ -331,27 +332,25 @@
                     <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
                             aria-label="开启Junit测试" disabled="disabled">
                         <label>
-                            <input type="checkbox"/>
+                            <input type="checkbox"  ng-model="main.lastDeployForm.switchJunit"/>
                         </label>
                     </button>
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">git</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           value="https://github.com/Evycc/evy-business">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled ng-model="main.lastDeployForm.gitPath">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">服务器IP</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           value="127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" disabled ng-model="main.lastDeployForm.targetHost">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">JVM参数</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="JVM参数">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="JVM参数" ng-model="main.lastDeployForm.jvmParam">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">备注</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注">
+                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注" ng-model="main.lastDeployForm.remarks">
                 </div>
             </div>
             <!--            应用内存信息-->

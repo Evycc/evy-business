@@ -104,6 +104,8 @@
                gmt_create
         FROM public_deploy_info
         WHERE pdi_user_seq = #{userSeq}
-        and pdi_deploy_seq = #{deploySeq}
+          <if test="deploySeq != null and deploySeq != ''">
+              and pdi_deploy_seq = #{deploySeq};
+          </if>
     </select>
 </mapper>

@@ -17,7 +17,6 @@ public class DeployDataRepository {
     private static final String QRY_DEPLOY_INFOS_FOR_USERSEQ = "DeployMapper.qryDeployInfoListForUserSeq";
     private static final String UPDTAE_DEPLOY_STAGE = "DeployMapper.updateBuildStatus";
     private static final String INSERT_NEW_DEPLOY_INFO = "DeployMapper.insertBuildInfo";
-    private static final String QRY_FRO_SEQ = "DeployMapper.qryDeployInfoForSeq";
     private static final String QRY_STAGE_FOR_SEQ = "DeployMapper.qryStageForSeq";
 
     /**

@@ -17,6 +17,21 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         username: '',
         password: ''
     }
+    /**
+     * 定义QryDeployInfoDTO模型<br/>
+     * 查询用户名下所有部署应用信息,用于后续执行部署
+     * @type {{deploySeq: string, userSeq: string}}
+     */
+    self.qryDeployInfo = {
+        /**
+         * 唯一用户标识
+         */
+        userSeq : '',
+        /**
+         * 标识当前应用，用于关联当前部署记录
+         */
+        deploySeq : ''
+    }
     self.cur = {
         /**
          * 登陆后用户名
@@ -25,7 +40,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         /**
          * 当前分支
          */
-        branch: 'master',
+        branch: 'none',
         appName: 'none',
         deploySeq : '',
         userSeq : ''
@@ -101,6 +116,19 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         switchJunit: 1,
         switchBatchDeploy: 1,
         jvmParam: ''
+    }
+    /**
+     * 当前自动化部署表单
+     */
+    self.lastDeployForm = {
+        deployTime : '',
+        appName : '',
+        switchJunit : false,
+        switchBatchDeploy: false,
+        gitPath: '',
+        targetHost: '',
+        jvmParam: '',
+        remarks: ''
     }
     self.mqForm = {
         topic: '',
@@ -325,7 +353,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryTrackingResultView = false;
     }
     /**
-     * 展示部署配置信息页面
+     * 展示切换分支页面
      * @param title
      */
     self.showSelectBranchView = function (title) {
@@ -347,6 +375,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
     }
+
     self.showQueryThreadView = function(title) {
         self.setDeployInfoTitle(title);
         self.viewShow.createViewShow = false;
@@ -612,27 +641,30 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.deployInfoStyle = {
         buildInfo : {
             title : '编译中',
+            show : false,
             buildSuccessStatus : false,
             buildFalidStatus : false,
-            buildCheckStatus : true,
+            buildCheckStatus : false,
             buildSuccessTitle : '编译成功',
             buildFalidTitle : '编译失败',
             buildCheckTitle : '编译中'
         },
         deployInfo : {
             title : '部署中',
+            show : false,
             deploySuccessStatus : false,
             deployFalidStatus : false,
-            deployCheckStatus : true,
+            deployCheckStatus : false,
             deploySuccessTitle : '部署成功',
             deployFalidTitle : '部署失败',
             deployCheckTitle : '部署中'
         },
         checkInfo : {
             title : '服务检查中',
+            show : false,
             checkSuccessStatus : false,
             checkFalidStatus : false,
-            checkCheckStatus : true,
+            checkCheckStatus : false,
             checkSuccessTitle : '服务正常',
             checkFalidTitle : '服务异常',
             checkCheckTitle : '服务检查中'
@@ -655,14 +687,14 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             self.showTips('登录项不能填空');
         } else {
             self.loginUser.password = DeployMainService.encCode(self.loginUser.password);
-            DeployMainService.login(DeployMainService.buildPublicBody(self.loginUser))
+            DeployMainService.login(self.loginUser)
                 .then(function (response) {
-                    console.log(response);
                     if (response.errorCode !== '0') {
                         self.showTips('登录失败 ' + response.errorMsg);
                     } else {
                         //登录成功处理
                         self.loginSuccess(self.loginUser.username, response.userSeq);
+                        self.qryDeployInfoReq(response.userSeq);
                     }
                     self.loginUser.password = '';
                 }, function (err){
@@ -677,6 +709,167 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     /**
+     * 登录成功处理,获取用户名下应用集合<br/>
+     * 存在记录,则初始化self.selectBranch分支模块
+     * @param userSeq
+     */
+    self.qryDeployInfoReq = function (userSeq) {
+        //检查用户名下最新部署记录,用于展示"自动化部署"界面,不存在记录则展示"新增部署应用"
+        self.qryDeployInfo.userSeq = userSeq;
+        DeployMainService.qryDeployInfo(self.qryDeployInfo)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('获取用户部署信息异常 ' + response.errorMsg);
+                } else {
+                    //返回0到N条记录,参考com.evy.linlin.deploy.dto.QryDeployInfoOutDTO
+                    console.log(response);
+                    if (response.dtoList.length > 0) {
+                        //展示最新一条记录
+                        let lastArray = response[response.length -1];
+                        if (self.cur.appName === 'none') {
+                            self.cur.appName = lastArray.appName;
+                        }
+                        if (self.cur.branch === 'none') {
+                            self.cur.branch = lastArray.gitBrchan;
+                        }
+                        self.initBranch(response);
+                        self.initLastDeployForm(response);
+                    }
+                }
+            }, function (err){
+                self.showTips('获取用户部署信息异常 ' + err);
+            });
+    }
+
+    /**
+     * 初始化self.lastDeployForm自动化部署信息
+     * @param response
+     */
+    self.initLastDeployForm = function (lastArray) {
+        self.lastDeployForm.deployTime = lastArray.createDateTime;
+        self.lastDeployForm.appName = lastArray.appName;
+        self.lastDeployForm.switchJunit = (lastArray.switchJunit === 0);
+        self.lastDeployForm.switswitchBatchDeploy = (lastArray.switchBatchDeploy === 0);
+        self.lastDeployForm.gitPath = lastArray.gitPath;
+        self.lastDeployForm.targetHost = lastArray.targetHost;
+        self.lastDeployForm.jvmParam = lastArray.jvmParam;
+        self.checkStageFlag(lastArray.stageFlag);
+    }
+
+    /**
+     * 检查并设置部署状态
+     * @param stageFlag
+     * @return 返回true表示状态明确
+     */
+    self.checkStageFlag = function (stageFlag) {
+        let flag = false;
+        //jar部署阶段 0a:编译成功 0b:编译中 0c:编译失败 1a:部署成功 1b:部署中 1c:部署失败
+        //顺序: 编译->部署->检查服务
+        switch (stageFlag) {
+            case '0a' :
+                self.buildInfoSuccess();
+                flag = true;
+                break;
+            case '0b' :
+                self.buildInfoChecked();
+                break;
+            case '0c' :
+                self.buildInfoFaild();
+                flag = true;
+                break;
+            case '1a' :
+                self.deployInfoSuccess();
+                flag = true;
+                break;
+            case '1b' :
+                self.deployInfoChecked();
+                break;
+            case '1c' :
+                self.deployInfoFaild();
+                flag = true;
+                break;
+        }
+        return flag;
+    }
+
+    self.buildInfoSuccess =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildSuccessStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildSuccessTitle;
+    }
+
+    self.buildInfoChecked =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildCheckStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildCheckTitle;
+    }
+
+    self.buildInfoFaild =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildFalidTitle;
+    }
+
+    self.deployInfoSuccess = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deploySuccessStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deploySuccessTitle;
+    }
+
+    self.deployInfoChecked = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deployCheckStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployCheckTitle;
+    }
+
+    self.deployInfoFaild = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deployFalidStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployFalidTitle;
+    }
+
+    self.checkInfoSuccess = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkSuccessStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkSuccessTitle;
+    }
+
+    self.checkInfoChecked = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkCheckStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkCheckTitle;
+    }
+
+    self.checkInfoFaild = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkFalidStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkFalidTitle;
+    }
+
+    /**
+     * 初始化self.selectBranch选择分支模块
+     * @param response
+     */
+    self.initBranch = function (response) {
+        for (let i =0; i < response.length; i++) {
+            self.selectBranch[i].appName = response.dtoList[i].appName;
+            self.selectBranch[i].branchName = response.dtoList[i].gitBrchan;
+            self.selectBranch[i].gitPath = response.dtoList[i].gitPath;
+            self.selectBranch[i].serverIp = response.dtoList[i].targetHost;
+            self.selectBranch[i].deploySeq = response.dtoList[i].deploySeq;
+        }
+    }
+
+    /**
      * 登录成功处理
      * @param userName 登录用户名
      * @param userSeq  用户标识userSeq
@@ -686,6 +879,84 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.loginToken = userSeq;
         self.cur.user = userName;
         self.cur.userSeq = userSeq;
+    }
+
+    /**
+     * 重新部署
+     * @param event
+     */
+    self.redeployment = function (event) {
+
+    }
+
+    /**
+     * 部署记录
+     * @param event
+     */
+    self.deployRecord = function (event) {
+
+    }
+
+    /**
+     * 一键部署
+     * @param event
+     */
+    self.autoDeploySubmit = function (event) {
+        DeployMainService.nextDeployBuild(self.lastDeployForm)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('部署异常 ' + response.errorMsg);
+                } else {
+                    //返回buildSeq,参考com.evy.linlin.deploy.dto.NextDeployBuildSeqOutDTO
+                    if (response.buildSeq === '') {
+                        self.showTips('部署异常 buildSeq为空');
+                    } else {
+                        let buildSeq = response.buildSeq;
+                        DeployMainService.autoDeploy(buildSeq)
+                            .then(function (response){
+                                if (response.errorCode !== '0') {
+                                    self.showTips('部署异常 ' + response.errorMsg);
+                                } else {
+                                    //新建定时回查任务
+                                    self.newReviewDeployInfoTask(buildSeq);
+                                }
+                            }, function (err){
+                                self.showTips('一键部署异常 ', err);
+                            });
+                    }
+                }
+            }, function (err){
+                self.showTips('部署异常 ' + err);
+            });
+    }
+
+    /**
+     * 定时回查,状态为:失败，则停止回查
+     */
+    self.timerTask;
+    self.newReviewDeployInfoTask = function (buildSeq) {
+        //回查前清除存量定时任务
+        self.rmReviewDeployInfoTask();
+        self.timerTask = setTimeout(function (){
+            DeployMainService.deployReview(buildSeq)
+                .then(function (response){
+                    if (response.errorCode !== '0') {
+                    } else {
+                        //返回stageFlag,参考com.evy.linlin.deploy.dto.ReviewStatusOutDTO
+                        let result = self.checkStageFlag(response.stageFlag);
+                        if (result) {
+                            //状态明确，停止回查
+                            self.rmReviewDeployInfoTask();
+                        }
+                    }
+                }, function (err){});
+        }, 3000);
+    }
+
+    self.rmReviewDeployInfoTask = function () {
+        if (self.timerTask !== undefined){
+            clearTimeout(self.timerTask);
+        }
     }
 
     /**
@@ -706,6 +977,24 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         if (angular.element('#BatchDeployCheckBox').prop('checked')) {
             self.deployForm.switchBatchDeploy = 0;
         }
+
+        //提交请求
+        DeployMainService.createDeployInfo(self.deployForm)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('新建部署信息异常 ' + response.errorMsg);
+                } else {
+                    //返回deploySeq,参考com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO
+                    console.log(response);
+                    self.qryDeployInfo.deploySeq = response.deploySeq;
+                    self.cur.deploySeq = response.deploySeq;
+
+                    //重新获取部署信息
+                    self.qryDeployInfoReq(self.cur.userSeq);
+                }
+            }, function (err){
+                self.showTips('新建部署信息异常 ' + err);
+            });
 
         self.SubmitNewDeployInfoStyle(btnId, false);
         self.SetNewClass(spanId, spanClass);
@@ -731,7 +1020,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param deploySeq 部署序列号,根据序列号获取相应分支配置
      */
     self.selectBranchSubmit = function (deploySeq) {
-        //TODO
         self.selectBranch.forEach(value => {
             console.log(value)
             if (value.deploySeq === deploySeq) {

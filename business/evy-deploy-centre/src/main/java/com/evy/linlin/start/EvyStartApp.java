@@ -3,6 +3,7 @@ package com.evy.linlin.start;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.TraceUtils;
+import com.evy.common.trace.service.TraceService;
 import com.evy.common.utils.AppContextUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +31,9 @@ public class EvyStartApp implements CommandLineRunner
 
     @Override
     public void run(String... args) throws Exception {
-        //Trace链路信息收集
+        //开启应用信息健康
         TraceUtils.init();
+        //初始化服务,否注间隔1分钟后才能查到服务
+        TraceService.executeService();
     }
 }

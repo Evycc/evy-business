@@ -63,18 +63,18 @@ public class TraceThreadInfo {
                             String tatiThreadStack;
 
                             for (ThreadInfo threadInfo : threadInfos) {
-                                tatiThreadId = CommandUtils.longParsetoInt(threadInfo.getThreadId());
+                                tatiThreadId = CommandUtils.longParseToInt(threadInfo.getThreadId());
                                 tatiThreadName = threadInfo.getThreadName();
                                 Thread.State state = threadInfo.getThreadState();
                                 tatiThreadStatus = state.name();
                                 tatiThreadStack = threadInfo.toString();
 
-                                tatiThreadBlockedCount = CommandUtils.longParsetoInt(threadInfo.getBlockedCount());
+                                tatiThreadBlockedCount = CommandUtils.longParseToInt(threadInfo.getBlockedCount());
                                 //纳秒
                                 tatiThreadBlockedMtime = String.valueOf(threadInfo.getBlockedTime());
                                 tatiThreadBlockedName = threadInfo.getLockName();
-                                tatiThreadBlockedId = CommandUtils.longParsetoInt(threadInfo.getLockOwnerId());
-                                tatiThreadWaitedCount = CommandUtils.longParsetoInt(threadInfo.getWaitedCount());
+                                tatiThreadBlockedId = CommandUtils.longParseToInt(threadInfo.getLockOwnerId());
+                                tatiThreadWaitedCount = CommandUtils.longParseToInt(threadInfo.getWaitedCount());
                                 tatiThreadWaitedMtime = String.valueOf(threadInfo.getWaitedTime());
 
                                 TraceThreadInfoPO threadInfoPo = TraceThreadInfoPO.create(tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadStartMtime, tatiThreadBlockedCount,
@@ -85,6 +85,7 @@ public class TraceThreadInfo {
                             DBUtils.batchAny(list.stream()
                                     .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
                                     .collect(Collectors.toList()));
+                            list = null;
                         }
                     });
         } catch (Exception exception) {

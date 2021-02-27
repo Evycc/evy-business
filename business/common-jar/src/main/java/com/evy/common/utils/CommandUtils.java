@@ -302,7 +302,7 @@ public class CommandUtils {
      * @param l long
      * @return int
      */
-    public static int longParsetoInt(Long l) {
+    public static int longParseToInt(Long l) {
         return Integer.parseInt(String.valueOf(l));
     }
 }

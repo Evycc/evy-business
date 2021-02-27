@@ -27,7 +27,6 @@ public class QryDeployInfoDTO extends InputDTO implements ValidatorDTO<QryDeploy
     /**
      * 部署配置标识
      */
-    @NotBlank(message = "deploySeq不能为空")
     @Length(max = 64, message = "deploySeq长度超限")
     private String deploySeq;
 }

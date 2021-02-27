@@ -191,6 +191,7 @@ public class ServiceFilter implements GatewayFilter, Ordered {
                 if (!CollectionUtils.isEmpty(serviceInfoPoS)
                         || serviceInfoPoS.hashCode() != CACHE_SERVICE_LIST.hashCode()
                         || serviceInfoPoS.size() != CACHE_SERVICE_LIST.size()) {
+                    CommandLog.info("更新服务码信息");
                     CACHE_SERVICE_LIST.clear();
                     CACHE_SERVICE_LIST.addAll(serviceInfoPoS);
                     SERVICE_TEMP_MAP.clear();

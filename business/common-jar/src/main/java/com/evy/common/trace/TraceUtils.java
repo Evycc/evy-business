@@ -27,14 +27,16 @@ public class TraceUtils {
         long initialDelay = 60000L;
         //间隔1分钟轮询
         long delay = 60000L;
-        EXECUTOR.scheduleWithFixedDelay(TraceMqInfo::executeMq, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceHttpInfo::executeHttp, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceSlowSql::executeSlowSql, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceRedisInfo::executeRedisInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceAppMemoryInfo::executeMemoryInfo, initialDelay, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, 0L, delay, TimeUnit.MILLISECONDS);
-        EXECUTOR.scheduleWithFixedDelay(TraceTracking::execute, initialDelay, delay, TimeUnit.MILLISECONDS);
+        EXECUTOR.scheduleWithFixedDelay(() -> {
+            TraceMqInfo.executeMq();
+            TraceHttpInfo.executeHttp();
+            TraceSlowSql.executeSlowSql();
+            TraceRedisInfo.executeRedisInfo();
+            TraceThreadInfo.executeThreadInfo();
+            TraceAppMemoryInfo.executeMemoryInfo();
+            TraceService.executeService();
+            TraceTracking.execute();
+        }, initialDelay, delay, TimeUnit.MILLISECONDS);
     }
 
     /**
