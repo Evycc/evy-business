@@ -32,6 +32,11 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
          */
         deploySeq : ''
     }
+    /**
+     * 线程ip select 列表
+     * @type {*[]}
+     */
+    self.curSelectIp = [];
     self.cur = {
         /**
          * 登陆后用户名
@@ -111,7 +116,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         userSeq: '',
         appName: '',
         gitPath: '',
-        branchName: '',
+        brchanName: '',
         targetHost: '',
         switchJunit: 1,
         switchBatchDeploy: 1,
@@ -261,6 +266,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             showInputSelectStyle(inputDivId, inputId)
         }
     })
+
     /**
      * 监听登陆表单输入框变化,存在值则变更表单样式
      */
@@ -273,6 +279,14 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             showInputSelectStyle(inputDivId, inputId)
         }
     })
+
+    /**
+     * 监听登陆表单输入框变化,存在值则变更表单样式
+     */
+    $scope.$watch('main.curThreadIp', function (newValue) {
+        console.log(newValue)
+    })
+
     /**
      * 设置<h3 class="info-title">{{main.deployInfo.title}}</h3> 标题
      * @param title
@@ -394,7 +408,161 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryHttpView = false;
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
+        self.qryThreadInfoList('', 0, 100);
     }
+
+    self.ThreadCount = 0;
+    self.curThreadIp = self.curSelectIp[0];
+    /**
+     * 获取应用线程信息
+     */
+    self.qryThreadInfoList = function (threadName, beginIndex, endIndex) {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        body.beginIndex = beginIndex;
+        body.endIndex = endIndex;
+        body.serviceIp = self.curThreadIp;
+        if (threadName !== null && threadName !== '') {
+            body.threadName = threadName;
+        }
+
+        self.sendQryThreadInfo(body);
+    }
+
+    self.sendQryThreadInfo = function (body) {
+        DeployMainService.qryThreadInfo(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询线程信息失败 ' + response.errorMsg);
+                } else {
+                    if (response.list != null) {
+                        for (let i=0; i < response.list.length; i++) {
+                            self.addThreadInfoUl(response.list[i], i);
+                        }
+                    }
+                    console.log(self.curThreadIp)
+                    console.log(body)
+                    //分段获取
+                    if (self.curThreadIp === body.serviceIp && body.beginIndex < (response.total - body.endIndex)) {
+                        self.qryThreadInfoList('', body.beginIndex + body.endIndex, body.endIndex);
+                    }
+                }
+                console.log(response)
+            }, function (err){
+                self.showTips('查询线程信息失败 ' + err);
+            });
+    }
+
+    /**
+     * 添加间隔li对象
+     * @param ul 目标ul
+     */
+    self.addtempLi = function (ul) {
+        let publicLi = document.createElement('li');
+        publicLi.className  = 'main-font-color';
+        publicLi.innerHTML = '/';
+        ul.appendChild(publicLi);
+    }
+
+    self.addThreadInfoUl = function (list, index) {
+        console.log(list)
+        let addUl = document.createElement('ul');
+        let tempIdName = 'tempThreadId';
+        let btnText = '堆栈查询';
+        if (/^\d+$/.test(list.threadMaxCount) && self.ThreadCount < list.threadMaxCount) {
+            self.ThreadCount = list.threadMaxCount;
+        }
+
+        addUl.id = tempIdName + index;
+
+        let publicLi = document.createElement('li');
+        publicLi.className  = 'main-font-color';
+        publicLi.innerHTML = '/';
+
+        let threadIdLi = document.createElement('li');
+        threadIdLi.className = 'twelve-ul-style';
+        threadIdLi.innerHTML = list.threadId;
+        addUl.appendChild(threadIdLi);
+        self.addtempLi(addUl);
+
+        let threadNameLi = document.createElement('li');
+        threadNameLi.className = 'twelve-ul-style';
+        threadNameLi.innerHTML = list.threadName;
+        addUl.appendChild(threadNameLi);
+        self.addtempLi(addUl);
+
+        let threadStatusLi = document.createElement('li');
+        threadStatusLi.className = 'twelve-ul-style';
+        threadStatusLi.innerHTML = list.threadStatus;
+        addUl.appendChild(threadStatusLi);
+        self.addtempLi(addUl);
+
+        let threadStartTimeMsLi = document.createElement('li');
+        threadStartTimeMsLi.className = 'twelve-ul-style';
+        threadStartTimeMsLi.innerHTML = list.threadStartTimeMs;
+        addUl.appendChild(threadStartTimeMsLi);
+        self.addtempLi(addUl);
+
+        let threadBlockedCountLi = document.createElement('li');
+        threadBlockedCountLi.className = 'twelve-ul-style';
+        threadBlockedCountLi.innerHTML = list.threadBlockedCount;
+        addUl.appendChild(threadBlockedCountLi);
+        self.addtempLi(addUl);
+
+        let threadBlockedTimeMsLi = document.createElement('li');
+        threadBlockedTimeMsLi.className = 'twelve-ul-style';
+        threadBlockedTimeMsLi.innerHTML = list.threadBlockedTimeMs;
+        addUl.appendChild(threadBlockedTimeMsLi);
+        self.addtempLi(addUl);
+
+        let threadBlockedNameLi = document.createElement('li');
+        threadBlockedNameLi.className = 'twelve-ul-style';
+        threadBlockedNameLi.innerHTML = list.threadBlockedName;
+        addUl.appendChild(threadBlockedNameLi);
+        self.addtempLi(addUl);
+
+        let threadBlockedIdLi = document.createElement('li');
+        threadBlockedIdLi.className = 'twelve-ul-style';
+        threadBlockedIdLi.innerHTML = list.threadBlockedId;
+        addUl.appendChild(threadBlockedIdLi);
+        self.addtempLi(addUl);
+
+        let threadWaitedCountLi = document.createElement('li');
+        threadWaitedCountLi.className = 'twelve-ul-style';
+        threadWaitedCountLi.innerHTML = list.threadWaitedCount;
+        addUl.appendChild(threadWaitedCountLi);
+        self.addtempLi(addUl);
+
+        let threadWaitedTimeMsLi = document.createElement('li');
+        threadWaitedTimeMsLi.className = 'twelve-ul-style';
+        threadWaitedTimeMsLi.innerHTML = list.threadWaitedTimeMs;
+        addUl.appendChild(threadWaitedTimeMsLi);
+        self.addtempLi(addUl);
+
+        let gmtModifyLi = document.createElement('li');
+        gmtModifyLi.className = 'twelve-ul-style';
+        gmtModifyLi.innerHTML = list.gmtModify;
+        addUl.appendChild(gmtModifyLi);
+        self.addtempLi(addUl);
+
+        let threadStackLi = document.createElement('li');
+        threadStackLi.className = 'twelve-ul-style';
+        self.addViewBtn(threadStackLi, btnText);
+        addUl.appendChild(threadStackLi);
+
+        angular.element('#' + self.viewId.queryThreadView).append(addUl);
+        self.SetNewClass(addUl.id, 'ul-div-style bottom-border-solid xs-font-size');
+    }
+
+    self.addViewBtn = function (superDom, btnText) {
+        let btn = document.createElement('button');
+        btn.className = 'login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn';
+        btn.type = 'submit';
+        btn.innerHTML = btnText;
+        superDom.appendChild(btn);
+    }
+
     self.showQueryMqView = function (title) {
         self.setDeployInfoTitle(title);
         self.viewShow.createViewShow = false;
@@ -619,8 +787,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
 
     self.BtnLodingStyle = function (objId) {
         let lodingClass = 'icon-spinner icon-spin';
-        angular.element('#' + objId).attr('class','');
-        angular.element('#' + objId).addClass(lodingClass);
+        self.SetNewClass(objId, lodingClass);
     }
 
     self.SetNewClass = function (objId, className) {
@@ -639,7 +806,11 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.deployInfoStyle = {
+        successStyle : 'span-success',
+        faildStyle : 'span-faild',
+        checkingStyle : 'span-checking',
         buildInfo : {
+            id : 'build-status-text',
             title : '编译中',
             show : false,
             buildSuccessStatus : false,
@@ -650,6 +821,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             buildCheckTitle : '编译中'
         },
         deployInfo : {
+            id : 'deploy-status-text',
             title : '部署中',
             show : false,
             deploySuccessStatus : false,
@@ -660,6 +832,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             deployCheckTitle : '部署中'
         },
         checkInfo : {
+            id : 'check-service-status-text',
             title : '服务检查中',
             show : false,
             checkSuccessStatus : false,
@@ -722,10 +895,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('获取用户部署信息异常 ' + response.errorMsg);
                 } else {
                     //返回0到N条记录,参考com.evy.linlin.deploy.dto.QryDeployInfoOutDTO
-                    console.log(response);
-                    if (response.dtoList.length > 0) {
+                    if (response.dtoList !== null && response.dtoList.length > 0) {
                         //展示最新一条记录
-                        let lastArray = response[response.length -1];
+                        let lastArray = response.dtoList[response.dtoList.length -1];
                         if (self.cur.appName === 'none') {
                             self.cur.appName = lastArray.appName;
                         }
@@ -733,7 +905,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                             self.cur.branch = lastArray.gitBrchan;
                         }
                         self.initBranch(response);
-                        self.initLastDeployForm(response);
+                        self.initLastDeployForm(lastArray);
                     }
                 }
             }, function (err){
@@ -741,9 +913,81 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             });
     }
 
+    self.buildInfoSuccess =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildSuccessStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildSuccessTitle;
+        self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-success');
+    }
+
+    self.buildInfoChecked =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildCheckStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildCheckTitle;
+        self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-checking');
+    }
+
+    self.buildInfoFaild =function () {
+        self.deployInfoStyle.buildInfo.show = true;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = true;
+        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildFalidTitle;
+        self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-faild');
+    }
+
+    self.deployInfoSuccess = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deploySuccessStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deploySuccessTitle;
+        self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-success');
+    }
+
+    self.deployInfoChecked = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deployCheckStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployCheckTitle;
+        self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-checking');
+    }
+
+    self.deployInfoFaild = function () {
+        self.buildInfoSuccess();
+        self.deployInfoStyle.deployInfo.show = true;
+        self.deployInfoStyle.deployInfo.deployFalidStatus = true;
+        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployFalidTitle;
+        self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-faild');
+    }
+
+    self.checkInfoSuccess = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkSuccessStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkSuccessTitle;
+        self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-success');
+    }
+
+    self.checkInfoChecked = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkCheckStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkCheckTitle;
+        self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-checking');
+    }
+
+    self.checkInfoFaild = function () {
+        self.buildInfoSuccess();
+        self.deployInfoSuccess();
+        self.deployInfoStyle.checkInfo.show = true;
+        self.deployInfoStyle.checkInfo.checkFalidStatus = true;
+        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkFalidTitle;
+        self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-faild');
+    }
+
     /**
      * 初始化self.lastDeployForm自动化部署信息
-     * @param response
+     * @param lastArray
      */
     self.initLastDeployForm = function (lastArray) {
         self.lastDeployForm.deployTime = lastArray.createDateTime;
@@ -754,14 +998,21 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.lastDeployForm.targetHost = lastArray.targetHost;
         self.lastDeployForm.jvmParam = lastArray.jvmParam;
         self.checkStageFlag(lastArray.stageFlag);
+
+        self.cur.deploySeq = lastArray.deploySeq;
+        if (lastArray.targetHost !== null && lastArray.targetHost !== '') {
+            self.curSelectIp = lastArray.targetHost.split(',', -1);
+            self.curThreadIp = self.curSelectIp[0];
+        }
     }
 
     /**
      * 检查并设置部署状态
      * @param stageFlag
-     * @return 返回true表示状态明确
+     * @return boolean 返回true表示状态明确
      */
     self.checkStageFlag = function (stageFlag) {
+        console.log(stageFlag)
         let flag = false;
         //jar部署阶段 0a:编译成功 0b:编译中 0c:编译失败 1a:部署成功 1b:部署中 1c:部署失败
         //顺序: 编译->部署->检查服务
@@ -790,69 +1041,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 break;
         }
         return flag;
-    }
-
-    self.buildInfoSuccess =function () {
-        self.deployInfoStyle.buildInfo.show = true;
-        self.deployInfoStyle.buildInfo.buildSuccessStatus = true;
-        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildSuccessTitle;
-    }
-
-    self.buildInfoChecked =function () {
-        self.deployInfoStyle.buildInfo.show = true;
-        self.deployInfoStyle.buildInfo.buildCheckStatus = true;
-        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildCheckTitle;
-    }
-
-    self.buildInfoFaild =function () {
-        self.deployInfoStyle.buildInfo.show = true;
-        self.deployInfoStyle.buildInfo.buildFalidStatus = true;
-        self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildFalidTitle;
-    }
-
-    self.deployInfoSuccess = function () {
-        self.buildInfoSuccess();
-        self.deployInfoStyle.deployInfo.show = true;
-        self.deployInfoStyle.deployInfo.deploySuccessStatus = true;
-        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deploySuccessTitle;
-    }
-
-    self.deployInfoChecked = function () {
-        self.buildInfoSuccess();
-        self.deployInfoStyle.deployInfo.show = true;
-        self.deployInfoStyle.deployInfo.deployCheckStatus = true;
-        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployCheckTitle;
-    }
-
-    self.deployInfoFaild = function () {
-        self.buildInfoSuccess();
-        self.deployInfoStyle.deployInfo.show = true;
-        self.deployInfoStyle.deployInfo.deployFalidStatus = true;
-        self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployFalidTitle;
-    }
-
-    self.checkInfoSuccess = function () {
-        self.buildInfoSuccess();
-        self.deployInfoSuccess();
-        self.deployInfoStyle.checkInfo.show = true;
-        self.deployInfoStyle.checkInfo.checkSuccessStatus = true;
-        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkSuccessTitle;
-    }
-
-    self.checkInfoChecked = function () {
-        self.buildInfoSuccess();
-        self.deployInfoSuccess();
-        self.deployInfoStyle.checkInfo.show = true;
-        self.deployInfoStyle.checkInfo.checkCheckStatus = true;
-        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkCheckTitle;
-    }
-
-    self.checkInfoFaild = function () {
-        self.buildInfoSuccess();
-        self.deployInfoSuccess();
-        self.deployInfoStyle.checkInfo.show = true;
-        self.deployInfoStyle.checkInfo.checkFalidStatus = true;
-        self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkFalidTitle;
     }
 
     /**
@@ -969,6 +1157,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.SubmitNewDeployInfoStyle(btnId, true);
         self.BtnLodingStyle(spanId);
 
+        self.deployForm.userSeq = self.cur.userSeq;
         //获取Junit选项
         if (angular.element('#JunitCheckBox').prop('checked')) {
             self.deployForm.switchJunit = 0;
@@ -987,9 +1176,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     //返回deploySeq,参考com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO
                     console.log(response);
                     self.qryDeployInfo.deploySeq = response.deploySeq;
-                    self.cur.deploySeq = response.deploySeq;
 
-                    //重新获取部署信息
+                    //重新获取部署信息,新用户获取了也没用呀？
                     self.qryDeployInfoReq(self.cur.userSeq);
                 }
             }, function (err){
@@ -1302,3 +1490,5 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     // self.showDeployMainView('自动化部署');
     self.initMemoryViewJs();
 }]);
+
+

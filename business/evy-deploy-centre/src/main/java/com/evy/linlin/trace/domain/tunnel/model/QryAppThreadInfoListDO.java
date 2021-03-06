@@ -13,4 +13,7 @@ public class QryAppThreadInfoListDO {
     private String buildSeq;
     private String userSeq;
     private String threadName;
+    private Integer beginIndex;
+    private Integer endIndex;
+    private String serviceIp;
 }

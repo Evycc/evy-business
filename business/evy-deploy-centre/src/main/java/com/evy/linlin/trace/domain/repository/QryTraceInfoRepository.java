@@ -41,8 +41,8 @@ public class QryTraceInfoRepository {
         String targetIp = dataRepository.getTargetIpFromSeq(getTargetIpFromSeqPo);
         List<String> list;
 
-        if (!StringUtils.isEmpty(targetIp) && targetIp.contains(BusinessConstant.DOUBLE_LINE)) {
-            list = Arrays.asList(targetIp.split(BusinessConstant.DOUBLE_LINE, -1));
+        if (!StringUtils.isEmpty(targetIp) && targetIp.contains(BusinessConstant.COMMA)) {
+            list = Arrays.asList(targetIp.split(BusinessConstant.COMMA, -1));
         } else {
             list = new ArrayList<>(1);
             list.add(targetIp);
@@ -224,6 +224,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 查询应用线程信息集合
+     *
      * @param qryAppThreadInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppThreadInfoListDO
      * @return com.evy.linlin.trace.dto.QryThreadsInfoModel
      */
@@ -232,6 +233,7 @@ public class QryTraceInfoRepository {
         List<String> targetIpList = getTargetIp(qryAppThreadInfoListDo.getBuildSeq(), qryAppThreadInfoListDo.getUserSeq());
         if (!CollectionUtils.isEmpty(targetIpList)) {
             targetIpList.stream()
+                    .filter(targetIp -> qryAppThreadInfoListDo.getServiceIp().equals(targetIp))
                     .map(targetIp -> dataRepository.qryAppThreadInfoList(QryTraceAssembler.createQryAppThreadInfoPO(targetIp, qryAppThreadInfoListDo)))
                     .map(QryTraceAssembler::createQryThreadsInfoModel)
                     .filter(models -> !CollectionUtils.isEmpty(models))
@@ -243,5 +245,26 @@ public class QryTraceInfoRepository {
         }
 
         return result;
+    }
+
+    /**
+     * 伪分段返回
+     *
+     * @param list       原list
+     * @param beginIndex 忽略的行数
+     * @param endIndex   返回总记录数
+     * @return list
+     */
+    public  <T> List<T> skipListResult(List<T> list, Integer beginIndex, Integer endIndex) {
+        if (Objects.isNull(beginIndex)) {
+            beginIndex = 0;
+        }
+        if (Objects.isNull(endIndex)) {
+            endIndex = 500;
+        }
+        return list.stream()
+                .skip(beginIndex)
+                .limit(endIndex)
+                .collect(Collectors.toList());
     }
 }

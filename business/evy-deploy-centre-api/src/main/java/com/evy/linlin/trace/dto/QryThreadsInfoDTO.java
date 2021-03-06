@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -32,4 +33,21 @@ public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThrea
      */
     @Length(max = 100, message = "threadName长度超限")
     private String threadName;
+    /**
+     * 查询指定服务器
+     */
+    @NotBlank(message = "serviceIp不能为空")
+    @Length(max = 100, message = "serviceIp长度超限")
+    private String serviceIp;
+    /**
+     * 忽略的记录数，由于线程信息较多，采取分段返回
+     */
+    @Min(value = 0, message = "skipIndex最小值0")
+    private Integer beginIndex;
+
+    /**
+     * 忽略的记录数，由于线程信息较多，采取分段返回
+     */
+    @Min(value = 100, message = "skipIndex最小值500")
+    private Integer endIndex;
 }

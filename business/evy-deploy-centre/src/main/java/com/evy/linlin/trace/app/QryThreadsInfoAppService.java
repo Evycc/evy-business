@@ -29,6 +29,8 @@ public class QryThreadsInfoAppService extends QryThreadsInfoService {
     @Override
     public QryThreadsInfoOutDTO execute(QryThreadsInfoDTO qryThreadsInfoDto) throws BasicException {
         List<QryThreadsInfoModel> models = repository.qryAppThreadInfoList(QryTraceAssembler.dtoConvertDo(qryThreadsInfoDto));
-        return QryTraceAssembler.createQryThreadsInfoOutDTO(models);
+        int total = models.size();
+        models = repository.skipListResult(models, qryThreadsInfoDto.getBeginIndex(), qryThreadsInfoDto.getEndIndex());
+        return QryTraceAssembler.createQryThreadsInfoOutDTO(models, total);
     }
 }

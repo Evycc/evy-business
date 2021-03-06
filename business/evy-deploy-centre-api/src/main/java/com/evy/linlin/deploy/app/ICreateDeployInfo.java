@@ -3,6 +3,7 @@ package com.evy.linlin.deploy.app;
 import com.evy.linlin.deploy.dto.CreateDeployInfoDTO;
 import com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -18,5 +19,5 @@ public interface ICreateDeployInfo {
      * @return com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO
      */
     @PostMapping("/create")
-    CreateDeployInfoOutDTO create(CreateDeployInfoDTO createDeployInfoDto);
+    CreateDeployInfoOutDTO create(@RequestBody CreateDeployInfoDTO createDeployInfoDto);
 }

@@ -24,11 +24,13 @@ public class BasicException extends Exception {
     }
 
     public BasicException(String errorCode, String errorMessage) {
+        super(errorCode + BusinessConstant.COLON_STR + errorMessage);
         setErrorCode(errorCode);
         setErrorMessage(errorMessage);
     }
 
     public BasicException(String errorCode) {
+        super(errorCode);
         setErrorCode(errorCode);
         errorMessage = BusinessConstant.EMPTY_STR;
     }

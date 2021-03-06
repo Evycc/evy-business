@@ -279,9 +279,8 @@ body a {
     border-radius: 6px;
 }
 
-.twelve-ul-style li{
-    min-width: 2%;
-    max-width: 12%;
+.twelve-ul-style{
+    min-width: 8%;
     margin: 0 !important;
     word-break: break-word;
 }
@@ -492,7 +491,15 @@ body a {
 .ul-div-style li {
     list-style: none;
     float: left;
+}
+
+.thread-ul-head li {
     margin: 0 0 0 10px;
+}
+
+.ul-div-style-one li {
+    list-style: none;
+    float: left;
 }
 
 .bottom-border-solid{

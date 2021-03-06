@@ -52,7 +52,7 @@ public class TraceThreadInfo {
                             int tatiThreadId;
                             String tatiThreadName;
                             String tatiThreadStatus;
-                            String tatiThreadStartMtime = String.valueOf(THREAD_MX_BEAN.getCurrentThreadCpuTime());
+                            String tatiThreadStartMtime;
                             String tatiThreadBlockedMtime;
                             String tatiThreadBlockedName;
                             int tatiThreadBlockedId;
@@ -63,6 +63,7 @@ public class TraceThreadInfo {
                             String tatiThreadStack;
 
                             for (ThreadInfo threadInfo : threadInfos) {
+                                tatiThreadStartMtime =  String.valueOf(THREAD_MX_BEAN.getThreadCpuTime(threadInfo.getThreadId()) / 1000000L);
                                 tatiThreadId = CommandUtils.longParseToInt(threadInfo.getThreadId());
                                 tatiThreadName = threadInfo.getThreadName();
                                 Thread.State state = threadInfo.getThreadState();

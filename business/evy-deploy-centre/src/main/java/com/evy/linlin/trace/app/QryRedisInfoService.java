@@ -13,6 +13,6 @@ public abstract class QryRedisInfoService extends BaseCommandTemplate<QryRedisIn
 
     @Override
     public QryRedisInfoOutDTO qryRedisInfoList(QryRedisInfoDTO qryRedisInfoDTO) {
-        return convertDto(new QryRedisInfoOutDTO(), start(qryRedisInfoDTO));
+        return convertOutDto(start(qryRedisInfoDTO), new QryRedisInfoOutDTO());
     }
 }

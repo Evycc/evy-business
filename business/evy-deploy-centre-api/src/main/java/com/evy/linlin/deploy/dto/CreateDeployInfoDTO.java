@@ -2,8 +2,8 @@ package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
@@ -16,9 +16,9 @@ import javax.validation.constraints.NotNull;
  * @Author: EvyLiuu
  * @Date: 2020/11/14 8:56
  */
-@Getter
-@Setter
 @ToString
+@Getter
+@AllArgsConstructor
 public class CreateDeployInfoDTO extends InputDTO implements ValidatorDTO<CreateDeployInfoDTO> {
     /**
      * 用户标识

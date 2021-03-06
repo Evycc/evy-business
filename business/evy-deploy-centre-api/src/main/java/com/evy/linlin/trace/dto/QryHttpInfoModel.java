@@ -1,5 +1,6 @@
 package com.evy.linlin.trace.dto;
 
+import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,7 +10,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public class QryHttpInfoModel {
+public class QryHttpInfoModel extends CommandModel {
     private String appIp;
     private String reqUrl;
     private String takeUpTime;

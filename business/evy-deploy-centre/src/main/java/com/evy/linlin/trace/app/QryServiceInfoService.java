@@ -12,6 +12,6 @@ public abstract class QryServiceInfoService extends BaseCommandTemplate<QryServi
 
     @Override
     public QryServiceInfoOutDTO qryServiceInfoList(QryServiceInfoDTO qryServiceInfoDTO) {
-        return convertDto(new QryServiceInfoOutDTO(), start(qryServiceInfoDTO));
+        return convertOutDto(start(qryServiceInfoDTO), new QryServiceInfoOutDTO());
     }
 }

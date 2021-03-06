@@ -13,6 +13,6 @@ public abstract class QrySlowSqlInfoService extends BaseCommandTemplate<QrySlowS
 
     @Override
     public QrySlowSqlInfoOutDTO qrySlowSqlInfoList(QrySlowSqlInfoDTO qrySlowSqlInfoDTO) {
-        return convertDto(new QrySlowSqlInfoOutDTO(), start(qrySlowSqlInfoDTO));
+        return convertOutDto(start(qrySlowSqlInfoDTO), new QrySlowSqlInfoOutDTO());
     }
 }

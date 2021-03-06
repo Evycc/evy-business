@@ -3,7 +3,6 @@ package com.evy.linlin.deploy.app;
 import com.evy.common.command.app.BaseCommandTemplate;
 import com.evy.linlin.deploy.dto.GetGitBrchansDTO;
 import com.evy.linlin.deploy.dto.GetGitBrchansOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * IGetGitBrchans实现类
@@ -14,8 +13,6 @@ public abstract class GetGitBrchansService extends BaseCommandTemplate<GetGitBrc
 
     @Override
     public GetGitBrchansOutDTO getGitBrchans(GetGitBrchansDTO dto) {
-        GetGitBrchansOutDTO getGitBrchansOutDto = new GetGitBrchansOutDTO();
-        BeanUtils.copyProperties(start(dto), getGitBrchansOutDto);
-        return getGitBrchansOutDto;
+        return convertOutDto(start(dto), new GetGitBrchansOutDTO());
     }
 }

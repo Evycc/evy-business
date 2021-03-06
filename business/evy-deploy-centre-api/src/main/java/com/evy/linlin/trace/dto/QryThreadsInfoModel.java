@@ -1,5 +1,6 @@
 package com.evy.linlin.trace.dto;
 
+import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @Getter
-public class QryThreadsInfoModel {
+public class QryThreadsInfoModel extends CommandModel {
     private String appIp;
     private String threadId;
     private String threadName;

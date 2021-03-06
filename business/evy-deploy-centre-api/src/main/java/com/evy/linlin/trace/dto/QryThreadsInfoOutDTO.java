@@ -18,4 +18,5 @@ import java.util.List;
 @NoArgsConstructor
 public class QryThreadsInfoOutDTO extends OutDTO {
     private List<QryThreadsInfoModel> list;
+    private Integer total;
 }

@@ -47,10 +47,18 @@ public class SequenceUtils {
     /**
      * 应用内时间,随机产生
      */
-    private static final long CUR_TIME_STAMP = LocalDateTime.of(new Random().nextInt(54) +1998,
-            new Random().nextInt(12) +1,new Random().nextInt(27) +1,
-            new Random().nextInt(23) +1,new Random().nextInt(60) +1,
-            new Random().nextInt(60) +1).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+    private static final long CUR_TIME_STAMP = LocalDateTime.of(
+            new Random().nextInt(54) +1998,
+            //month 1-12
+            new Random().nextInt(12) +1,
+            //dayOfMonth 1 -27
+            new Random().nextInt(27) +1,
+            //hour 0-23
+            new Random().nextInt(24),
+            //minute 0-59
+            new Random().nextInt(60),
+            //second 0-59
+            new Random().nextInt(60)).toInstant(ZoneOffset.of("+8")).toEpochMilli();
 
     /**
      * 机器ID

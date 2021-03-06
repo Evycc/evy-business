@@ -1,10 +1,8 @@
 package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.dto.QryDeployInfoDTO;
 import com.evy.linlin.deploy.dto.QryDeployInfoOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * IQryDeployInfos 实现类
@@ -14,8 +12,6 @@ import org.springframework.beans.BeanUtils;
 public abstract class QryDeployInfosService extends BaseCommandTemplate<QryDeployInfoDTO, QryDeployInfoOutDTO> implements IQryDeployInfos {
     @Override
     public QryDeployInfoOutDTO qryDeployInfosByUser(QryDeployInfoDTO qryDeployInfoDTO) {
-        QryDeployInfoOutDTO qryDeployInfoOutDTO = DeployAssembler.createQryDeployInfoOutDto();
-        BeanUtils.copyProperties(start(qryDeployInfoDTO), qryDeployInfoOutDTO);
-        return qryDeployInfoOutDTO;
+        return convertOutDto(start(qryDeployInfoDTO), new QryDeployInfoOutDTO());
     }
 }

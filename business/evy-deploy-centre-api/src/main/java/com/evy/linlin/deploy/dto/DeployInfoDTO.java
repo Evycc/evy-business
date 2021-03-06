@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -10,6 +11,7 @@ import lombok.ToString;
  * @Date: 2020/9/26 23:09
  */
 @Getter
+@Setter
 @ToString
 @AllArgsConstructor
 public class DeployInfoDTO {

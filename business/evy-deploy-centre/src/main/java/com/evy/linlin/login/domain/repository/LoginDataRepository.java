@@ -1,6 +1,8 @@
 package com.evy.linlin.login.domain.repository;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.log.CommandLog;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.SequenceUtils;
 import com.evy.linlin.login.domain.tunnel.LoginAssembler;
@@ -81,7 +83,13 @@ public class LoginDataRepository {
      * @return  userSeq
      */
     private String createUserSeq() {
-        return SequenceUtils.getNextSeq();
+        String var = BusinessConstant.EMPTY_STR;
+        try {
+            var = SequenceUtils.getNextSeq();
+        } catch (Exception exception) {
+            CommandLog.errorThrow("", exception);
+        }
+        return var;
     }
 
     /**

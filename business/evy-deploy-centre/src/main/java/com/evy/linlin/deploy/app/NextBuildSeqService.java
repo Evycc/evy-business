@@ -1,10 +1,8 @@
 package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.dto.NextDeployBuildSeqDTO;
 import com.evy.linlin.deploy.dto.NextDeployBuildSeqOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * INextBuildSeq 实现类
@@ -14,8 +12,6 @@ import org.springframework.beans.BeanUtils;
 public abstract class NextBuildSeqService extends BaseCommandTemplate<NextDeployBuildSeqDTO, NextDeployBuildSeqOutDTO> implements INextBuildSeq {
     @Override
     public NextDeployBuildSeqOutDTO nextBuildSeq(NextDeployBuildSeqDTO dto) {
-        NextDeployBuildSeqOutDTO nextDeployBuildSeqOutDTO = DeployAssembler.createNextDeployBuildSeqOutDTO();
-        BeanUtils.copyProperties(start(dto), nextDeployBuildSeqOutDTO);
-        return nextDeployBuildSeqOutDTO;
+        return convertOutDto(start(dto), new NextDeployBuildSeqOutDTO());
     }
 }

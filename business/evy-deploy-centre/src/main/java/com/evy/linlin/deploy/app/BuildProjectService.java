@@ -1,10 +1,8 @@
 package com.evy.linlin.deploy.app;
 
 import com.evy.common.command.app.BaseCommandTemplate;
-import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
 import com.evy.linlin.deploy.dto.BuildProjectDTO;
 import com.evy.linlin.deploy.dto.BuildProjectOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * 异步编译应用
@@ -14,8 +12,6 @@ import org.springframework.beans.BeanUtils;
 public abstract class BuildProjectService extends BaseCommandTemplate<BuildProjectDTO, BuildProjectOutDTO> implements IBuildProject {
     @Override
     public BuildProjectOutDTO buildJar(BuildProjectDTO dto) {
-        BuildProjectOutDTO buildProjectOutDTO = DeployAssembler.createBuildProjectOutDTO();
-        BeanUtils.copyProperties(start(dto), buildProjectOutDTO);
-        return buildProjectOutDTO;
+        return convertOutDto(start(dto), new BuildProjectOutDTO());
     }
 }

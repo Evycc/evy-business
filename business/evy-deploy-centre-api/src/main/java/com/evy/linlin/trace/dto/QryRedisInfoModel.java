@@ -1,5 +1,6 @@
 package com.evy.linlin.trace.dto;
 
+import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor
-public class QryRedisInfoModel {
+public class QryRedisInfoModel extends CommandModel {
     private String appIp;
     private String redisIp;
     /**

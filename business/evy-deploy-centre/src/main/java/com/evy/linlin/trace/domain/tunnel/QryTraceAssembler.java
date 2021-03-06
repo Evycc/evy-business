@@ -28,7 +28,8 @@ public class QryTraceAssembler {
      * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppThreadInfoListDO
      */
     public static QryAppThreadInfoListDO dtoConvertDo(QryThreadsInfoDTO dto) {
-        return new QryAppThreadInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getThreadName());
+        return new QryAppThreadInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getThreadName(),
+                dto.getBeginIndex(), dto.getEndIndex(), dto.getServiceIp());
     }
 
     /**
@@ -119,8 +120,8 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryAppMermoryPO
      *
-     * @param targetIp 目标服务器IP
-     * @param qryAppMermoryInfoListDo    com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryInfoListDO
+     * @param targetIp                目标服务器IP
+     * @param qryAppMermoryInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryInfoListDO
      * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryPO
      */
     public static QryAppMermoryPO createQryAppMermoryPO(String targetIp, QryAppMermoryInfoListDO qryAppMermoryInfoListDo) {
@@ -360,12 +361,14 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryThreadsInfoOutDTO
      */
-    public static QryThreadsInfoOutDTO createQryThreadsInfoOutDTO(List<QryThreadsInfoModel> models) {
+    public static QryThreadsInfoOutDTO createQryThreadsInfoOutDTO(List<QryThreadsInfoModel> models, int total) {
         QryThreadsInfoOutDTO outDto = new QryThreadsInfoOutDTO();
         if (CollectionUtils.isEmpty(models)) {
             outDto.setErrorCode(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND);
+            outDto.setErrorMsg(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND_MESSAGE);
         } else {
             outDto.setList(models);
+            outDto.setTotal(total);
         }
 
         return outDto;

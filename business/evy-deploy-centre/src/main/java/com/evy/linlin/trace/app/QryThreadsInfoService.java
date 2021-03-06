@@ -13,6 +13,6 @@ public abstract class QryThreadsInfoService extends BaseCommandTemplate<QryThrea
 
     @Override
     public QryThreadsInfoOutDTO qryThreadsInfo(QryThreadsInfoDTO qryThreadsInfoDto) {
-        return convertDto(new QryThreadsInfoOutDTO(), start(qryThreadsInfoDto));
+        return convertOutDto(start(qryThreadsInfoDto), new QryThreadsInfoOutDTO());
     }
 }

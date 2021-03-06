@@ -12,7 +12,6 @@ import com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO;
 public abstract class CreateDeployInfoService extends BaseCommandTemplate<CreateDeployInfoDTO, CreateDeployInfoOutDTO> implements ICreateDeployInfo {
     @Override
     public CreateDeployInfoOutDTO create(CreateDeployInfoDTO createDeployInfoDto) {
-
-        return convertDto(null, start(createDeployInfoDto));
+        return convertOutDto(start(createDeployInfoDto), new CreateDeployInfoOutDTO());
     }
 }

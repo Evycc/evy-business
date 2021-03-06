@@ -8,7 +8,7 @@
             resultType="java.lang.String">
         SELECT pdi_target_host
         FROM public_deploy_info
-        WHERE pdi_seq = #{seq}
+        WHERE pdi_deploy_seq = #{seq}
         LIMIT 1
     </select>
 

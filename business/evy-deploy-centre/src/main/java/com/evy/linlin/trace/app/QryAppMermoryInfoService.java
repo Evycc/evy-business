@@ -3,7 +3,6 @@ package com.evy.linlin.trace.app;
 import com.evy.common.command.app.BaseCommandTemplate;
 import com.evy.linlin.trace.dto.QryAppMermoryInfoDTO;
 import com.evy.linlin.trace.dto.QryAppMermoryInfoOutDTO;
-import org.springframework.beans.BeanUtils;
 
 /**
  * 查询服务器内存使用信息
@@ -14,8 +13,6 @@ public abstract class QryAppMermoryInfoService extends BaseCommandTemplate<QryAp
 
     @Override
     public QryAppMermoryInfoOutDTO qryAppMemoryList(QryAppMermoryInfoDTO qryAppMermoryInfoDTO) {
-        QryAppMermoryInfoOutDTO qryAppMermoryInfoOutDTO = new QryAppMermoryInfoOutDTO();
-        BeanUtils.copyProperties(start(qryAppMermoryInfoDTO), qryAppMermoryInfoOutDTO);
-        return qryAppMermoryInfoOutDTO;
+        return convertOutDto(start(qryAppMermoryInfoDTO), new QryAppMermoryInfoOutDTO());
     }
 }

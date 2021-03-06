@@ -1,5 +1,6 @@
 package com.evy.linlin.trace.dto;
 
+import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,7 +14,7 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @Getter
-public class QryServiceInfoModel {
+public class QryServiceInfoModel extends CommandModel {
     private String appIp;
     /**
      * 服务Bean名

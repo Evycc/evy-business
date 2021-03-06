@@ -14,7 +14,6 @@ import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.common.mq.common.app.basic.MqSender;
 import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.JsonUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -121,13 +120,11 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             outDTO = execute(inputDTO);
         } catch (Exception e) {
             outDTO = whenException(e, outDTO);
-            CommandLog.errorThrow("", e);
         } finally {
             try {
                 after(inputDTO);
             } catch (Exception e) {
                 outDTO = whenException(e, outDTO);
-                CommandLog.errorThrow("", e);
             } finally {
                 //存储到上下文，用于记录@TraceLog
                 traceLog(inputDTO, outDTO);
@@ -269,30 +266,6 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     }
 
     /**
-     * 转换DTO [source >> target]
-     *
-     * @param target 待转换DTO
-     * @param source 源转换DTO
-     * @param <E>    一般为与待转换DTO有父子关系的类型
-     * @return 返回转换后的DTO对象
-     */
-    @SuppressWarnings("unchecked")
-    public <E> R convertDto(R target, E source) {
-        try {
-            if (target.getClass().equals(source.getClass())) {
-                return (R) source;
-            }
-
-            BeanUtils.copyProperties(source, target);
-        } catch (Exception ex) {
-            CommandLog.errorThrow("转换DTO异常", ex);
-            target = whenException(ex, target);
-        }
-
-        return target;
-    }
-
-    /**
      * 排序拦截器
      *
      * @param list 拦截器列表
@@ -303,5 +276,27 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         return list.stream()
                 .sorted(Comparator.comparingInt(BaseCommandInceptor::getOrder))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 强转为指定类型
+     * @param source 源对象
+     * @param target 目标对象
+     * @return 返回source强转后对象，强转失败原样返回target
+     */
+    @SuppressWarnings("unchecked")
+    public R convertOutDto(Object source, R target) {
+        try {
+            if (!source.getClass().equals(OutDTO.class)) {
+                target = (R) source;
+            } else {
+                target.setErrorCode(((OutDTO)source).getErrorCode());
+                target.setErrorMsg(((OutDTO)source).getErrorMsg());
+            }
+        } catch (Exception exception) {
+            CommandLog.errorThrow("DTO转换异常", exception);
+        }
+
+        return target;
     }
 }

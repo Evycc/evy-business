@@ -13,6 +13,6 @@ public abstract class QryHttpInfoService extends BaseCommandTemplate<QryHttpInfo
 
     @Override
     public QryHttpInfoOutDTO qryHttpInfoList(QryHttpInfoDTO qryHttpInfoDTO) {
-        return convertDto(new QryHttpInfoOutDTO(), start(qryHttpInfoDTO));
+        return convertOutDto(start(qryHttpInfoDTO), new QryHttpInfoOutDTO());
     }
 }

@@ -178,6 +178,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
 
     function sendPostReq(serviceCode, reqBody) {
         reqBody.serviceCode = serviceCode;
+        console.log(reqBody)
         let deferred = $q.defer();	//生成异步对象
         $http.post(GATEWAY_PATH, buildPublicBody(reqBody))
             .then(function (response) {

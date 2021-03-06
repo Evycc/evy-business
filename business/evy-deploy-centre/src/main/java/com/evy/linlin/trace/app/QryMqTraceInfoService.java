@@ -13,6 +13,6 @@ public abstract class QryMqTraceInfoService extends BaseCommandTemplate<QryMqTra
 
     @Override
     public QryMqTraceInfoOutDTO qryMqTraceInfoList(QryMqTraceInfoDTO qryMqTraceInfoDTO) {
-        return convertDto(new QryMqTraceInfoOutDTO(), start(qryMqTraceInfoDTO));
+        return convertOutDto(start(qryMqTraceInfoDTO), new QryMqTraceInfoOutDTO());
     }
 }
