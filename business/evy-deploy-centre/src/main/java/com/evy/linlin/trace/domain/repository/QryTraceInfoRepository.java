@@ -1,10 +1,11 @@
 package com.evy.linlin.trace.domain.repository;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
+import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
+import com.evy.linlin.trace.domain.tunnel.constant.QryTraceErrorConstant;
 import com.evy.linlin.trace.domain.tunnel.model.*;
-import com.evy.linlin.trace.domain.tunnel.po.GetTargetIpFromSeqPO;
-import com.evy.linlin.trace.domain.tunnel.po.QryAppHttpReqListPO;
+import com.evy.linlin.trace.domain.tunnel.po.*;
 import com.evy.linlin.trace.dto.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -134,20 +135,12 @@ public class QryTraceInfoRepository {
      * @return com.evy.linlin.trace.dto.QryMqTraceInfoModel
      */
     public List<QryMqTraceInfoModel> qryMqTraceInfoList(QryMqTraceInfoListDO qryMqTraceInfoListDO) {
-        List<QryMqTraceInfoModel> result = new ArrayList<>();
+        List<QryMqTraceInfoModel> result = null;
         List<String> targetIpList = getTargetIp(qryMqTraceInfoListDO.getSeq(), qryMqTraceInfoListDO.getUserSeq());
         if (!CollectionUtils.isEmpty(targetIpList)) {
-            targetIpList.stream()
-                    .map(targetIp -> dataRepository.qryMqTraceInfoList(
-                            QryTraceAssembler.createQryMqTraceInfoPO(targetIp, qryMqTraceInfoListDO))
-                    )
-                    .map(QryTraceAssembler::createQryMqTraceInfoModel)
-                    .filter(models -> !CollectionUtils.isEmpty(models))
-                    .reduce((list1, list2) -> {
-                        list1.addAll(list2);
-                        return list1;
-                    })
-                    .ifPresent(result::addAll);
+            List<QryMqTraceInfoListPO> pos = dataRepository.qryMqTraceInfoList(
+                    QryTraceAssembler.createQryMqTraceInfoPO(targetIpList, qryMqTraceInfoListDO));
+            result = QryTraceAssembler.createQryMqTraceInfoModel(pos);
         }
 
         return result;
@@ -180,22 +173,33 @@ public class QryTraceInfoRepository {
      * @return com.evy.linlin.trace.dto.QryServiceInfoModel
      */
     public List<QryServiceInfoModel> qryAppServiceInfoList(QryAppServiceInfoListDO qryAppServiceInfoListDo) {
-        List<QryServiceInfoModel> result = new ArrayList<>();
+        List<QryServiceInfoModel> result = null;
         List<String> targetIpList = getTargetIp(qryAppServiceInfoListDo.getBuildSeq(), qryAppServiceInfoListDo.getUserSeq());
         if (!CollectionUtils.isEmpty(targetIpList)) {
-            targetIpList.stream()
-                    .map(targetIp -> dataRepository.qryServiceInfoList(QryTraceAssembler.createQryServiceInfoPO(targetIp, qryAppServiceInfoListDo)))
-                    .map(QryTraceAssembler::createQryServiceInfoModel)
-                    .filter(models -> !CollectionUtils.isEmpty(models))
-                    .reduce((list1, list2) -> {
-                        list1.addAll(list2);
-                        return list1;
-                    })
-                    .ifPresent(result::addAll);
-
+            List<QryServiceInfoListPO> pos = dataRepository.qryServiceInfoList(QryTraceAssembler.createQryServiceInfoPO(targetIpList, qryAppServiceInfoListDo));
+            result = QryTraceAssembler.createQryServiceInfoModel(pos);
         }
 
-        return result;
+        return qrySrvLimitInfo(result);
+    }
+
+    /**
+     * 查询服务对应限流信息
+     * @param models com.evy.linlin.trace.dto.QryServiceInfoModel
+     * @return com.evy.linlin.trace.dto.QryServiceInfoModel
+     */
+    public List<QryServiceInfoModel> qrySrvLimitInfo(List<QryServiceInfoModel> models) {
+        if (!CollectionUtils.isEmpty(models)) {
+            models.forEach(model -> {
+                QrySrvLimitInfoOutPO outPo = dataRepository.qrySrvLimitInfo(QryTraceAssembler.createQrySrvLimitInfoPO(model));
+                if (Objects.nonNull(outPo)) {
+                    model.setLimitQps(outPo.getQpsLimit());
+                    model.setLimitFallback(outPo.getFallback());
+                }
+            });
+        }
+
+        return models;
     }
 
     /**
@@ -205,18 +209,11 @@ public class QryTraceInfoRepository {
      * @return com.evy.linlin.trace.dto.QrySlowSqlInfoModel
      */
     public List<QrySlowSqlInfoModel> qryAppSlowSqlList(QryAppSlowSqlListDO qryAppSlowSqlListDo) {
-        List<QrySlowSqlInfoModel> result = new ArrayList<>();
+        List<QrySlowSqlInfoModel> result = null;
         List<String> targetIpList = getTargetIp(qryAppSlowSqlListDo.getBuildSeq(), qryAppSlowSqlListDo.getUserSeq());
         if (!CollectionUtils.isEmpty(targetIpList)) {
-            targetIpList.stream()
-                    .map(targetIp -> dataRepository.qryAppSlowSqlList(QryTraceAssembler.createQryAppSlowSqlListPO(targetIp, qryAppSlowSqlListDo)))
-                    .map(QryTraceAssembler::createQrySlowSqlInfoModel)
-                    .filter(models -> !CollectionUtils.isEmpty(models))
-                    .reduce((list1, list2) -> {
-                        list1.addAll(list2);
-                        return list1;
-                    })
-                    .ifPresent(result::addAll);
+            List<QryAppSlowSqlListPO> slowSqlListPos = dataRepository.qryAppSlowSqlList(QryTraceAssembler.createQryAppSlowSqlListPO(targetIpList));
+            result = QryTraceAssembler.createQrySlowSqlInfoModel(slowSqlListPos);
         }
 
         return result;
@@ -248,6 +245,35 @@ public class QryTraceInfoRepository {
     }
 
     /**
+     * 新增服务码
+     * @param infoDo com.evy.linlin.trace.domain.tunnel.model.CreateNewSrvInfoDo
+     * @return true: 新增成功
+     */
+    public boolean createNewSrvInfo(CreateNewSrvInfoDo infoDo) throws BasicException {
+        boolean result = false;
+        SrvInfoPO po = QryTraceAssembler.doConvertPo(infoDo);
+        if (dataRepository.hasSrvInfo(po)) {
+            throw new BasicException(QryTraceErrorConstant.SRV_EXIST_ERROR_CODE, QryTraceErrorConstant.SRV_EXIST_ERROR_MSG);
+        } else {
+            //不存在服务码
+            result = dataRepository.createSrvInfo(po);
+        }
+
+        return result;
+    }
+
+    /**
+     * 更新服务码或限流信息
+     * @param infoDo com.evy.linlin.trace.domain.tunnel.model.ModifySrvInfoDo
+     * @return true: 更新成功
+     */
+    public boolean modifySrvInfo(ModifySrvInfoDo infoDo) {
+        SrvInfoPO po = QryTraceAssembler.doConvertPo(infoDo);
+
+        return dataRepository.createSrvInfo(po) && dataRepository.createSrvLimitInfo(po);
+    }
+
+    /**
      * 伪分段返回
      *
      * @param list       原list
@@ -255,7 +281,7 @@ public class QryTraceInfoRepository {
      * @param endIndex   返回总记录数
      * @return list
      */
-    public  <T> List<T> skipListResult(List<T> list, Integer beginIndex, Integer endIndex) {
+    public <T> List<T> skipListResult(List<T> list, Integer beginIndex, Integer endIndex) {
         if (Objects.isNull(beginIndex)) {
             beginIndex = 0;
         }

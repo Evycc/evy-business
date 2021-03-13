@@ -50,6 +50,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         deploySeq : '',
         userSeq : ''
     }
+    self.curMqTraceInfo = [];
+    self.curSlowSqlModel = [];
+    self.curServiceInfo = [];
     /**
      * 定义展示页面ID
      */
@@ -63,8 +66,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryMqQueryResultView : 'deploy-mq-result-view',
         querySlowSqlView : 'deploy-slowSql-view',
         queryServiceView : 'deploy-service-view',
-        queryServiceLimitView : 'deploy-service-limit-view',
-        queryServiceAuthView : 'deploy-service-auth-view',
+        queryServiceAddView : 'deploy-service-add-view',
+        queryServiceModifyView : 'deploy-service-modify-view',
         queryRedisView : 'deploy-redis-view',
         queryHttpView : 'deploy-http-view',
         queryHttpResultView : 'deploy-http-result-view',
@@ -84,9 +87,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryMqQueryResultView : false,
         querySlowSqlView : false,
         queryServiceView : false,
-        queryServiceLimitView : false,
-        queryServiceAuthView : false,
         queryServiceAddView : false,
+        queryServiceModifyView : false,
         queryRedisView : false,
         queryHttpView : false,
         queryHttpResultView: false,
@@ -137,9 +139,42 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
     self.mqForm = {
         topic: '',
-        message: '',
-        limit: ''
+        msgId: '',
+        limit: '',
+        userSeq: ''
     }
+    self.srvForm = {
+        srvCode: '',
+        providerName: '',
+        consumerName: ''
+    }
+    self.srvModifyForm = {
+        srvCode: '',
+        serviceName: '',
+        providerName: '',
+        consumerName: '',
+        limitQps: '',
+        limitFallback: '',
+    }
+    self.constSrvInfo = {
+        srvCode: '',
+        serviceName: '',
+        providerName: ''
+    }
+    /**
+     * 线程信息数组
+     * @type {*[]}
+     */
+    self.curThreadInfo = [];
+    /**
+     * key : ip  value : 对应Ip线程信息集合
+     */
+    self.threadInfoAll = [
+        {
+            'ip':'',
+            'list': []
+        }
+    ];
     /**
      * INextBuildSeq 模型
      * 用于新部署任务
@@ -284,7 +319,21 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * 监听登陆表单输入框变化,存在值则变更表单样式
      */
     $scope.$watch('main.curThreadIp', function (newValue) {
-        console.log(newValue)
+        if (self.isLogin && self.viewShow.queryThreadView) {
+            let bool = true;
+            for (let i =0; i < self.threadInfoAll.length; i++) {
+                if (self.threadInfoAll[i].ip === self.curThreadIp) {
+                    //已经存在则不进行请求
+                    bool = false;
+                    break;
+                }
+            }
+            if (bool) {
+                self.qryThreadInfoListSubmit();
+            } else {
+                self.updateCurThreadInfo();
+            }
+        }
     })
 
     /**
@@ -301,13 +350,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.setBranchName = function ($event) {
         self.deployForm.brchanName = $event.target.innerText;
     }
-    /**
-     * 展示新增部署应用页面
-     * @param title
-     */
-    self.showDeployCreateView = function (title) {
-        self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = true;
+    self.showClose = function () {
+        self.viewShow.createViewShow = false;
         self.viewShow.mainViewShow = false;
         self.viewShow.selectBranchViewShow = false;
         self.viewShow.queryMemoryView = false;
@@ -323,92 +367,61 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryHttpView = false;
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
+        self.viewShow.queryServiceModifyView = false;
+        self.viewShow.queryServiceAddView = false;
+    }
+    /**
+     * 展示新增部署应用页面
+     * @param title
+     */
+    self.showDeployCreateView = function (title) {
+        self.showClose();
+        self.setDeployInfoTitle(title);
+        self.viewShow.createViewShow = true;
     }
     self.showQueryMemoryView = function (title){
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
         self.viewShow.queryMemoryView = true;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
     /**
      * 展示部署配置信息页面
      * @param title
      */
     self.showDeployMainView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
         self.viewShow.mainViewShow = true;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
     /**
      * 展示切换分支页面
      * @param title
      */
     self.showSelectBranchView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
         self.viewShow.selectBranchViewShow = true;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
 
     self.showQueryThreadView = function(title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
         self.viewShow.queryThreadView = true;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
-        self.qryThreadInfoList('', 0, 100);
+        self.rmCurThreadAll();
+        self.qryThreadInfoListSubmit();
+    }
+
+    self.rmCurThreadAll = function () {
+        for (let i=0; i < self.threadInfoAll.length; i++) {
+            if (self.threadInfoAll[i].ip === self.curThreadIp) {
+                self.threadInfoAll[i].list[0].splice(0, self.threadInfoAll[i].list[0].length);
+                break;
+            }
+        }
+    }
+
+    self.qryThreadInfoListSubmit = function () {
+        self.qryThreadInfoList('', 0, 20);
     }
 
     self.ThreadCount = 0;
@@ -437,245 +450,239 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('查询线程信息失败 ' + response.errorMsg);
                 } else {
                     if (response.list != null) {
-                        for (let i=0; i < response.list.length; i++) {
-                            self.addThreadInfoUl(response.list[i], i);
-                        }
+                        self.saveThreadInfo(response.list);
                     }
-                    console.log(self.curThreadIp)
-                    console.log(body)
                     //分段获取
                     if (self.curThreadIp === body.serviceIp && body.beginIndex < (response.total - body.endIndex)) {
                         self.qryThreadInfoList('', body.beginIndex + body.endIndex, body.endIndex);
                     }
                 }
-                console.log(response)
             }, function (err){
-                self.showTips('查询线程信息失败 ' + err);
+                console.log('查询线程信息失败 ' + err)
             });
     }
 
-    /**
-     * 添加间隔li对象
-     * @param ul 目标ul
-     */
-    self.addtempLi = function (ul) {
-        let publicLi = document.createElement('li');
-        publicLi.className  = 'main-font-color';
-        publicLi.innerHTML = '/';
-        ul.appendChild(publicLi);
-    }
+    self.saveThreadInfo = function(respList) {
+        if (self.threadInfoAll[0].ip === '') {
+            self.threadInfoAll[0].ip = respList[0].appIp;
+            self.threadInfoAll[0].list.push(respList);
+        } else {
+            for (let i=0; i < self.threadInfoAll.length; i++) {
+                if (self.threadInfoAll[i].ip === respList[0].appIp) {
+                    if (self.threadInfoAll[i].list.length > 0) {
+                        for (let j=0; j < respList.length; j++) {
+                            self.threadInfoAll[i].list[0].push(respList[j]);
+                        }
+                    } else {
+                        self.threadInfoAll[i].list = respList;
+                    }
 
-    self.addThreadInfoUl = function (list, index) {
-        console.log(list)
-        let addUl = document.createElement('ul');
-        let tempIdName = 'tempThreadId';
-        let btnText = '堆栈查询';
-        if (/^\d+$/.test(list.threadMaxCount) && self.ThreadCount < list.threadMaxCount) {
-            self.ThreadCount = list.threadMaxCount;
+                    break;
+                } else {
+                    if (i === (self.threadInfoAll.length-1)) {
+                        self.threadInfoAll[i+1] = {};
+                        self.threadInfoAll[i+1].ip = respList[0].appIp;
+                        self.threadInfoAll[i+1].list = [];
+                        self.threadInfoAll[i+1].list.push(respList);
+                        break;
+                    }
+                }
+            }
         }
 
-        addUl.id = tempIdName + index;
-
-        let publicLi = document.createElement('li');
-        publicLi.className  = 'main-font-color';
-        publicLi.innerHTML = '/';
-
-        let threadIdLi = document.createElement('li');
-        threadIdLi.className = 'twelve-ul-style';
-        threadIdLi.innerHTML = list.threadId;
-        addUl.appendChild(threadIdLi);
-        self.addtempLi(addUl);
-
-        let threadNameLi = document.createElement('li');
-        threadNameLi.className = 'twelve-ul-style';
-        threadNameLi.innerHTML = list.threadName;
-        addUl.appendChild(threadNameLi);
-        self.addtempLi(addUl);
-
-        let threadStatusLi = document.createElement('li');
-        threadStatusLi.className = 'twelve-ul-style';
-        threadStatusLi.innerHTML = list.threadStatus;
-        addUl.appendChild(threadStatusLi);
-        self.addtempLi(addUl);
-
-        let threadStartTimeMsLi = document.createElement('li');
-        threadStartTimeMsLi.className = 'twelve-ul-style';
-        threadStartTimeMsLi.innerHTML = list.threadStartTimeMs;
-        addUl.appendChild(threadStartTimeMsLi);
-        self.addtempLi(addUl);
-
-        let threadBlockedCountLi = document.createElement('li');
-        threadBlockedCountLi.className = 'twelve-ul-style';
-        threadBlockedCountLi.innerHTML = list.threadBlockedCount;
-        addUl.appendChild(threadBlockedCountLi);
-        self.addtempLi(addUl);
-
-        let threadBlockedTimeMsLi = document.createElement('li');
-        threadBlockedTimeMsLi.className = 'twelve-ul-style';
-        threadBlockedTimeMsLi.innerHTML = list.threadBlockedTimeMs;
-        addUl.appendChild(threadBlockedTimeMsLi);
-        self.addtempLi(addUl);
-
-        let threadBlockedNameLi = document.createElement('li');
-        threadBlockedNameLi.className = 'twelve-ul-style';
-        threadBlockedNameLi.innerHTML = list.threadBlockedName;
-        addUl.appendChild(threadBlockedNameLi);
-        self.addtempLi(addUl);
-
-        let threadBlockedIdLi = document.createElement('li');
-        threadBlockedIdLi.className = 'twelve-ul-style';
-        threadBlockedIdLi.innerHTML = list.threadBlockedId;
-        addUl.appendChild(threadBlockedIdLi);
-        self.addtempLi(addUl);
-
-        let threadWaitedCountLi = document.createElement('li');
-        threadWaitedCountLi.className = 'twelve-ul-style';
-        threadWaitedCountLi.innerHTML = list.threadWaitedCount;
-        addUl.appendChild(threadWaitedCountLi);
-        self.addtempLi(addUl);
-
-        let threadWaitedTimeMsLi = document.createElement('li');
-        threadWaitedTimeMsLi.className = 'twelve-ul-style';
-        threadWaitedTimeMsLi.innerHTML = list.threadWaitedTimeMs;
-        addUl.appendChild(threadWaitedTimeMsLi);
-        self.addtempLi(addUl);
-
-        let gmtModifyLi = document.createElement('li');
-        gmtModifyLi.className = 'twelve-ul-style';
-        gmtModifyLi.innerHTML = list.gmtModify;
-        addUl.appendChild(gmtModifyLi);
-        self.addtempLi(addUl);
-
-        let threadStackLi = document.createElement('li');
-        threadStackLi.className = 'twelve-ul-style';
-        self.addViewBtn(threadStackLi, btnText);
-        addUl.appendChild(threadStackLi);
-
-        angular.element('#' + self.viewId.queryThreadView).append(addUl);
-        self.SetNewClass(addUl.id, 'ul-div-style bottom-border-solid xs-font-size');
+        self.updateCurThreadInfo();
     }
 
-    self.addViewBtn = function (superDom, btnText) {
-        let btn = document.createElement('button');
-        btn.className = 'login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn';
-        btn.type = 'submit';
-        btn.innerHTML = btnText;
-        superDom.appendChild(btn);
+    self.updateCurThreadInfo = function () {
+        if (self.threadInfoAll.length > 0) {
+            for (let i=0; i < self.threadInfoAll.length; i++) {
+                if (self.threadInfoAll[i].ip === self.curThreadIp) {
+                    self.curThreadInfo = self.threadInfoAll[i].list;
+
+                    for (let j=0; j < self.curThreadInfo[0].length; j++) {
+                        if (self.ThreadCount < self.curThreadInfo[0][j].threadMaxCount) {
+                            self.ThreadCount = self.curThreadInfo[0][j].threadMaxCount;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    self.showThreadStack = function (text) {
+        //TODO 居中显示div
+        console.log(text)
     }
 
     self.showQueryMqView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
         self.viewShow.queryMqView = true;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
     self.showQuerySlowSqlView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
         self.viewShow.querySlowSqlView = true;
+        self.qrySlowSqlView();
+    }
+    self.qrySlowSqlView = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        DeployMainService.qrySlowSql(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询慢sql失败 ' + response.errorMsg);
+                } else {
+                    if (response.qrySlowSqlInfoList != null) {
+                        self.savecurSlowSqlModel(response.qrySlowSqlInfoList);
+                    }
+                }
+            }, function (err){
+                console.log('查询慢sql失败 ' + err)
+            });
+    }
+    self.savecurSlowSqlModel = function (list) {
+        self.curSlowSqlModel = list;
+    }
+    self.SubmitServiceAdd = function () {
+        self.viewShow.queryServiceAddView = true;
         self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
+        self.viewShow.queryServiceModifyView = false;
+    }
+    self.closeServiceAddView = function () {
+        self.viewShow.queryServiceModifyView = false;
         self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
+        self.viewShow.queryServiceView = true;
+    }
+    self.SubmitServiceModify = function (srvInfo) {
+        console.log(srvInfo)
+        self.viewShow.queryServiceModifyView = true;
+        self.viewShow.queryServiceAddView = false;
+        self.viewShow.queryServiceView = false;
+
+        self.constSrvInfo.srvCode = srvInfo.serviceBeanName;
+        self.constSrvInfo.serviceName = srvInfo.serviceName;
+        self.constSrvInfo.providerName = srvInfo.providerName;
+        self.srvModifyForm.srvCode = srvInfo.serviceBeanName;
+        self.srvModifyForm.serviceName = srvInfo.serviceName;
+        self.srvModifyForm.providerName = srvInfo.providerName;
+        let tempConsumerName = '';
+        for (let i =0; i < srvInfo.consumerName.length; i++) {
+            if (tempConsumerName !== '') {
+                tempConsumerName += '|';
+            }
+            tempConsumerName += srvInfo.consumerName[i];
+        }
+        self.srvModifyForm.consumerName = tempConsumerName;
+        self.srvModifyForm.limitQps = srvInfo.limitQps;
+        self.srvModifyForm.limitFallback = srvInfo.limitFallback;
+        console.log(self.srvModifyForm);
+    }
+    self.closeServiceModifyView = function () {
+        self.viewShow.queryServiceModifyView = false;
+        self.viewShow.queryServiceAddView = false;
+        self.viewShow.queryServiceView = true;
+    }
+    self.SubmitSrvAddInfo = function (event) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.attributes.item(0).nodeValue;
+        let spanClass = event.target.attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, true);
+        self.BtnLodingStyle(spanId);
+
+        self.srvForm.consumerName += '|evy-gateway';
+        if (self.srvForm.consumerName.lastIndexOf('|') +1 === self.srvForm.length) {
+            self.srvForm.consumerName += '|';
+        }
+        if (self.srvForm.consumerName.indexOf('evy-gateway') === -1) {
+            self.srvForm.consumerName += 'evy-gateway';
+        }
+        DeployMainService.createSrvInfo(self.srvForm)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('新增服务码失败 ' + response.errorMsg);
+                    self.srvForm = {};
+                } else {
+                    self.showTips('新增服务码成功,服务加载时进行发布者更新');
+                    self.srvForm = {};
+                }
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            }, function (err){
+                console.log('新增服务码失败 ' + err);
+                self.srvForm = {};
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            });
+    }
+    self.SubmitSrvModifyInfo = function (event) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.attributes.item(0).nodeValue;
+        let spanClass = event.target.attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, true);
+        self.BtnLodingStyle(spanId);
+
+        DeployMainService.modifySrvInfo(self.srvModifyForm)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('提交修改服务信息失败 ' + response.errorMsg);
+                    self.srvModifyForm = {};
+                } else {
+                    self.showTips('提交修改服务信息成功');
+                    self.srvModifyForm = {};
+                }
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            }, function (err){
+                console.log('提交修改服务信息失败 ' + err);
+                self.srvModifyForm = {};
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            });
     }
     self.showQueryServiceView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
         self.viewShow.queryServiceView = true;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
+        self.qryServiceInfoView();
     }
+    self.qryServiceInfoView = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        DeployMainService.qrySrvInfo(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询服务信息失败 ' + response.errorMsg);
+                } else {
+                    if (response.qryServiceInfos != null) {
+                        self.saveCurServiceInfo(response.qryServiceInfos);
+                    }
+                }
+            }, function (err){
+                console.log('查询服务信息失败 ' + err)
+            });
+    }
+    self.saveCurServiceInfo = function (list) {
+        self.curServiceInfo = list;
+        console.log(list)
+    }
+
     self.showQueryRedisView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
         self.viewShow.queryRedisView = true;
-        self.viewShow.queryHttpView = false;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
     self.showQueryHttpView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
         self.viewShow.queryHttpView = true;
-        self.viewShow.queryTrackingView = false;
-        self.viewShow.queryTrackingResultView = false;
     }
     self.showTraceView = function (title) {
+        self.showClose();
         self.setDeployInfoTitle(title);
-        self.viewShow.createViewShow = false;
-        self.viewShow.mainViewShow = false;
-        self.viewShow.selectBranchViewShow = false;
-        self.viewShow.queryMemoryView = false;
-        self.viewShow.queryThreadView = false;
-        self.viewShow.queryMqView = false;
-        self.viewShow.queryMqQueryResultView = false;
-        self.viewShow.querySlowSqlView = false;
-        self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
-        self.viewShow.queryServiceAddView = false;
-        self.viewShow.queryRedisView = false;
-        self.viewShow.queryHttpView = false;
         self.viewShow.queryTrackingView = true;
-        self.viewShow.queryTrackingResultView = false;
     }
 
     /********定义修改样式函数********/
@@ -782,7 +789,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.SubmitNewDeployInfoStyle = function (btnId, isSubmit) {
         self.btnDisplay(btnId, isSubmit);
         self.SubmitNewDeployInfoText.isSubmit = isSubmit;
-        self.SubmitNewDeployInfoText.lodingSpan = isSubmit;
     }
 
     self.BtnLodingStyle = function (objId) {
@@ -858,6 +864,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
 
         if (self.loginUser.username === '' || self.loginUser.password === '') {
             self.showTips('登录项不能填空');
+            self.btnDisplay(btnId, false);
+            self.SetNewClass(spanId, spanClass);
         } else {
             self.loginUser.password = DeployMainService.encCode(self.loginUser.password);
             DeployMainService.login(self.loginUser)
@@ -870,15 +878,52 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                         self.qryDeployInfoReq(response.userSeq);
                     }
                     self.loginUser.password = '';
+                    self.btnDisplay(btnId, false);
+                    self.SetNewClass(spanId, spanClass);
                 }, function (err){
                     self.showTips('登录失败 ' + err);
                     self.loginUser.username = '';
                     self.loginUser.password = '';
+                    self.btnDisplay(btnId, false);
+                    self.SetNewClass(spanId, spanClass);
                 });
         }
+    }
 
-        self.btnDisplay(btnId, false);
-        self.SetNewClass(spanId, spanClass);
+    self.SubmitMqInfo = function (event) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.attributes.item(0).nodeValue;
+        let spanClass = event.target.attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, true);
+        self.BtnLodingStyle(spanId);
+
+        self.mqForm.userSeq = self.cur.userSeq;
+        self.mqForm.buildSeq = self.cur.deploySeq;
+        DeployMainService.qryMqInfo(self.mqForm)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('获取MQ信息异常 ' + response.errorMsg);
+                    self.curMqTraceInfo = [];
+                } else {
+                    //返回0到N条记录,参考com.evy.linlin.trace.dto.QryMqTraceInfoOutDTO
+                    console.log(response.list)
+                    if (response.list != null) {
+                        self.curMqTraceInfo = response.list;
+                        self.viewShow.queryMqQueryResultView = true;
+                    }
+                }
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            }, function (err){
+                self.showTips('获取MQ信息异常 ' + err);
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            });
+    }
+
+    self.showMqContent = function (text) {
+        //TODO 居中显示消息正文DIV
+        console.log(text)
     }
 
     /**
@@ -1147,6 +1192,14 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         }
     }
 
+    //TODO 按钮loding状态，参考SubmitNewDeployInfo
+    self.showBtnLodingStyle = function (event, isSubmit) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.children.item(0).attributes.item(0).nodeValue;
+        let spanClass = event.target.children.item(0).attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, isSubmit);
+    }
+
     /**
      * 提交新建应用部署配置项
      */
@@ -1180,12 +1233,13 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     //重新获取部署信息,新用户获取了也没用呀？
                     self.qryDeployInfoReq(self.cur.userSeq);
                 }
+                self.SubmitNewDeployInfoStyle(btnId, false);
+                self.SetNewClass(spanId, spanClass);
             }, function (err){
                 self.showTips('新建部署信息异常 ' + err);
+                self.SubmitNewDeployInfoStyle(btnId, false);
+                self.SetNewClass(spanId, spanClass);
             });
-
-        self.SubmitNewDeployInfoStyle(btnId, false);
-        self.SetNewClass(spanId, spanClass);
     }
 
     /**

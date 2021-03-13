@@ -10,7 +10,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class QryServiceInfoListPO {
-    private String appIp;
     private String tsiServiceBeanName;
     private String tsiServiceName;
     private String tsiServicePath;

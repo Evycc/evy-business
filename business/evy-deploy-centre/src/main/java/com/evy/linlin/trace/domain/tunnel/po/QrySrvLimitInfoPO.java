@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.List;
-
 /**
  * @Author: EvyLiuu
- * @Date: 2020/10/17 15:41
+ * @Date: 2021/3/13 16:35
  */
-@Getter
 @AllArgsConstructor
+@Getter
 @ToString
-public class QryAppSlowSqlPO {
-    private final List<String> appIps;
+public class QrySrvLimitInfoPO {
+    private String srvCode;
+    private String srvName;
 }

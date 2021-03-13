@@ -12,6 +12,6 @@ import com.evy.linlin.login.dto.LoginServiceOutDTO;
 public abstract class LoginService extends BaseCommandTemplate<LoginServiceDTO, LoginServiceOutDTO> implements ILoginService {
     @Override
     public LoginServiceOutDTO login(LoginServiceDTO loginServiceDto) {
-        return convertOutDto(start(loginServiceDto), new LoginServiceOutDTO());
+        return start(loginServiceDto);
     }
 }

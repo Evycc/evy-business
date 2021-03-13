@@ -12,6 +12,6 @@ import com.evy.linlin.deploy.dto.QryDeployInfoOutDTO;
 public abstract class QryDeployInfosService extends BaseCommandTemplate<QryDeployInfoDTO, QryDeployInfoOutDTO> implements IQryDeployInfos {
     @Override
     public QryDeployInfoOutDTO qryDeployInfosByUser(QryDeployInfoDTO qryDeployInfoDTO) {
-        return convertOutDto(start(qryDeployInfoDTO), new QryDeployInfoOutDTO());
+        return start(qryDeployInfoDTO);
     }
 }

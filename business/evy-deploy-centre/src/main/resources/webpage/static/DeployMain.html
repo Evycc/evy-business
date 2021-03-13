@@ -229,8 +229,6 @@
                             ng-click="main.SubmitNewDeployInfo($event)">
                         {{main.SubmitNewDeployInfoText.isSubmit ? main.SubmitNewDeployInfoText.SubmitText : main.SubmitNewDeployInfoText.noSubmitText}}
                         <span id="form-cell-input-10-btn-span" class="icon-arrow-right"></span>
-                        <span id="form-cell-input-10-text-span" class="icon-spinner icon-spin"
-                              ng-show="{{main.SubmitNewDeployInfoText.lodingSpan}}"></span>
                     </button>
                 </div>
             </div>
@@ -315,15 +313,19 @@
                               ng-show="main.deployInfoStyle.checkInfo.checkCheckStatus"></span>
                     </span>
                 </div>
-                <div class="form-cell deploy-form-cell">
+                <div id="deploy-main-view-div-1" class="form-cell deploy-form-cell">
                     <span class="title-span left-span">部署时间</span>
                     <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           ng-model="main.lastDeployForm.deployTime">
+                           ng-model="main.lastDeployForm.deployTime"
+                           ng-mouseenter="main.InputMouseEnterEvent('deploy-main-view-div-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('deploy-main-view-div-1')">
                 </div>
-                <div class="form-cell deploy-form-cell">
+                <div id="deploy-main-view-div-2" class="form-cell deploy-form-cell">
                     <span class="title-span left-span">应用名称</span>
                     <input type="text" style="border:none;outline:medium;" class="show-input" disabled
-                           ng-model="main.lastDeployForm.appName">
+                           ng-model="main.lastDeployForm.appName"
+                           ng-mouseenter="main.InputMouseEnterEvent('deploy-main-view-div-2')"
+                           ng-mouseleave="main.InputMouseLevelEvent('deploy-main-view-div-2')">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">Junit测试</span>
@@ -355,13 +357,17 @@
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">JVM参数</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="JVM参数"
-                           ng-model="main.lastDeployForm.jvmParam">
+                    <input id="main-view-div-1" type="text" style="border:none;outline:medium;" class="show-input" placeholder="JVM参数"
+                           ng-model="main.lastDeployForm.jvmParam"
+                           ng-mouseenter="main.InputMouseEnterEvent('main-view-div-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('main-view-div-1')">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">备注</span>
-                    <input type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注"
-                           ng-model="main.lastDeployForm.remarks">
+                    <input id="main-view-div-2" type="text" style="border:none;outline:medium;" class="show-input" placeholder="输入部署备注"
+                           ng-model="main.lastDeployForm.remarks"
+                           ng-mouseenter="main.InputMouseEnterEvent('main-view-div-2')"
+                           ng-mouseleave="main.InputMouseLevelEvent('main-view-div-2')">
                 </div>
             </div>
             <!--            应用内存信息-->
@@ -414,6 +420,37 @@
                     <li class="twelve-ul-style">堆栈</li>
                 </ul>
                 <!--                通过循环生成ul线程信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="t in main.curThreadInfo[0]">
+                    <li class="twelve-ul-style">{{t.threadId}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadName}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadStatus}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadStartTimeMs}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadBlockedCount}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadBlockedTimeMs}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadBlockedName}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadBlockedId}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadWaitedCount}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.threadWaitedTimeMs}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">{{t.gmtModify}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="twelve-ul-style">
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                type="submit" aria-label="提交"
+                                ng-click="main.showThreadStack(t.threadStack)">
+                            堆栈查询
+                        </button>
+                    </li>
+                </ul>
             </div>
             <!--            MQ消息中心-->
             <div id="{{main.viewId.queryMqView}}" class="form-table deploy-form-table left-div"
@@ -424,20 +461,20 @@
                     </label>
                 </div>
                 <div id="mq-form-cell-1" class="form-cell deploy-form-cell">
-                    <input type="text" placeholder="topic" class="main-input-text-style"
+                    <input type="text" placeholder="topic,不送默认查询全部" class="main-input-text-style"
                            ng-model="main.mqForm.topic" ng-mouseenter="main.InputMouseEnterEvent('mq-form-cell-1')"
                            ng-mouseleave="main.InputMouseLevelEvent('mq-form-cell-1')">
                 </div>
                 <div id="mq-form-cell-2" class="form-cell deploy-form-cell">
-                    <input type="text" placeholder="messageId" class="main-input-text-style"
-                           ng-model="main.mqForm.messageId" ng-mouseenter="main.InputMouseEnterEvent('mq-form-cell-2')"
+                    <input type="text" placeholder="messageId,不送默认查询全部" class="main-input-text-style"
+                           ng-model="main.mqForm.msgId" ng-mouseenter="main.InputMouseEnterEvent('mq-form-cell-2')"
                            ng-mouseleave="main.InputMouseLevelEvent('mq-form-cell-2')">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <input type="number" min="1" placeholder="查询记录数,默认1" ng-model="main.mqForm.limit"
                            class="main-input-text-style">
                     <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
-                            aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                            aria-label="提交" ng-click="main.SubmitMqInfo($event)">
                         提交
                         <span class="icon-arrow-right"></span>
                         <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
@@ -474,6 +511,33 @@
                     <li>消息记录时间</li>
                 </ul>
                 <!--                通过循环生成ul线程信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size ten_2_one_ul" ng-repeat="v in main.curMqTraceInfo">
+                    <li>{{v.topic}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.tag}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.msgId}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                type="submit" aria-label="提交"
+                                ng-click="main.showMqContent(v.mqContent)">
+                            消息正文
+                        </button>
+                    </li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.reqIp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.startTimestamp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.respIp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.endTimestamp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.takeUpTimestamp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li>{{v.gmtModify}}</li>
+                </ul>
             </div>
             <!--            慢SQL-->
             <div id="{{main.viewId.querySlowSqlView}}" class="form-table deploy-form-table left-div"
@@ -492,15 +556,26 @@
                     <li class="main-font-color">/</li>
                     <li class="six_ul_style">慢sql记录时间</li>
                 </ul>
+                <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.curSlowSqlModel">
+                    <li class="six_ul_style">{{v.appIp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">{{v.slowSql}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">{{v.takeTime}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">{{v.explain}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">{{v.explainContent}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">{{v.gmtModify}}</li>
+                </ul>
             </div>
             <!--            服务治理-->
-            <div id="{{main.viewId.queryServiceView}}" class="form-table deploy-form-table left-div"
+            <div id="{{main.viewId.queryServiceView}}" class="form-table deploy-form-table left-div transparent-form"
                  style="width: 100%;"
                  ng-show="main.viewShow.queryServiceView">
                 <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="nine_ul_style">服务器ip</li>
-                    <li class="main-font-color">/</li>
-                    <li class="nine_ul_style">服务Bean</li>
+                    <li class="nine_ul_style">服务码</li>
                     <li class="main-font-color">/</li>
                     <li class="nine_ul_style">服务名</li>
                     <li class="main-font-color">/</li>
@@ -519,68 +594,124 @@
                     <li class="nine_ul_style">
                         <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
                                 type="submit" aria-label="提交"
-                                ng-click="main.SubmitServiceAdd($event)">
+                                ng-click="main.SubmitServiceAdd()">
                             服务新增
                             <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
                         </button>
                     </li>
                 </ul>
                 <!-- 通过循环生成ul服务信息,并赋值btn点击事件 -->
-                <!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
-                <!--                    <li class="nine_ul_style">服务器ip</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">服务码</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">服务接口</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">服务路径</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">发布者应用</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">消费者应用</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">服务发布方</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">服务消费方</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">更新时间</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="nine_ul_style">-->
-                <!--                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn" type="submit" aria-label="提交" -->
-                <!--                                ng-click="main.SubmitServiceLimit($event)">-->
-                <!--                            限流降级-->
-                <!--                            <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>-->
-                <!--                        </button>-->
-                <!--                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn" type="submit" aria-label="提交" -->
-                <!--                                ng-click="main.SubmitServiceAuth($event)">-->
-                <!--                            鉴权管理-->
-                <!--                            <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>-->
-                <!--                        </button>-->
-                <!--                    </li>-->
-                <!--                </ul>-->
-            </div>
-            <div id="{{main.viewId.queryServiceLimitView}}" class="form-table deploy-form-table left-div"
-                 style="width: 100%;"
-                 ng-show="main.viewShow.queryServiceLimitView">
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="six_ul_style">服务码</li>
+                <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.curServiceInfo">
+                    <li class="nine_ul_style">{{v.serviceBeanName}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">服务接口</li>
+                    <li class="nine_ul_style">{{v.serviceName}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">限流数</li>
+                    <li class="nine_ul_style">{{v.servicePath}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">降级地址</li>
+                    <li class="nine_ul_style">{{v.providerName}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">新建时间</li>
+                    <li class="nine_ul_style">{{v.consumerName}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">更新时间</li>
+                    <li class="nine_ul_style">{{v.providerList}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="nine_ul_style">{{v.consumerList}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="nine_ul_style">{{v.gmtModify}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="nine_ul_style">
+                        <p style="margin: 0">
+                            <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                    type="submit" aria-label="提交"
+                                    ng-click="main.SubmitServiceModify(v)">
+                                服务管理
+                                <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                            </button>
+                        </p>
+                    </li>
                 </ul>
             </div>
-            <div id="{{main.viewId.queryServiceAuthView}}" class="form-table deploy-form-table left-div"
-                 style="width: 100%;"
-                 ng-show="main.viewShow.queryServiceAuthView">
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="six_ul_style">服务码</li>
-                    <li class="main-font-color">/</li>
-                    <li class="six_ul_style">服务接口</li>
-                    <li class="main-font-color">/</li>
-                    <li class="six_ul_style">发布应用名</li>
-                    <li class="main-font-color">/</li>
-                    <li class="six_ul_style">消费应用名(用'|'分隔)</li>
-                    <li class="main-font-color">/</li>
-                </ul>
-                <!--                服务新增与服务鉴权是否可以用同一个模板?服务鉴权填充原有服务内容,只做服务更新-->
+            <div id="{{main.viewId.queryServiceAddView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.queryServiceAddView">
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">服务码</span>
+                    <input id="srvAddId-1" type="text" placeholder="服务码" class="main-input-text-style"
+                           ng-model="main.srvForm.srvCode" ng-mouseenter="main.InputMouseEnterEvent('srvAddId-1')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvAddId-1')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">发布者应用</span>
+                    <input id="srvAddId-3" type="text" placeholder="发布者应用名" class="main-input-text-style"
+                           ng-model="main.srvForm.providerName" ng-mouseenter="main.InputMouseEnterEvent('srvAddId-3')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvAddId-3')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">消费者应用</span>
+                    <input id="srvAddId-4" type="text" placeholder="消费者应用名,分隔符'|'" class="main-input-text-style"
+                           ng-model="main.srvForm.consumerName" ng-mouseenter="main.InputMouseEnterEvent('srvAddId-4')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvAddId-4')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
+                            style="margin-right: 178px;"
+                            aria-label="提交" ng-click="main.SubmitSrvAddInfo($event)">
+                        新增服务
+                        <span class="icon-arrow-right"></span>
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
+                            aria-label="提交" ng-click="main.closeServiceAddView()">
+                        关闭
+                    </button>
+                </div>
+            </div>
+            <div id="{{main.viewId.queryServiceModifyView}}" class="form-table deploy-form-table left-div"
+                 ng-show="main.viewShow.queryServiceModifyView">
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">服务码</span>
+                    <input id="srvModifyId-1" type="text" placeholder="服务码" class="main-input-text-style show-input"
+                           ng-model="main.srvModifyForm.srvCode" disabled>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">服务码</span>
+                    <input id="srvModifyId-2" type="text" placeholder="服务接口" class="main-input-text-style show-input"
+                           ng-model="main.srvModifyForm.serviceName" disabled>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">发布者应用</span>
+                    <input id="srvModifyId-3" type="text" placeholder="发布者应用名" class="main-input-text-style show-input"
+                           ng-model="main.srvModifyForm.providerName" disabled>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">消费者应用</span>
+                    <input id="srvModifyId-4" type="text" placeholder="消费者应用名,分隔符'|'" class="main-input-text-style"
+                           ng-model="main.srvModifyForm.consumerName" ng-mouseenter="main.InputMouseEnterEvent('srvModifyId-4')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvModifyId-4')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">Qps限流</span>
+                    <input id="srvModifyId-5" type="text" placeholder="Qps限流" class="main-input-text-style"
+                           ng-model="main.srvModifyForm.limitQps" ng-mouseenter="main.InputMouseEnterEvent('srvModifyId-5')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvModifyId-5')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">降级地址</span>
+                    <input id="srvModifyId-6" type="text" placeholder="降级地址" class="main-input-text-style"
+                           ng-model="main.srvModifyForm.limitFallback" ng-mouseenter="main.InputMouseEnterEvent('srvModifyId-6')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvModifyId-6')">
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
+                            style="margin-right: 178px;"
+                            aria-label="提交" ng-click="main.SubmitSrvModifyInfo($event)">
+                        提交修改
+                        <span class="icon-arrow-right"></span>
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
+                            aria-label="提交" ng-click="main.closeServiceModifyView()">
+                        关闭
+                    </button>
+                </div>
             </div>
             <!--            Redis视图-->
             <div id="{{main.viewId.queryRedisView}}" class="form-table deploy-form-table left-div" style="width: 100%;"

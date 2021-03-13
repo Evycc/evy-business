@@ -8,10 +8,10 @@ import com.evy.linlin.trace.dto.QryServiceInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/18 0:03
  */
-public abstract class QryServiceInfoService extends BaseCommandTemplate<QryServiceInfoDTO, QryServiceInfoOutDTO> implements QryServiceInfo {
+public abstract class QryServiceInfoService extends BaseCommandTemplate<QryServiceInfoDTO, QryServiceInfoOutDTO> implements IQryServiceInfo {
 
     @Override
     public QryServiceInfoOutDTO qryServiceInfoList(QryServiceInfoDTO qryServiceInfoDTO) {
-        return convertOutDto(start(qryServiceInfoDTO), new QryServiceInfoOutDTO());
+        return start(qryServiceInfoDTO);
     }
 }

@@ -12,6 +12,6 @@ import com.evy.linlin.deploy.dto.BuildProjectOutDTO;
 public abstract class BuildProjectService extends BaseCommandTemplate<BuildProjectDTO, BuildProjectOutDTO> implements IBuildProject {
     @Override
     public BuildProjectOutDTO buildJar(BuildProjectDTO dto) {
-        return convertOutDto(start(dto), new BuildProjectOutDTO());
+        return start(dto);
     }
 }

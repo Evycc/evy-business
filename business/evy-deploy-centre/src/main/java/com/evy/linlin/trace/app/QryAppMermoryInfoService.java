@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QryAppMermoryInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/11 21:07
  */
-public abstract class QryAppMermoryInfoService extends BaseCommandTemplate<QryAppMermoryInfoDTO, QryAppMermoryInfoOutDTO> implements QryAppMermoryInfo {
+public abstract class QryAppMermoryInfoService extends BaseCommandTemplate<QryAppMermoryInfoDTO, QryAppMermoryInfoOutDTO> implements IQryAppMermoryInfo {
 
     @Override
     public QryAppMermoryInfoOutDTO qryAppMemoryList(QryAppMermoryInfoDTO qryAppMermoryInfoDTO) {
-        return convertOutDto(start(qryAppMermoryInfoDTO), new QryAppMermoryInfoOutDTO());
+        return start(qryAppMermoryInfoDTO);
     }
 }

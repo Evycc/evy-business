@@ -13,6 +13,6 @@ public abstract class GetGitBrchansService extends BaseCommandTemplate<GetGitBrc
 
     @Override
     public GetGitBrchansOutDTO getGitBrchans(GetGitBrchansDTO dto) {
-        return convertOutDto(start(dto), new GetGitBrchansOutDTO());
+        return start(dto);
     }
 }

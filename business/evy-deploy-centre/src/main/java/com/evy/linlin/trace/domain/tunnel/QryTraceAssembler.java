@@ -19,7 +19,28 @@ import java.util.stream.Collectors;
  * @Date: 2020/10/11 21:29
  */
 public class QryTraceAssembler {
-    /*---------------- doConvertDto DTO转DO ----------------*/
+    /*---------------- dtoConvertDo DTO转DO ----------------*/
+
+    /**
+     * ModifySrvInfoDTO -> ModifySrvInfoDo
+     *
+     * @param dto com.evy.linlin.trace.dto.ModifySrvInfoDTO
+     * @return com.evy.linlin.trace.domain.tunnel.model.ModifySrvInfoDo
+     */
+    public static ModifySrvInfoDo dtoConvertDo(ModifySrvInfoDTO dto) {
+        return new ModifySrvInfoDo(dto.getSrvCode(), dto.getServiceName(), dto.getProviderName(),
+                dto.getConsumerName(), dto.getLimitQps(), dto.getLimitFallback());
+    }
+
+    /**
+     * CreateSrvInfoDTO -> CreateNewSrvInfoDo
+     *
+     * @param dto com.evy.linlin.trace.dto.CreateSrvInfoDTO
+     * @return com.evy.linlin.trace.domain.tunnel.model.CreateNewSrvInfoDo
+     */
+    public static CreateNewSrvInfoDo dtoConvertDo(CreateSrvInfoDTO dto) {
+        return new CreateNewSrvInfoDo(dto.getSrvCode(), dto.getProviderName(), dto.getConsumerName());
+    }
 
     /**
      * QryThreadsInfoDTO -> QryAppThreadInfoListDO
@@ -39,11 +60,7 @@ public class QryTraceAssembler {
      * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppSlowSqlListDO
      */
     public static QryAppSlowSqlListDO dtoConvertDo(QrySlowSqlInfoDTO dto) {
-        int limit = BusinessConstant.ZERO_NUM;
-        if (!StringUtils.isEmpty(dto.getLimit())) {
-            limit = Integer.parseInt(dto.getLimit());
-        }
-        return new QryAppSlowSqlListDO(dto.getBuildSeq(), dto.getUserSeq(), limit);
+        return new QryAppSlowSqlListDO(dto.getBuildSeq(), dto.getUserSeq());
     }
 
     /**
@@ -75,11 +92,7 @@ public class QryTraceAssembler {
      * QryMqTraceInfoDTO -> QryMqTraceInfoListDO
      */
     public static QryMqTraceInfoListDO dtoConvertDo(QryMqTraceInfoDTO dto) {
-        int limit = BusinessConstant.ZERO_NUM;
-        if (!StringUtils.isEmpty(dto.getLimit())) {
-            limit = Integer.parseInt(dto.getLimit());
-        }
-        return new QryMqTraceInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getTopic(), dto.getMsgId(), limit);
+        return new QryMqTraceInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getTopic(), dto.getMsgId(), dto.getLimit());
     }
 
     /**
@@ -99,6 +112,28 @@ public class QryTraceAssembler {
     /*---------------- doConvertPo DO转PO ----------------*/
 
     /**
+     * 创建PO SrvInfoPO
+     *
+     * @param infoDo com.evy.linlin.trace.domain.tunnel.model.CreateNewSrvInfoDo
+     * @return com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO
+     */
+    public static SrvInfoPO doConvertPo(CreateNewSrvInfoDo infoDo) {
+        return new SrvInfoPO(infoDo.getSrvCode(), null, infoDo.getProviderName(),
+                infoDo.getConsumerName(), -1, null);
+    }
+
+    /**
+     * 创建PO SrvInfoPO
+     *
+     * @param infoDo com.evy.linlin.trace.domain.tunnel.model.ModifySrvInfoDo
+     * @return com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO
+     */
+    public static SrvInfoPO doConvertPo(ModifySrvInfoDo infoDo) {
+        return new SrvInfoPO(infoDo.getSrvCode(), infoDo.getServiceName(), infoDo.getProviderName(), infoDo.getConsumerName(),
+                Objects.isNull(infoDo.getQps()) ? -1 : infoDo.getQps(), infoDo.getFallback());
+    }
+
+    /**
      * 创建PO GetTargetIpFromSeqPO
      *
      * @param inputDo com.evy.linlin.trace.domain.repository.tunnel.model.GetAppIpFromUserSeqDO
@@ -109,6 +144,20 @@ public class QryTraceAssembler {
     }
 
     /*---------------- create 创建实例 ----------------*/
+
+    /**
+     * 创建实例 : CreateSrvInfoOutDTO
+     */
+    public static CreateSrvInfoOutDTO createSrvInfoOutDTO() {
+        return new CreateSrvInfoOutDTO();
+    }
+
+    /**
+     * 创建实例 : ModifySrvInfoOutDTO
+     */
+    public static ModifySrvInfoOutDTO createModifySrvInfoOutDTO() {
+        return new ModifySrvInfoOutDTO();
+    }
 
     /**
      * 创建实例 : GetAppIpFromUserSeqDO
@@ -170,19 +219,19 @@ public class QryTraceAssembler {
                     String providerName = qryServiceInfoListPo.getTsiProviderNames();
                     String consumerName = qryServiceInfoListPo.getTsiConsumerNames();
                     if (!StringUtils.isEmpty(consumer)) {
-                        consumers = Arrays.stream(consumer.split(BusinessConstant.SPLIT_LINE, -1)).collect(Collectors.toList());
+                        consumers = Arrays.stream(consumer.split(BusinessConstant.SPLIT_LINE, -1)).filter(str -> !StringUtils.isEmpty(str)).collect(Collectors.toList());
                     }
                     if (!StringUtils.isEmpty(providerName)) {
-                        providerNames = Arrays.stream(providerName.split(BusinessConstant.SPLIT_LINE, -1)).collect(Collectors.toList());
+                        providerNames = Arrays.stream(providerName.split(BusinessConstant.SPLIT_LINE, -1)).filter(str -> !StringUtils.isEmpty(str)).collect(Collectors.toList());
                     }
                     if (!StringUtils.isEmpty(consumerName)) {
-                        consumerNames = Arrays.stream(consumerName.split(BusinessConstant.SPLIT_LINE, -1)).collect(Collectors.toList());
+                        consumerNames = Arrays.stream(consumerName.split(BusinessConstant.SPLIT_LINE, -1)).filter(str -> !StringUtils.isEmpty(str)).collect(Collectors.toList());
                     }
 
                     return new QryServiceInfoModel(
-                            qryServiceInfoListPo.getAppIp(), qryServiceInfoListPo.getTsiServiceBeanName(), qryServiceInfoListPo.getTsiServiceName(),
+                            qryServiceInfoListPo.getTsiServiceBeanName(), qryServiceInfoListPo.getTsiServiceName(),
                             qryServiceInfoListPo.getTsiServicePath(), qryServiceInfoListPo.getTsiProvider(),
-                            consumers, providerNames, consumerNames, qryServiceInfoListPo.getGmtModify()
+                            consumers, providerNames, consumerNames, qryServiceInfoListPo.getGmtModify(), null, BusinessConstant.EMPTY_STR
                     );
                 })
                 .collect(Collectors.toList());
@@ -323,6 +372,7 @@ public class QryTraceAssembler {
         QryMqTraceInfoOutDTO outDto = new QryMqTraceInfoOutDTO();
         if (CollectionUtils.isEmpty(models)) {
             outDto.setErrorCode(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND);
+            outDto.setErrorMsg(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND_MESSAGE);
         } else {
             outDto.setList(models);
         }
@@ -386,9 +436,11 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryMqTraceInfoPO
      */
-    public static QryMqTraceInfoPO createQryMqTraceInfoPO(String appIp, QryMqTraceInfoListDO qryMqTraceInfoListDo) {
-        int limit = qryMqTraceInfoListDo.getLimit();
-        limit = Math.max(limit, 7);
+    public static QryMqTraceInfoPO createQryMqTraceInfoPO(List<String> appIp, QryMqTraceInfoListDO qryMqTraceInfoListDo) {
+        int limit = 1;
+        if (Objects.nonNull(qryMqTraceInfoListDo.getLimit())) {
+            limit = qryMqTraceInfoListDo.getLimit();
+        }
         return new QryMqTraceInfoPO(appIp, qryMqTraceInfoListDo.getTopic(), qryMqTraceInfoListDo.getMsgId(), limit);
     }
 
@@ -402,17 +454,22 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryServiceInfoPO
      */
-    public static QryServiceInfoPO createQryServiceInfoPO(String appIp, QryAppServiceInfoListDO qryAppServiceInfoListDo) {
-        return new QryServiceInfoPO(appIp, qryAppServiceInfoListDo.getServiceName());
+    public static QryServiceInfoPO createQryServiceInfoPO(List<String> appIps, QryAppServiceInfoListDO qryAppServiceInfoListDo) {
+        return new QryServiceInfoPO(appIps, qryAppServiceInfoListDo.getServiceName());
+    }
+
+    /**
+     * 创建实例 : QrySrvLimitInfoPO
+     */
+    public static QrySrvLimitInfoPO createQrySrvLimitInfoPO(QryServiceInfoModel model) {
+        return new QrySrvLimitInfoPO(model.getServiceBeanName(), model.getServiceName());
     }
 
     /**
      * 创建实例 : QryAppSlowSqlPO
      */
-    public static QryAppSlowSqlPO createQryAppSlowSqlListPO(String appIp, QryAppSlowSqlListDO qryAppSlowSqlListDo) {
-        int limit = qryAppSlowSqlListDo.getLimit();
-        limit = Math.max(limit, 7);
-        return new QryAppSlowSqlPO(appIp, limit);
+    public static QryAppSlowSqlPO createQryAppSlowSqlListPO(List<String> appIps) {
+        return new QryAppSlowSqlPO(appIps);
     }
 
     /**

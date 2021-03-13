@@ -12,6 +12,6 @@ import com.evy.linlin.deploy.dto.NextDeployBuildSeqOutDTO;
 public abstract class NextBuildSeqService extends BaseCommandTemplate<NextDeployBuildSeqDTO, NextDeployBuildSeqOutDTO> implements INextBuildSeq {
     @Override
     public NextDeployBuildSeqOutDTO nextBuildSeq(NextDeployBuildSeqDTO dto) {
-        return convertOutDto(start(dto), new NextDeployBuildSeqOutDTO());
+        return start(dto);
     }
 }

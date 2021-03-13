@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Date: 2020/10/11 19:59
  */
 @RequestMapping
-public interface QryThreadsInfo {
+public interface IQryThreadsInfo {
     @PostMapping("/qryThreadsInfo")
     QryThreadsInfoOutDTO qryThreadsInfo(@RequestBody QryThreadsInfoDTO qryThreadsInfoDto);
 }

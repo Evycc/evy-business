@@ -97,8 +97,8 @@
             parameterType="com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoPO"
             resultType="com.evy.linlin.trace.domain.tunnel.po.QryMqTraceInfoListPO">
         SELECT
-        tmf_topic as tmfReqIp,
-        tmf_req_ip as tmfTopic,
+        tmf_topic as tmfTopic,
+        tmf_req_ip as tmfReqIp,
         tmf_tag as tmfTag,
         tmf_msg_id as tmfMsgId,
         tmf_mq_content as tmfMqContent,
@@ -109,19 +109,17 @@
         gmt_modify as gmtModify
         FROM trace_mq_flow
         <where>
-            tmf_req_ip = #{appIp}
+            tmf_req_ip in
+            <foreach collection="appIp" separator="," item="ip" index="i" open="(" close=")">
+                #{ip}
+            </foreach>
             <if test="topic != null and topic != ''">
                 and tmf_topic = #{topic}
             </if>
             <if test="msgId != null and msgId != ''">
                 and tmf_msg_id = #{msgId}
             </if>
-            <if test="limit != null or limit != ''">
-                LIMIT #{limit};
-            </if>
-            <if test="limit == null or limit == ''">
-                LIMIT 7;
-            </if>
+            LIMIT #{limit}
         </where>
     </select>
 
@@ -173,15 +171,33 @@
         tsi_consumer as tsiConsumer,
         tsi_provider_names as tsiProviderNames,
         tsi_consumer_names as tsiConsumerNames,
-        gmt_modify as gmtModify,
-        #{appIp} as appIp
+        gmt_modify as gmtModify
         FROM trace_services_info
         <where>
-            tsi_provider_names like CONCAT('%', #{appIp}, '%')
+            <foreach collection="appIps" separator=" or " item="ip" index="i">
+                tsi_provider_names like CONCAT('%', #{ip}, '%')
+            </foreach>
+            or
+            <foreach collection="appIps" separator=" or " item="ip" index="i">
+                tsi_consumer_names like CONCAT('%', #{ip}, '%')
+            </foreach>
             <if test="serviceBeanName != null and serviceBeanName != ''">
                 and tsi_service_bean_name = #{serviceBeanName} limit 1
             </if>
         </where>
+    </select>
+
+    <select id="qrySrvLimitInfo" parameterType="com.evy.linlin.trace.domain.tunnel.po.QrySrvLimitInfoPO"
+            resultType="com.evy.linlin.trace.domain.tunnel.po.QrySrvLimitInfoOutPO">
+        select
+            #{srvCode} as 'srvCode',
+            #{srvName} as 'srvName',
+            sli_qps_limit as qpsLimit,
+            sli_fallback as fallback
+        from service_limit_info
+        where sli_service_bean_name = #{srvCode}
+        and sli_service_name = #{srvName}
+        limit 1;
     </select>
 
     <!--    查询应用慢SQL-->
@@ -195,13 +211,31 @@
                tss_explain_content as tssExplainContent,
                gmt_modify          as gmtModify
         FROM trace_slow_sql
-        WHERE tss_req_ip = #{appIp}
+        WHERE
+        tss_req_ip in
+        <foreach collection="appIps" separator="," item="ip" index="i" open="(" close=")">
+            #{ip}
+        </foreach>
         order by gmt_modify desc
-        <if test="limit != null or limit != ''">
-            LIMIT #{limit};
-        </if>
-        <if test="limit == null or limit == ''">
-            LIMIT 7;
-        </if>
     </select>
+
+    <insert id="addSrvInfo" parameterType="com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO">
+        INSERT INTO trace_services_info(tsi_service_bean_name, tsi_provider, tsi_consumer)
+        VALUES (#{srvCode}, #{providerName}, #{consumerName})
+        ON DUPLICATE KEY UPDATE
+            tsi_consumer = values(tsi_consumer);
+    </insert>
+
+    <select id="qrySrvCodeOne" parameterType="com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO"
+        resultType="java.lang.Integer">
+        SELECT IF((SELECT 1 FROM trace_services_info WHERE tsi_service_bean_name = #{srvCode} limit 1) = 1, 1, 0);
+    </select>
+
+    <insert id="addSrvLimitInfo" parameterType="com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO">
+        INSERT INTO service_limit_info(sli_service_bean_name, sli_service_name, sli_qps_limit, sli_fallback)
+        VALUES (#{srvCode}, #{srvName}, #{qps}, #{fallback})
+        ON DUPLICATE KEY UPDATE
+            sli_qps_limit = values(sli_qps_limit),
+            sli_fallback = values(sli_fallback);
+    </insert>
 </mapper>

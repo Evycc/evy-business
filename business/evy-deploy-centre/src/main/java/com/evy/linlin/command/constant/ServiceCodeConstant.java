@@ -66,4 +66,12 @@ public class ServiceCodeConstant {
      * com.evy.linlin.trace.app.QryThreadsInfoAppService
      */
     public static final String QRY_THREAD_INFO_SERVICE_CODE = "evy.trace.threadQry.app";
+    /**
+     * com.evy.linlin.trace.app.CreateSrvInfoAppService
+     */
+    public static final String CREATE_SRV_IFNO = "evy.srv.create";
+    /**
+     * com.evy.linlin.trace.app.CreateSrvInfoService
+     */
+    public static final String MODIFY_SRV_IFNO = "evy.srv.modify";
 }

@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QryRedisInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/17 22:26
  */
-public abstract class QryRedisInfoService extends BaseCommandTemplate<QryRedisInfoDTO, QryRedisInfoOutDTO> implements QryRedisInfo {
+public abstract class QryRedisInfoService extends BaseCommandTemplate<QryRedisInfoDTO, QryRedisInfoOutDTO> implements IQryRedisInfo {
 
     @Override
     public QryRedisInfoOutDTO qryRedisInfoList(QryRedisInfoDTO qryRedisInfoDTO) {
-        return convertOutDto(start(qryRedisInfoDTO), new QryRedisInfoOutDTO());
+        return start(qryRedisInfoDTO);
     }
 }

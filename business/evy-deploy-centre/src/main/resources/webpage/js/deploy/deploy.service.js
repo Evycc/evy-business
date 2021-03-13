@@ -18,7 +18,9 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryRedisInfo : 'evy.trace.redisQry.app',
         qrySrvInfo : 'evy.trace.srvQry.app',
         qrySlowSql : 'evy.trace.slowSqlQry.app',
-        qryThreadInfo : 'evy.trace.threadQry.app'
+        qryThreadInfo : 'evy.trace.threadQry.app',
+        createSrvInfo : 'evy.srv.create',
+        modifySrvInfo : 'evy.srv.modify',
     }
 
     return {
@@ -38,8 +40,28 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryRedisInfo : qryRedisInfo,
         qrySrvInfo : qrySrvInfo,
         qrySlowSql : qrySlowSql,
-        qryThreadInfo : qryThreadInfo
+        qryThreadInfo : qryThreadInfo,
+        createSrvInfo : createSrvInfo,
+        modifySrvInfo : modifySrvInfo
     };
+
+    /**
+     * 新增服务码
+     * @param body 参数
+     * @return 成功返回errorCode:0
+     */
+    function createSrvInfo(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.createSrvInfo, body);
+    }
+
+    /**
+     * 修改服务码
+     * @param body 参数
+     * @return 成功返回errorCode:0
+     */
+    function modifySrvInfo(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.modifySrvInfo, body);
+    }
 
     /**
      * 登录或创建用户
@@ -178,7 +200,6 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
 
     function sendPostReq(serviceCode, reqBody) {
         reqBody.serviceCode = serviceCode;
-        console.log(reqBody)
         let deferred = $q.defer();	//生成异步对象
         $http.post(GATEWAY_PATH, buildPublicBody(reqBody))
             .then(function (response) {

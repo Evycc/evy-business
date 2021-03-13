@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Date: 2020/10/7 22:42
  */
 @RequestMapping
-public interface QryRedisInfo {
+public interface IQryRedisInfo {
     @PostMapping("/qryRedisInfoList")
     QryRedisInfoOutDTO qryRedisInfoList(@RequestBody QryRedisInfoDTO qryRedisInfoDTO);
 }

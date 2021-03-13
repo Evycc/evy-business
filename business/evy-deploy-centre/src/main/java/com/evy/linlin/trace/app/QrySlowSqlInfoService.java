@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QrySlowSqlInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/18 13:24
  */
-public abstract class QrySlowSqlInfoService extends BaseCommandTemplate<QrySlowSqlInfoDTO, QrySlowSqlInfoOutDTO> implements QrySlowSqlInfo {
+public abstract class QrySlowSqlInfoService extends BaseCommandTemplate<QrySlowSqlInfoDTO, QrySlowSqlInfoOutDTO> implements IQrySlowSqlInfo {
 
     @Override
     public QrySlowSqlInfoOutDTO qrySlowSqlInfoList(QrySlowSqlInfoDTO qrySlowSqlInfoDTO) {
-        return convertOutDto(start(qrySlowSqlInfoDTO), new QrySlowSqlInfoOutDTO());
+        return start(qrySlowSqlInfoDTO);
     }
 }

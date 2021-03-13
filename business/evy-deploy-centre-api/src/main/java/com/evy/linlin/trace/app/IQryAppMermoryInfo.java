@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Date: 2020/10/7 22:40
  */
 @RequestMapping
-public interface QryAppMermoryInfo {
+public interface IQryAppMermoryInfo {
     /**
      * 查询多个应用内存使用率
      */

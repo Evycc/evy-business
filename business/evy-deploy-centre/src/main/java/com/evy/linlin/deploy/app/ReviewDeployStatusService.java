@@ -12,6 +12,6 @@ import com.evy.linlin.deploy.dto.ReviewStatusOutDTO;
 public abstract class ReviewDeployStatusService extends BaseCommandTemplate<ReviewStatusDTO, ReviewStatusOutDTO> implements IReviewDeployStatus {
     @Override
     public ReviewStatusOutDTO reviewStatus(ReviewStatusDTO reviewStatusDTO) {
-        return convertOutDto(start(reviewStatusDTO), new ReviewStatusOutDTO());
+        return start(reviewStatusDTO);
     }
 }

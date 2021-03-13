@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QryThreadsInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/18 13:56
  */
-public abstract class QryThreadsInfoService extends BaseCommandTemplate<QryThreadsInfoDTO, QryThreadsInfoOutDTO> implements QryThreadsInfo {
+public abstract class QryThreadsInfoService extends BaseCommandTemplate<QryThreadsInfoDTO, QryThreadsInfoOutDTO> implements IQryThreadsInfo {
 
     @Override
     public QryThreadsInfoOutDTO qryThreadsInfo(QryThreadsInfoDTO qryThreadsInfoDto) {
-        return convertOutDto(start(qryThreadsInfoDto), new QryThreadsInfoOutDTO());
+        return start(qryThreadsInfoDto);
     }
 }

@@ -221,6 +221,13 @@ public class ServiceFilter implements GatewayFilter, Ordered {
             return false;
         }
 
+        if (!StringUtils.isEmpty(infoModel.getServiceFallback())) {
+            //存在降级信息
+            //设置状态码为303,用于get类型转发,未上送服务码,返回错误信息
+            response.setStatusCode(HttpStatus.SEE_OTHER);
+            response.getHeaders().set(LOCATION, infoModel.getServiceFallback());
+            return true;
+        }
         if (infoModel.getServiceQpsLimit() != -1) {
             //存在qps限流
             if (!infoModel.tryExecute()) {
@@ -230,12 +237,6 @@ public class ServiceFilter implements GatewayFilter, Ordered {
                 response.getHeaders().set(LOCATION, SERVICE_LIMIT);
                 return true;
             }
-        } else if (!StringUtils.isEmpty(infoModel.getServiceFallback())) {
-            //存在降级信息
-            //设置状态码为303,用于get类型转发,未上送服务码,返回错误信息
-            response.setStatusCode(HttpStatus.SEE_OTHER);
-            response.getHeaders().set(LOCATION, infoModel.getServiceFallback());
-            return true;
         }
 
         return false;

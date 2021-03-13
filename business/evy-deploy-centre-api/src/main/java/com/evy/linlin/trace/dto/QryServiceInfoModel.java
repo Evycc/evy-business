@@ -3,6 +3,7 @@ package com.evy.linlin.trace.dto;
 import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.List;
  */
 @ToString
 @AllArgsConstructor
+@Setter
 @Getter
 public class QryServiceInfoModel extends CommandModel {
-    private String appIp;
     /**
      * 服务Bean名
      */
@@ -48,4 +49,6 @@ public class QryServiceInfoModel extends CommandModel {
      * 服务更新时间
      */
     private String gmtModify;
+    private Integer limitQps;
+    private String limitFallback;
 }

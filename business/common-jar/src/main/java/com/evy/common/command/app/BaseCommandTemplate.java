@@ -21,6 +21,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -35,11 +37,12 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     /**
      * AnnoCommandInceptor Command拦截器列表
      */
-    private static final Map<Class<?>, List<? extends BaseCommandInceptor>> COMMAND_INCEPTORS = new ConcurrentHashMap<>();
+    @SuppressWarnings("unchecked")
+    private static final Map<Class<?>, List<? extends BaseCommandInceptor>> COMMAND_INTERCEPTORS = new ConcurrentHashMap<>();
     /**
      * 实例对应的拦截器列表
      */
-    private List<? extends BaseCommandInceptor> tempInceptor;
+    private List<? extends BaseCommandInceptor> tempInterceptor;
     /**
      * 记录日志流水topic
      */
@@ -64,13 +67,13 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * 初始化
      */
     private void init() {
-        if (!CollectionUtils.isEmpty(COMMAND_INCEPTORS)) {
+        if (!CollectionUtils.isEmpty(COMMAND_INTERCEPTORS)) {
             Class<?> tc = this.getClass();
-            if (tempInceptor == null) {
-                tempInceptor = COMMAND_INCEPTORS.get(tc);
+            if (tempInterceptor == null) {
+                tempInterceptor = COMMAND_INTERCEPTORS.get(tc);
             }
-            if (!CollectionUtils.isEmpty(tempInceptor)) {
-                tempInceptor = orderCommandInceptor(tempInceptor);
+            if (!CollectionUtils.isEmpty(tempInterceptor)) {
+                tempInterceptor = orderCommandInceptor(tempInterceptor);
             }
         }
     }
@@ -82,14 +85,14 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * @param inceptors 拦截器列表
      */
     public static void addAllInceptor(Class<?> cls, List<? extends BaseCommandInceptor> inceptors) {
-        if (CollectionUtils.isEmpty(COMMAND_INCEPTORS)) {
-            COMMAND_INCEPTORS.put(cls, inceptors);
+        if (CollectionUtils.isEmpty(COMMAND_INTERCEPTORS)) {
+            COMMAND_INTERCEPTORS.put(cls, inceptors);
         } else {
-            if (COMMAND_INCEPTORS.containsKey(cls)) {
-                List value = COMMAND_INCEPTORS.get(cls);
+            if (COMMAND_INTERCEPTORS.containsKey(cls)) {
+                List value = COMMAND_INTERCEPTORS.get(cls);
                 Collections.addAll(value, inceptors);
             } else {
-                COMMAND_INCEPTORS.put(cls, inceptors);
+                COMMAND_INTERCEPTORS.put(cls, inceptors);
             }
         }
     }
@@ -100,7 +103,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * @return 返回拦截器列表
      */
     public static Map returnInceptors() {
-        return COMMAND_INCEPTORS;
+        return COMMAND_INTERCEPTORS;
     }
 
     /**
@@ -111,7 +114,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      */
     @Override
     public R start(T inputDTO) {
-        R outDTO = null;
+        R outDTO = outDtoNewInstance();
 
         try {
             init();
@@ -145,7 +148,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         }
 
         //存储到上下文，用于记录@TraceLog
-        Class curClass = this.getClass();
+        int maxLength = 2048;
+        Class<?> curClass = this.getClass();
         TraceLog traceLog;
         traceLog = (TraceLog) curClass.getAnnotation(TraceLog.class);
         if (traceLog != null) {
@@ -167,8 +171,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             }
 
             String reqContentJson = JsonUtils.convertToJson(map);
-            if (reqContentJson.length() > 2048) {
-                reqContentJson = reqContentJson.substring(0, 2048);
+            if (reqContentJson.length() > maxLength) {
+                reqContentJson = reqContentJson.substring(0, maxLength);
             }
 
             commandContent.put("reqContent", reqContentJson);
@@ -201,7 +205,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         String errCode = be.getErrorCode();
         String errMsg = be.getErrorMessage();
         if (outDTO == null) {
-            outDTO = (R) new OutDTO();
+            outDTO = outDtoNewInstance();
         }
 
         if (!StringUtils.isEmpty(errCode)) {
@@ -237,8 +241,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
                 }
             }
 
-            if (COMMAND_INCEPTORS.size() > 0 && tempInceptor != null) {
-                for (BaseCommandInceptor inceptor : tempInceptor) {
+            if (COMMAND_INTERCEPTORS.size() > 0 && tempInterceptor != null) {
+                for (BaseCommandInceptor inceptor : tempInterceptor) {
                     inceptor.beforeCommand(t);
                 }
             }
@@ -257,8 +261,8 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     @Override
     @SuppressWarnings("unchecked")
     public R after(T t) throws BasicException {
-        if (tempInceptor != null) {
-            for (BaseCommandInceptor inceptor : tempInceptor) {
+        if (tempInterceptor != null) {
+            for (BaseCommandInceptor inceptor : tempInterceptor) {
                 inceptor.afterCommand(t);
             }
         }
@@ -298,5 +302,25 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         }
 
         return target;
+    }
+
+    @SuppressWarnings("unchecked")
+    public R outDtoNewInstance() {
+        R outDto = null;
+        try {
+            outDto = ((Class<R>)getPrametersType()[1]).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            CommandLog.errorThrow("初始化OutDto异常", e);
+        }
+
+        return outDto;
+    }
+
+    /**
+     * 获取该类泛型参数
+     * @return java.lang.reflect.Type 用于无参构造函数实例化
+     */
+    private Type[] getPrametersType() {
+        return ((ParameterizedType)((Class<?>) getClass().getGenericSuperclass()).getGenericSuperclass()).getActualTypeArguments();
     }
 }

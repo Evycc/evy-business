@@ -13,4 +13,12 @@ public class QryTraceErrorConstant {
      * 未查到记录
      */
     public final static String QRY_TRACE_NOT_FOUND_MESSAGE = "未查到记录";
+    /**
+     * 服务码已存在
+     */
+    public final static String SRV_EXIST_ERROR_CODE = "SRVCODE_EXIST_ERR";
+    /**
+     * 服务码已存在
+     */
+    public final static String SRV_EXIST_ERROR_MSG = "服务码已存在";
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Date: 2020/10/7 22:41
  */
 @RequestMapping
-public interface QryMqTraceInfo {
+public interface IQryMqTraceInfo {
     @PostMapping("/qryMqTraceInfoList")
     QryMqTraceInfoOutDTO qryMqTraceInfoList(@RequestBody QryMqTraceInfoDTO qryMqTraceInfoDTO);
 }

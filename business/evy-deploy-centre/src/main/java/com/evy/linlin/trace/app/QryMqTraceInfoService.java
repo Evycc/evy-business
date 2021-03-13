@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QryMqTraceInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/17 22:01
  */
-public abstract class QryMqTraceInfoService extends BaseCommandTemplate<QryMqTraceInfoDTO, QryMqTraceInfoOutDTO> implements QryMqTraceInfo {
+public abstract class QryMqTraceInfoService extends BaseCommandTemplate<QryMqTraceInfoDTO, QryMqTraceInfoOutDTO> implements IQryMqTraceInfo {
 
     @Override
     public QryMqTraceInfoOutDTO qryMqTraceInfoList(QryMqTraceInfoDTO qryMqTraceInfoDTO) {
-        return convertOutDto(start(qryMqTraceInfoDTO), new QryMqTraceInfoOutDTO());
+        return start(qryMqTraceInfoDTO);
     }
 }

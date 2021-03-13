@@ -9,10 +9,10 @@ import com.evy.linlin.trace.dto.QryHttpInfoOutDTO;
  * @Author: EvyLiuu
  * @Date: 2020/10/17 21:29
  */
-public abstract class QryHttpInfoService extends BaseCommandTemplate<QryHttpInfoDTO, QryHttpInfoOutDTO> implements QryHttpInfo {
+public abstract class QryHttpInfoService extends BaseCommandTemplate<QryHttpInfoDTO, QryHttpInfoOutDTO> implements IQryHttpInfo {
 
     @Override
     public QryHttpInfoOutDTO qryHttpInfoList(QryHttpInfoDTO qryHttpInfoDTO) {
-        return convertOutDto(start(qryHttpInfoDTO), new QryHttpInfoOutDTO());
+        return start(qryHttpInfoDTO);
     }
 }

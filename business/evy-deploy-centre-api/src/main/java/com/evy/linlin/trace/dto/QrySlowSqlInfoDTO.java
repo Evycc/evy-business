@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -29,10 +27,4 @@ public class QrySlowSqlInfoDTO extends InputDTO implements ValidatorDTO<QrySlowS
     @NotBlank(message = "userSeq不能为空")
     @Length(max = 64, message = "userSeq长度超限")
     private String userSeq;
-    /**
-     * 查询记录数
-     */
-    @Min(7)
-    @Max(100)
-    private String limit;
 }

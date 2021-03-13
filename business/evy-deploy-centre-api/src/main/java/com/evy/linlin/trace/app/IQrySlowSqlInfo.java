@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Date: 2020/10/7 22:41
  */
 @RequestMapping
-public interface QrySlowSqlInfo {
+public interface IQrySlowSqlInfo {
     @PostMapping("/qrySlowSqlInfoList")
     QrySlowSqlInfoOutDTO qrySlowSqlInfoList(@RequestBody QrySlowSqlInfoDTO qrySlowSqlInfoDTO);
 }

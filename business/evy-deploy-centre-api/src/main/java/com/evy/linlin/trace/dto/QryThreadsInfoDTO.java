@@ -48,6 +48,6 @@ public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThrea
     /**
      * 忽略的记录数，由于线程信息较多，采取分段返回
      */
-    @Min(value = 100, message = "skipIndex最小值500")
+    @Min(value = 10, message = "skipIndex最小值10")
     private Integer endIndex;
 }

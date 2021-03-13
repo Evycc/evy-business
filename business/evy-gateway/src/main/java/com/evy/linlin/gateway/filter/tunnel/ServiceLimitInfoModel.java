@@ -21,6 +21,8 @@ public class ServiceLimitInfoModel {
         this.serviceBeanName = serviceBeanName;
         this.serviceQpsLimit = serviceQpsLimit;
         this.serviceFallback = serviceFallback;
+
+        lastTimestamp = getTimestamp();
     }
 
     public static ServiceLimitInfoModel convert(ServiceLimitInfoPO serviceLimitInfoPo){
@@ -41,9 +43,11 @@ public class ServiceLimitInfoModel {
                 result = true;
             }
         } else {
-            //非同一秒内请求,允许通过
-            result = true;
-            tempQpsLimit.set(0);
+            if (serviceQpsLimit > 0) {
+                //非同一秒内请求,允许通过
+                result = true;
+                tempQpsLimit.set(0);
+            }
         }
 
         lastTimestamp = timestamp;

@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -40,7 +38,5 @@ public class QryMqTraceInfoDTO extends InputDTO implements ValidatorDTO<QryMqTra
     /**
      * 查询记录数
      */
-    @Min(7)
-    @Max(100)
-    private String limit;
+    private Integer limit;
 }

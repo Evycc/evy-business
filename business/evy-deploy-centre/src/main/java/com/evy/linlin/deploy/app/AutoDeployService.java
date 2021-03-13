@@ -12,6 +12,6 @@ import com.evy.linlin.deploy.dto.AutoDeployOutDTO;
 public abstract class AutoDeployService extends BaseCommandTemplate<AutoDeployDTO, AutoDeployOutDTO> implements IAutoDeploy {
     @Override
     public AutoDeployOutDTO autoDeploy(AutoDeployDTO dto) {
-        return convertOutDto(start(dto), new AutoDeployOutDTO());
+        return start(dto);
     }
 }

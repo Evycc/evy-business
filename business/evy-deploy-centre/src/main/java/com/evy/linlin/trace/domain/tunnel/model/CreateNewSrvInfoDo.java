@@ -5,11 +5,12 @@ import lombok.Getter;
 
 /**
  * @Author: EvyLiuu
- * @Date: 2020/10/18 13:39
+ * @Date: 2021/3/13 21:12
  */
 @Getter
 @AllArgsConstructor
-public class QryAppSlowSqlListDO {
-    private String buildSeq;
-    private String userSeq;
+public class CreateNewSrvInfoDo {
+    private String srvCode;
+    private String providerName;
+    private String consumerName;
 }
