@@ -13,5 +13,5 @@ public class QryHttpReqInfoListDO {
     private final String seq;
     private final String userSeq;
     private final String path;
-    private final int limit;
+    private final Integer limit;
 }

@@ -76,8 +76,8 @@ public class QryTraceInfoDataRepository {
      * @param po com.evy.linlin.trace.domain.repository.tunnel.po.QryRedisInfoPO
      * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryRedisInfoOutPO
      */
-    public QryRedisInfoOutPO qryRedisInfo(QryRedisInfoPO po) {
-        return DBUtils.selectOne(QRY_REDIS_INFO_SQL, po);
+    public List<QryRedisInfoOutPO> qryRedisInfo(QryRedisInfoPO po) {
+        return DBUtils.selectList(QRY_REDIS_INFO_SQL, po);
     }
 
     /**

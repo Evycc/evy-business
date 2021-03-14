@@ -17,7 +17,7 @@ body a {
 }
 
 .main-style {
-    min-width: 1600px;
+    /*min-width: 1600px;*/
 }
 
 .main-style:after {
@@ -43,6 +43,16 @@ body a {
     text-align: center;
     color: #503e30;
     font-weight: bold;
+}
+
+.relative-nav {
+    position: relative;
+    top: 0;
+}
+
+.fixed-nav {
+    position: fixed;
+    top: 0;
 }
 
 #head-nav {
@@ -258,6 +268,18 @@ body a {
     border: 0 !important;
 }
 
+.show-red-span {
+    margin: 2px auto;
+    background: #d02626;
+    color: #fff;
+    display: inline-block;
+    width: 76px;
+    height: 20px;
+    text-align: center;
+    border-radius: 12px;
+    line-height: 20px;
+}
+
 .ten_2_one_ul li {
     min-width: 5%;
     max-width: 5%;
@@ -309,6 +331,13 @@ body a {
 .eight_ul_style {
     min-width: 9%;
     max-width: 9%;
+    margin: 0 !important;
+    word-break: break-word;
+}
+
+.eight_ul_style_1 {
+    min-width: 12%;
+    max-width: 12%;
     margin: 0 !important;
     word-break: break-word;
 }

@@ -37,7 +37,7 @@ public class QryHttpInfoDTO extends InputDTO implements ValidatorDTO<QryHttpInfo
     /**
      * 查询记录数
      */
-    @Min(7)
+    @Min(1)
     @Max(100)
-    private String limit;
+    private Integer limit;
 }

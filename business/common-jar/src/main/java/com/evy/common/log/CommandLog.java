@@ -110,8 +110,15 @@ public class CommandLog {
             intIncr = Integer.parseInt(incr);
             ++intIncr;
         }
-        MDC.put(INCR_INT, String.valueOf(intIncr));
+        setMdc(INCR_INT, String.valueOf(intIncr));
         return intIncr;
+    }
+
+    /**
+     * 线程结束，重置自增变量
+     */
+    public static void rmIncr() {
+        rmMdc(INCR_INT);
     }
 
     /**
@@ -146,7 +153,8 @@ public class CommandLog {
      * 删除MDC中 traceId
      */
     public static void rmTraceId() {
-        MDC.remove(TRACE_ID);
+        rmMdc(TRACE_ID);
+        rmIncr();
     }
 
     /**

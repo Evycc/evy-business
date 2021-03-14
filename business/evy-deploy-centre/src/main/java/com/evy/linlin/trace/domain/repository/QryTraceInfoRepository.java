@@ -156,13 +156,9 @@ public class QryTraceInfoRepository {
         List<QryRedisInfoModel> result = null;
         List<String> targetIpList = getTargetIp(qryRedisInfoDo.getBuildSeq(), qryRedisInfoDo.getUserSeq());
         if (!CollectionUtils.isEmpty(targetIpList)) {
-            result = targetIpList.stream()
-                    .map(targetIp -> dataRepository.qryRedisInfo(QryTraceAssembler.createQryRedisInfoPO(targetIp)))
-                    .map(QryTraceAssembler::createQryRedisInfoModel)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            List<QryRedisInfoOutPO> redisInfoOutPos = dataRepository.qryRedisInfo(QryTraceAssembler.createQryRedisInfoPO(targetIpList));
+            result = QryTraceAssembler.createQryRedisInfoModel(redisInfoOutPos);
         }
-
         return result;
     }
 

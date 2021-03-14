@@ -18,8 +18,8 @@
 <body class="ng-cloak main-style" ng-app="DeployApp" ng-controller="DeployMainController as main">
 <!--顶部导航栏-->
 <header>
-    <nav id="{{main.tips.id}}" style="display: none">{{main.tips.pre + main.tips.post}}</nav>
-    <nav id="head-nav" class="nav nav-default navbar-static-top" role="navigation"
+    <nav id="{{main.tips.id}}" class="fixed-nav" style="display: none;width:100%;z-index: 1001">{{main.tips.pre + main.tips.post}}</nav>
+    <nav id="head-nav" class="nav nav-default navbar-static-top fixed-nav" role="navigation" style="z-index: 1000"
          ng-class="{true : 'head-nav-login', false : 'head-nav-nologin'}[main.isLogin]">
         <div id="head-left-view" class="col-xs-6">
             <span>
@@ -95,7 +95,7 @@
 <!--正文 end-->
 
 <!--部署页面-->
-<div id="main-deploy-body" ng-show="main.isLogin">
+<div id="main-deploy-body" ng-show="main.isLogin" style="margin-top: 48px;">
     <div id="main-deploy-view" class="row">
         <ul class="list-group deploy-list">
             <li id="deploy-list-0" class="list-group-item" ng-mouseenter="main.InputMouseEnterEvent('deploy-list-0')"
@@ -714,112 +714,135 @@
                 </div>
             </div>
             <!--            Redis视图-->
-            <div id="{{main.viewId.queryRedisView}}" class="form-table deploy-form-table left-div" style="width: 100%;"
-                 ng-show="main.viewShow.queryRedisView">
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="senven_ul_style">redis服务器</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">redis类型</li>
-                    <li class="main-font-color">/</li>
-                    <!--如果redis类型是主从或集群,则显示'从服务器'标签-->
-                    <li class="senven_ul_style">从服务器</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">redis日志</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">redis配置文件</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">sentinel列表</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">sentinel配置文件</li>
-                </ul>
-                <!--                test-->
-                <!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
-                <!--                    <li class="senven_ul_style">127.0.0.1:6379</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">-->
-                <!--                        <span class="success-span-status">集群模式</span>-->
-                <!--                    </li><li class="main-font-color">/</li>-->
-                <!--                    &lt;!&ndash;如果redis类型是主从或集群,则显示'从服务器'标签&ndash;&gt;-->
-                <!--                    <li class="senven_ul_style">127.0.0.1:6381</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">/usr/setup/download/redis.log/download/redis.log/download/redis.log</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">127.0.1.1:6399,127.0.0.1:6388</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">/usr/setup/download/redis.log</li>-->
-                <!--                </ul>-->
-                <!--在此动态添加redis服务器及配置信息-->
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <!--如果持久化类型开启,则显示对应rdb与aof标签-->
-                    <li class="eight_ul_style">持久化类型</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">RDB文件路径</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">RDB保存规则</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">RDB状态</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">最近一次RDB状态</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">AOF文件路径</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">AOF保存规则</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">AOF状态</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">最近一次AOF状态</li>
-                    <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">上次fork阻塞时间(微秒)</li>
-                </ul>
-                <!--                test-->
-                <!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
-                <!--                    &lt;!&ndash;如果持久化类型开启,则显示对应rdb与aof标签&ndash;&gt;-->
-                <!--                    <li class="eight_ul_style">混合持久化</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">3600 1 300 100 60 10000</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">-->
-                <!--                        <span class="warn-span-status">开启</span></li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">成功</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">/usr/setup/download/config</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">3600 1 300 100 60 10000</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">开启</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">成功</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="eight_ul_style">4600</li>-->
-                <!--                </ul>-->
-                <!--在此动态添加redis持久化信息-->
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="senven_ul_style">服务器总内存(kb)</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">redis占用内存(kb)</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">redis占用内存峰值(kb)</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">内存碎片率</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">最大连接数</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">当前连接数</li>
-                    <li class="main-font-color">/</li>
-                    <li class="senven_ul_style">当前阻塞连接数</li>
-                </ul>
-                <!--                test-->
-                <!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
-                <!--                    <li class="senven_ul_style">17009004544</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">931616</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">1015912</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">2.02</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">10000</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">2</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="senven_ul_style">0</li>-->
-                <!--                </ul>-->
-                <!--在此动态添加redis服务器内存信息-->
-                <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="six_ul_style">redis key总数</li>
-                    <li class="main-font-color">/</li>
-                    <li class="six_ul_style">redis命中率</li>
-                </ul>
-                <!--                test-->
-                <!--                <ul class="ul-div-style bottom-border-solid xs-font-size">-->
-                <!--                    <li class="six_ul_style">db0||keys=3,expires=0,avg_ttl=0</li><li class="main-font-color">/</li>-->
-                <!--                    <li class="six_ul_style">100%</li>-->
-                <!--                </ul>-->
+            <div id="{{main.viewId.queryRedisView}}" class="form-table deploy-form-table left-div" style="width: 100%;margin-bottom: 6px;"
+                 ng-show="main.viewShow.queryRedisView" ng-repeat="v in main.curRedisView">
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="senven_ul_style">redis服务器</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">redis类型</li>
+                        <li class="main-font-color">/</li>
+                        <!--如果redis类型是主从或集群,则显示'从服务器'标签-->
+                        <li class="senven_ul_style">从服务器</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">redis日志</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">redis配置文件</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">sentinel列表</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">sentinel配置文件</li>
+                    </ul>
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="senven_ul_style">{{v.redisIp}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">
+                            <span class="show-red-span">
+                                {{v.clusterType == 'redis' ? '单机模式' : v.clusterType == 'cluster' ? '集群模式' :
+                                    v.clusterType == 'replication' ? '主从模式' : '哨兵模式'}}
+                            </span>
+                        </li>
+                        <li class="main-font-color">/</li>
+                        <!--如果redis类型是主从或集群,则显示'从服务器'标签-->
+                        <li class="senven_ul_style">{{v.slaveIp}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.redisLogPath}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.redisConfigPath}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.sentinelMonitor}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.sentinelConfigPath}}</li>
+                    </ul>
+                    <!--在此动态添加redis服务器及配置信息-->
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <!--如果持久化类型开启,则显示对应rdb与aof标签-->
+                        <li class="eight_ul_style">持久化类型</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">RDB文件路径</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">RDB保存规则</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">RDB状态</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">最近一次RDB状态</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">AOF文件路径</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">AOF保存规则</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">AOF状态</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">最近一次AOF状态</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">上次fork阻塞时间(微秒)</li>
+                    </ul>
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <!--如果持久化类型开启,则显示对应rdb与aof标签-->
+                        <li class="eight_ul_style">
+                            <span class="show-red-span">
+                                {{v.aofRdbOpen == '1' ? '混合持久化' : v.aofOpen == '1' ? 'AOF持久化' : v.rdbOpen == '1' ? 'RDB持久化' : '无持久化'}}</li>
+                            </span>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.rdbFile}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.rdbSaveType}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.rdbOpen == '1' ? '开启' : '关闭'}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.lastRdbStatus == 'ok' ? '成功' : '失败'}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.aofFile}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.aofSaveType}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.aofOpen == '1' ? '开启' : '关闭'}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.lastAofStatus == 'ok' ? '成功' : '失败'}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="eight_ul_style">{{v.lastForkUsec}}</li>
+                    </ul>
+                    <!--在此动态添加redis持久化信息-->
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="senven_ul_style">服务器总内存(kb)</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">redis占用内存(kb)</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">redis占用内存峰值(kb)</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style" title="redis内存碎片率,used_memory_rss/used_memory,大于1,表示分配的内存超过实际使用的内存,数值越大,碎片率越严重,小于1时,表示发生了swap,即可用内存不够,used_memory大于1G时有参考价值,建议开启activedefrag yes压缩回收内存">内存碎片率</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">最大连接数</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">当前连接数</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">当前阻塞连接数</li>
+                    </ul>
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="senven_ul_style">{{v.mermoryCountKb}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.mermoryAvailableCountKb}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.mermoryPeakKb}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.mermoryFragmentationRatio}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.connTotalCount}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.connCurCount}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="senven_ul_style">{{v.connBlockCount}}</li>
+                    </ul>
+                    <!--在此动态添加redis服务器内存信息-->
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="six_ul_style">redis key总数</li>
+                        <li class="main-font-color">/</li>
+                        <li class="six_ul_style">redis命中率</li>
+                    </ul>
+                    <ul class="ul-div-style bottom-border-solid xs-font-size">
+                        <li class="six_ul_style">{{v.keysCount}}</li>
+                        <li class="main-font-color">/</li>
+                        <li class="six_ul_style">{{(v.keyspaceRatio * 100) + '%'}}</li>
+                    </ul>
             </div>
             <!--            Http视图-->
             <div id="{{main.viewId.queryHttpView}}" class="form-table deploy-form-table left-div"
@@ -831,15 +854,15 @@
                 </div>
                 <div id="http-form-cell-1" class="form-cell deploy-form-cell">
                     <input type="text" placeholder="请求路径,支持模糊查询" class="main-input-text-style"
-                           ng-model="main.mqForm.messageId"
+                           ng-model="main.httpForm.path"
                            ng-mouseenter="main.InputMouseEnterEvent('http-form-cell-1')"
                            ng-mouseleave="main.InputMouseLevelEvent('http-form-cell-1')">
                 </div>
                 <div class="form-cell deploy-form-cell">
-                    <input type="number" min="1" placeholder="查询记录数,默认1" ng-model="main.mqForm.limit"
+                    <input type="number" min="1" placeholder="查询记录数,默认1" ng-model="main.httpForm.limit"
                            class="main-input-text-style">
                     <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
-                            aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                            aria-label="提交" ng-click="main.SubmitQryHttpInfo($event)">
                         提交
                         <span class="icon-arrow-right"></span>
                         <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
@@ -855,21 +878,38 @@
                     </label>
                 </div>
                 <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="eight_ul_style">请求应用服务器IP</li>
+                    <li class="eight_ul_style_1">请求应用服务器IP</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">请求路径</li>
+                    <li class="eight_ul_style_1">请求路径</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">请求时间</li>
+                    <li class="eight_ul_style_1">请求时间</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">请求耗时</li>
+                    <li class="eight_ul_style_1">请求耗时</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">请求结果</li>
+                    <li class="eight_ul_style_1">请求结果</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">request</li>
+                    <li class="eight_ul_style_1">request</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">response</li>
+                    <li class="eight_ul_style_1">response</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">最后记录时间</li>
+                    <li class="eight_ul_style_1">最后记录时间</li>
+                </ul>
+                <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.curHttpInfoView">
+                    <li class="eight_ul_style_1">{{v.appIp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.reqUrl}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.takeUpTime}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.reqTimeStamp}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.reqSuccess}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.reqInput}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.reqResult}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="eight_ul_style_1">{{v.gmtModify}}</li>
                 </ul>
                 <!--                通过循环生成http请求列表信息-->
             </div>

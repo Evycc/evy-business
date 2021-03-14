@@ -157,7 +157,10 @@
                trh_sentinel_config_path       as trhSentinelConfigPath,
                gmt_modify                     as gmtModify
         FROM trace_redis_health
-        WHERE trh_app_ip = #{appIp}
+        WHERE trh_app_ip in
+        <foreach collection="appIps" separator="," item="appIp" index="i" open="(" close=")">
+            #{appIp}
+        </foreach>
     </select>
 
     <!--    查询应用服务列表-->

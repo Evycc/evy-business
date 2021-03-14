@@ -81,11 +81,7 @@ public class QryTraceAssembler {
      * QryHttpInfoDTO -> qryHttpReqInfoListDO
      */
     public static QryHttpReqInfoListDO dtoConvertDo(QryHttpInfoDTO dto) {
-        int limit = BusinessConstant.ZERO_NUM;
-        if (!StringUtils.isEmpty(dto.getLimit())) {
-            limit = Integer.parseInt(dto.getLimit());
-        }
-        return new QryHttpReqInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getPath(), limit);
+        return new QryHttpReqInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), dto.getPath(), dto.getLimit());
     }
 
     /**
@@ -291,21 +287,23 @@ public class QryTraceAssembler {
     /**
      * QryRedisInfoOutPO -> QryRedisInfoModel
      */
-    public static QryRedisInfoModel createQryRedisInfoModel(QryRedisInfoOutPO pos) {
+    public static List<QryRedisInfoModel> createQryRedisInfoModel(List<QryRedisInfoOutPO> pos) {
         if (Objects.isNull(pos)) {
             return null;
         }
-        return new QryRedisInfoModel(
-                pos.getTrhAppIp(), pos.getTrhRedisIp(), pos.getTrhRedisFlag(), pos.getTrhSlaveIp(),
-                pos.getTrhClusterType(), pos.getTrhRdbOpen(), pos.getTrhRdbFile(),
-                pos.getTrhRdbSaveType(), pos.getTrhAofOpen(), pos.getTrhAofFile(),
-                pos.getTrhAofSaveType(), pos.getTrhAofRdbOpen(), pos.getTrhConnBlockCount(),
-                pos.getTrhMemoryAvailableCount(), pos.getTrhMemoryPeak(), pos.getTrhKeyspaceRatio(),
-                pos.getTrhKeyspaceRatio(), pos.getTrhKeysCount(), pos.getTrhLastRdbStatus(),
-                pos.getTrhLastAofStatus(), pos.getTrhLastForkUsec(), pos.getTrhConnTotalCount(),
-                pos.getTrhConnCurCount(), pos.getTrhConnBlockCount(), pos.getTrhLogPath(),
-                pos.getTrhConfigPath(), pos.getTrhSentinelMonitor(), pos.getTrhSentinelConfigPath()
-        );
+        return pos.stream()
+                .map(po -> new QryRedisInfoModel(
+                        po.getTrhAppIp(), po.getTrhRedisIp(), po.getTrhRedisFlag(), po.getTrhSlaveIp(),
+                        po.getTrhClusterType(), po.getTrhRdbOpen(), po.getTrhRdbFile(),
+                        po.getTrhRdbSaveType(), po.getTrhAofOpen(), po.getTrhAofFile(),
+                        po.getTrhAofSaveType(), po.getTrhAofRdbOpen(), po.getTrhMemoryCount(),
+                        po.getTrhMemoryAvailableCount(), po.getTrhMemoryPeak(), po.getTrhKeyspaceRatio(),
+                        po.getTrhKeyspaceRatio(), po.getTrhKeysCount(), po.getTrhLastRdbStatus(),
+                        po.getTrhLastAofStatus(), po.getTrhLastForkUsec(), po.getTrhConnTotalCount(),
+                        po.getTrhConnCurCount(), po.getTrhConnBlockCount(), po.getTrhLogPath(),
+                        po.getTrhConfigPath(), po.getTrhSentinelMonitor(), po.getTrhSentinelConfigPath()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -447,8 +445,8 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryRedisInfoPO
      */
-    public static QryRedisInfoPO createQryRedisInfoPO(String appIp) {
-        return new QryRedisInfoPO(appIp);
+    public static QryRedisInfoPO createQryRedisInfoPO(List<String> appIps) {
+        return new QryRedisInfoPO(appIps);
     }
 
     /**

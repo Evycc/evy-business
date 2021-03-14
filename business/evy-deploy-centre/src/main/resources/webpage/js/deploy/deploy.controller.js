@@ -53,6 +53,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.curMqTraceInfo = [];
     self.curSlowSqlModel = [];
     self.curServiceInfo = [];
+    self.curRedisView = [];
+    self.curHttpInfoView = [];
     /**
      * 定义展示页面ID
      */
@@ -95,6 +97,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryTrackingView: false,
         queryTrackingResultView: false
     }
+
     /**
      * 是否登陆
      * @type {boolean}
@@ -142,6 +145,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         msgId: '',
         limit: '',
         userSeq: ''
+    }
+    self.httpForm = {
+        path : '',
+        limit : ''
     }
     self.srvForm = {
         srvCode: '',
@@ -329,8 +336,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 }
             }
             if (bool) {
+                self.ThreadCount = 0
                 self.qryThreadInfoListSubmit();
             } else {
+                self.ThreadCount = 0
                 self.updateCurThreadInfo();
             }
         }
@@ -360,15 +369,13 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryMqQueryResultView = false;
         self.viewShow.querySlowSqlView = false;
         self.viewShow.queryServiceView = false;
-        self.viewShow.queryServiceLimitView = false;
-        self.viewShow.queryServiceAuthView = false;
         self.viewShow.queryServiceAddView = false;
+        self.viewShow.queryServiceModifyView = false;
         self.viewShow.queryRedisView = false;
         self.viewShow.queryHttpView = false;
+        self.viewShow.queryHttpResultView = false;
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
-        self.viewShow.queryServiceModifyView = false;
-        self.viewShow.queryServiceAddView = false;
     }
     /**
      * 展示新增部署应用页面
@@ -556,7 +563,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryServiceView = true;
     }
     self.SubmitServiceModify = function (srvInfo) {
-        console.log(srvInfo)
         self.viewShow.queryServiceModifyView = true;
         self.viewShow.queryServiceAddView = false;
         self.viewShow.queryServiceView = false;
@@ -607,6 +613,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('新增服务码成功,服务加载时进行发布者更新');
                     self.srvForm = {};
                 }
+                console.log(response)
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             }, function (err){
@@ -632,6 +639,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('提交修改服务信息成功');
                     self.srvModifyForm = {};
                 }
+                console.log(response)
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             }, function (err){
@@ -673,7 +681,60 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.showClose();
         self.setDeployInfoTitle(title);
         self.viewShow.queryRedisView = true;
+        self.qryRedisInfo();
     }
+
+    self.qryRedisInfo = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        DeployMainService.qryRedisInfo(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询Redis健康信息失败 ' + response.errorMsg);
+                } else {
+                    self.saveCurRedisList(response.list);
+                }
+            }, function (err){
+                console.log('查询Redis健康信息失败 ' + err)
+            });
+    }
+    self.saveCurRedisList = function (list) {
+        self.curRedisView = list;
+    }
+
+    self.SubmitQryHttpInfo = function (event) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.attributes.item(0).nodeValue;
+        let spanClass = event.target.attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, true);
+        self.BtnLodingStyle(spanId);
+
+        self.httpForm.buildSeq = self.cur.deploySeq;
+        self.httpForm.userSeq = self.cur.userSeq;
+        if (self.httpForm.limit === '') {
+            self.httpForm.limit = 1;
+        }
+        DeployMainService.qryHttpInfo(self.httpForm)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询Http请求信息失败 ' + response.errorMsg);
+                } else {
+                    self.viewShow.queryHttpResultView = true;
+                    self.saveCurHttpInfoView(response.list);
+                }
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            }, function (err){
+                console.log('查询Http请求信息失败 ' + err);
+                self.btnDisplay(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            });
+    }
+    self.saveCurHttpInfoView = function (list) {
+        self.curHttpInfoView = list;
+    }
+
     self.showQueryHttpView = function (title) {
         self.showClose();
         self.setDeployInfoTitle(title);
@@ -803,11 +864,11 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
 
     self.showTips = function (title) {
         self.tips.post = title;
-        angular.element('#' + self.tips.id).attr('style', '');
+        angular.element('#' + self.tips.id).attr('style', 'width:100%;z-index: 1001');
 
         setTimeout(()=>{
             self.tips.post = '';
-            angular.element('#' + self.tips.id).attr('style', 'display:none');
+            angular.element('#' + self.tips.id).attr('style', 'display: none;z-index: 1001');
         }, 2000);
     }
 
