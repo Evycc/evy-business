@@ -21,6 +21,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryThreadInfo : 'evy.trace.threadQry.app',
         createSrvInfo : 'evy.srv.create',
         modifySrvInfo : 'evy.srv.modify',
+        qryTraceInfo : 'evy.trace.trackingQry.app'
     }
 
     return {
@@ -42,8 +43,18 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qrySlowSql : qrySlowSql,
         qryThreadInfo : qryThreadInfo,
         createSrvInfo : createSrvInfo,
-        modifySrvInfo : modifySrvInfo
+        modifySrvInfo : modifySrvInfo,
+        qryTraceInfo : qryTraceInfo
     };
+
+    /**
+     * 查询链路调用信息
+     * @param body traceId
+     * @return {*}
+     */
+    function qryTraceInfo(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.qryTraceInfo, body);
+    }
 
     /**
      * 新增服务码

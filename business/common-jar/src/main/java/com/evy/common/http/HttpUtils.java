@@ -4,6 +4,7 @@ import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.TraceLogUtils;
 import com.evy.common.trace.TraceUtils;
 import com.evy.common.utils.AppContextUtils;
 import org.apache.http.Header;
@@ -67,6 +68,11 @@ public class HttpUtils {
         long startTime = System.currentTimeMillis();
         String reqParam = !Objects.isNull(nameValuePairList) ? nameValuePairList.toString() : null;
 
+        //trace
+        String traceIdTemp = TraceLogUtils.getCurTraceId();
+        String traceId = TraceLogUtils.buildHttpTraceId();
+        TraceLogUtils.setHttpTraceId(traceId);
+
         try {
             URI uri = uriBuilder(path, nameValuePairList).build();
             httpRequestBase.setURI(uri);
@@ -101,6 +107,10 @@ public class HttpUtils {
             //trace
             TraceUtils.addTraceHttp(path, (System.currentTimeMillis() - startTime), false, reqParam, e.getMessage());
             throw e;
+        } finally {
+            //trace
+            TraceLogUtils.setHttpTraceId(traceId, (System.currentTimeMillis() - startTime));
+            TraceLogUtils.rmLogTraceId(traceIdTemp);
         }
     }
 

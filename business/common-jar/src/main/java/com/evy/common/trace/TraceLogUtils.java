@@ -31,6 +31,10 @@ public class TraceLogUtils {
      */
     private static final int HTTP_TYPE = 2;
     /**
+     * MQ调用
+     */
+    private static final int MQ_TYPE = 3;
+    /**
      * 当前应用名
      */
     private static final String APP_NAME = getAppName();
@@ -64,6 +68,14 @@ public class TraceLogUtils {
      */
     public synchronized static String buildDbTraceId() {
         return buildTraceId(DB_TYPE);
+    }
+
+    /**
+     * 构建trace,MQ类型
+     * @return traceId
+     */
+    public synchronized static String buildMqTraceId() {
+        return buildTraceId(MQ_TYPE);
     }
 
     /**
@@ -105,7 +117,17 @@ public class TraceLogUtils {
     }
 
     /**
+     * MDC当前线程赋值TraceId,服务化调用类型
+     * @param traceId 唯一序列
+     * @param takeTimeMs 耗时,ms
+     */
+    public synchronized static void setServiceTraceId(String traceId, long takeTimeMs) {
+        TraceTracking.saveTraceService(traceId, APP_NAME, takeTimeMs);
+    }
+
+    /**
      * MDC赋值TraceId,数据库调用类型
+     * @param databaseName 数据库名
      * @param traceId 唯一序列
      */
     public synchronized static void setDbTraceId(String traceId, String databaseName) {
@@ -115,6 +137,42 @@ public class TraceLogUtils {
         }
         setLogTraceId(var);
         TraceTracking.saveTraceDb(var, databaseName);
+    }
+
+    /**
+     * MDC赋值TraceId,数据库调用类型(从现有的traceId中获取)
+     * @param traceId 唯一序列
+     * @param databaseName 数据库名
+     * @param takeTimeMs 耗时,ms
+     */
+    public synchronized static void setDbTraceId(String traceId, String databaseName, long takeTimeMs) {
+        TraceTracking.saveTraceDb(traceId, databaseName, takeTimeMs);
+    }
+
+    /**
+     * MDC赋值TraceId,数据库调用类型
+     * @param topic topic
+     * @param tag tag
+     * @param traceId 唯一序列
+     */
+    public synchronized static void setMqTraceId(String traceId, String topic, String tag) {
+        String var = traceId;
+        if (StringUtils.isEmpty(var)) {
+            var = buildMqTraceId();
+        }
+        setLogTraceId(var);
+        TraceTracking.saveTraceMq(var, topic, tag);
+    }
+
+    /**
+     * MDC赋值TraceId,数据库调用类型
+     * @param topic topic
+     * @param tag tag
+     * @param traceId 唯一序列
+     * @param takeTimeMs 耗时,ms
+     */
+    public synchronized static void setMqTraceId(String traceId, String topic, String tag, long takeTimeMs) {
+        TraceTracking.saveTraceMq(traceId, topic, tag, takeTimeMs);
     }
 
     /**
@@ -128,6 +186,10 @@ public class TraceLogUtils {
         }
         setLogTraceId(var);
         TraceTracking.saveTraceHttp(var);
+    }
+
+    public synchronized static void setHttpTraceId(String traceId, long takeTimeMs) {
+        TraceTracking.saveTraceHttp(traceId, takeTimeMs);
     }
 
     /**

@@ -62,16 +62,101 @@ public class TraceTracking {
      * @param appName   应用名
      */
     public static void saveTraceService(String traceId, String appName) {
-        TRACE_LIST.add(traceId + BusinessConstant.LINE + appName);
+        TRACE_LIST.add(buildTraceStr(traceId, appName));
+    }
+
+    /**
+     * Trace记录保存 服务化调用
+     * @param traceId   traceId
+     * @param appName   应用名
+     */
+    public static void saveTraceService(String traceId, String appName, long takeTime) {
+        String var = buildTraceStr(traceId, appName);
+        int index = TRACE_LIST.indexOf(var);
+        if (index != -1) {
+            //更新
+            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
+        }
     }
 
     /**
      * Trace记录保存 数据库操作
      * @param traceId   traceId
-     * @param database   表名
+     * @param database   数据库名
      */
     public static void saveTraceDb(String traceId, String database) {
-        TRACE_LIST.add(traceId + BusinessConstant.LINE + database);
+        TRACE_LIST.add(buildTraceStr(traceId, database));
+    }
+
+    /**
+     * Trace记录保存 数据库操作
+     * @param traceId   traceId
+     * @param database   数据库名
+     * @param takeTime 耗时,ms
+     */
+    public static void saveTraceDb(String traceId, String database, long takeTime) {
+        String var = buildTraceStr(traceId, database);
+        int index = TRACE_LIST.indexOf(var);
+        if (index != -1) {
+            //更新
+            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
+        }
+    }
+
+    /**
+     * Trace记录保存 数据库操作
+     * @param traceId   traceId
+     * @param topic   topic
+     * @param tag tag
+     */
+    public static void saveTraceMq(String traceId, String topic, String tag) {
+        TRACE_LIST.add(buildTraceStr(traceId, topic, tag));
+    }
+
+    /**
+     * Trace记录保存 数据库操作
+     * @param traceId   traceId
+     * @param topic   topic
+     * @param tag tag
+     */
+    public static void saveTraceMq(String traceId, String topic, String tag, long takeTime) {
+        String var = buildTraceStr(traceId, topic, tag);
+        int index = TRACE_LIST.indexOf(var);
+        if (index != -1) {
+            //更新
+            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
+        }
+    }
+
+    /**
+     * 按照traceId的格式拼接字符串
+     * @param traceId traceId
+     * @param var 数据库名或应用名等
+     * @return string
+     */
+    private static String buildTraceStr(String traceId, String var) {
+        return traceId + BusinessConstant.LINE + var;
+    }
+
+    /**
+     * 按照traceId的格式拼接字符串
+     * @param traceId traceId
+     * @param topic topic
+     * @param tag tag
+     * @return string
+     */
+    private static String buildTraceStr(String traceId, String topic, String tag) {
+        return traceId + BusinessConstant.LINE + topic + BusinessConstant.LINE + tag ;
+    }
+
+    /**
+     * 按照traceId的格式拼接字符串
+     * @param traceId traceId
+     * @param takeTime 耗时,ms
+     * @return string
+     */
+    private static String buildTakeTimeStr(String traceId, long takeTime) {
+        return traceId + BusinessConstant.LINE + takeTime;
     }
 
     /**
@@ -80,6 +165,19 @@ public class TraceTracking {
      */
     public static void saveTraceHttp(String traceId) {
         TRACE_LIST.add(traceId);
+    }
+
+    /**
+     * Trace记录保存 http请求
+     * @param traceId traceId
+     * @param takeTime 耗时,ms
+     */
+    public static void saveTraceHttp(String traceId, long takeTime) {
+        int index = TRACE_LIST.indexOf(traceId);
+        if (index != -1) {
+            //更新
+            TRACE_LIST.set(index, buildTakeTimeStr(traceId, takeTime));
+        }
     }
 
     /**

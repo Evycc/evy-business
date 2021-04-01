@@ -53,6 +53,7 @@ public class LoginDataRepository {
 
         if (StringUtils.isEmpty(userSeqAndEncPassword[0])) {
             //不存在用户信息
+            CommandLog.info("不存在的用户,创建新用户:{}", userSeqAndEncPassword[0]);
             template.opsForValue()
                     .append(USER_PASS_KEY + userName, password)
                     .subscribe();

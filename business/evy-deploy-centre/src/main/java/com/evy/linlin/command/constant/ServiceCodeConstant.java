@@ -74,4 +74,8 @@ public class ServiceCodeConstant {
      * com.evy.linlin.trace.app.CreateSrvInfoService
      */
     public static final String MODIFY_SRV_IFNO = "evy.srv.modify";
+    /**
+     * com.evy.linlin.trace.app.QryTrackingInfoAppService
+     */
+    public static final String QRY_TRACKING_LIST_INFO = "evy.trace.trackingQry.app";
 }

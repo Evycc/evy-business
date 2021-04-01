@@ -30,7 +30,7 @@ body a {
     z-index: -1;
     left: -140px;
     top: 44px;
-    height: 100%;
+    /*height: 100%;*/
     filter: blur(50.6px);
     background: url("../bg.PNG");
 }
@@ -335,6 +335,13 @@ body a {
     word-break: break-word;
 }
 
+.four_ul_style {
+    min-width: 25%;
+    max-width: 9%;
+    margin: 0 !important;
+    word-break: break-word;
+}
+
 .eight_ul_style_1 {
     min-width: 12%;
     max-width: 12%;
@@ -558,6 +565,80 @@ body a {
 
 .main-font-color {
     color: rgba(0, 113, 241, 1);
+}
+
+#trace-div-span {
+    width: 80%;
+    height: 20px;
+    color: #fff;
+    border-radius: 12px;
+    margin: 0 auto;
+}
+
+#trace-div-span span {
+    text-align: center;
+    float: left;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+#srv-span {
+    background: rgb(206 82 0.89);
+}
+
+#db-span {
+    background: rgb(90 134 0.89);
+}
+
+#http-span {
+    background: rgb(0 0 0.89);
+}
+
+#mq-span {
+    background: rgb(0 113 0.89);
+}
+
+#trace-div-ms-span {
+    width: 80%;
+    height: 20px;
+    color: #fff;
+    border-radius: 12px;
+    margin: 0 auto;
+}
+
+#trace-div-ms-span span {
+    text-align: center;
+    float: left;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+#srv-ms-span {
+    background: rgb(206 82 0.89);
+}
+
+#db-ms-span {
+    background: rgb(90 134 0.89);
+}
+
+#http-ms-span {
+    background: rgb(0 0 0.89);
+}
+
+#mq-ms-span {
+    background: rgb(0 113 0.89);
+}
+
+.left-div-radius {
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px
+}
+
+.right-div-radius {
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px
 }
 
 /*body end*/

@@ -40,9 +40,37 @@ public class RabbitMqSendAgent {
                         ctClass.addMethod(ctNewMethod);
 
                         stringBuilder.append("{long agentStartTime = System.currentTimeMillis();")
+                                //Trace记录开始 START
+                                //缓存当前线程traceId
+                                .append("String traceId = com.evy.common.trace.TraceLogUtils.getCurTraceId();")
+                                .append("String traceIdTemp = com.evy.common.trace.TraceLogUtils.getCurTraceId();")
+                                //设置当前线程为DB类型的traceId
+                                .append("traceId = com.evy.common.trace.TraceLogUtils.buildMqTraceId();")
+                                .append("com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage mqMsg = $1;")
+                                .append("if(traceId != null && !\"\".equals(traceId)){")
+                                .append("if(mqMsg != null) {")
+                                .append("mqMsg.getPrpoMap().put(\"traceId\", traceId);")
+                                .append("com.evy.common.trace.TraceLogUtils.setMqTraceId(traceId, mqMsg.getTopic(), mqMsg.getTag());")
+                                .append("} else {")
+                                .append("com.evy.common.trace.TraceLogUtils.setMqTraceId(traceId, \"\", \"\");")
+                                .append("}")
+
+                                .append("}")
+                                //Trace记录开始 END
                                 .append("int result= ").append(ctNewMethod.getName()).append("($$);")
                                 .append("long agentEndTime = System.currentTimeMillis() -agentStartTime;")
                                 .append("com.evy.common.trace.TraceUtils.addTraceMqSend($1);")
+//                                .append("com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage mqMsg = $1;")
+                                //Trace记录结束 START
+                                .append("if(traceId != null && !\"\".equals(traceId)){")
+                                .append("if(mqMsg != null) {")
+                                .append("com.evy.common.trace.TraceLogUtils.setMqTraceId(traceId, mqMsg.getTopic(), mqMsg.getTag(), agentEndTime);")
+                                .append("} else {")
+                                .append("com.evy.common.trace.TraceLogUtils.setMqTraceId(traceId, \"\", \"\", agentEndTime);")
+                                .append("}")
+                                .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId(traceIdTemp);")
+                                .append("}")
+                                //Trace记录结束 END
                                 .append("return result;}");
                         if (args.contains("DEBUG")) {
                             System.out.println("RabbitMqSendAgent#agentExecute\t" + stringBuilder);

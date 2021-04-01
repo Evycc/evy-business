@@ -37,11 +37,15 @@ public class DBUtilsAgent {
                     //Trace记录开始 START
                     //缓存当前线程traceId
                     .append("String traceId = com.evy.common.trace.TraceLogUtils.getCurTraceId();")
+                    .append("String traceIdTemp = com.evy.common.trace.TraceLogUtils.getCurTraceId();")
+                    .append("String database = \"\";")
                     .append("if($1 != null && traceId != null && !\"\".equals(traceId)){")
+                    //设置当前线程为DB类型的traceId
+                    .append("traceId = com.evy.common.trace.TraceLogUtils.buildDbTraceId();")
                     //获取数据库
-                    .append("String database = ((com.mysql.cj.jdbc.ClientPreparedStatement) $1).getQuery().getCurrentDatabase();")
+                    .append("database = ((com.mysql.cj.jdbc.ClientPreparedStatement) $1).getQuery().getCurrentDatabase();")
                     //Trace记录开始
-                    .append("com.evy.common.trace.TraceLogUtils.setDbTraceId(com.evy.common.trace.TraceLogUtils.buildDbTraceId(), database);")
+                    .append("com.evy.common.trace.TraceLogUtils.setDbTraceId(traceId, database);")
                     .append("}")
                     //Trace记录开始 END
                     .append("Object result= ").append(ctNewMethod.getName()).append("($$);")
@@ -53,7 +57,8 @@ public class DBUtilsAgent {
                     .append("com.evy.common.trace.TraceUtils.addTraceSql(slowSql,agentEndTime);}")
                     //Trace记录结束 START
                     .append("if($1 != null && traceId != null && !\"\".equals(traceId)){")
-                    .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId(traceId);")
+                    .append("com.evy.common.trace.TraceLogUtils.setDbTraceId(traceId, database, agentEndTime);")
+                    .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId(traceIdTemp);")
                     .append("}")
                     //Trace记录结束 END
                     .append("return ($r)result;")

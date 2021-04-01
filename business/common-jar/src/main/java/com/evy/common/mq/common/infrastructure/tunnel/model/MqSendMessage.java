@@ -15,9 +15,7 @@ import java.util.Map;
  * @Date: 2019/11/5 22:28
  */
 @Builder
-@Setter
 @ToString
-@EqualsAndHashCode
 public class MqSendMessage implements Serializable {
     private static final String serialVersionUID = "qwertyuiopasdfghjklzxcvbnm1234567890";
     /**
@@ -111,5 +109,49 @@ public class MqSendMessage implements Serializable {
 
     public String getDlxQueue() {
         return dlxQueue;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public void setConsumerTag(String consumerTag) {
+        this.consumerTag = consumerTag;
+    }
+
+    public void setSendTime(String sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public void setRbDeliveryTag(String rbDeliveryTag) {
+        this.rbDeliveryTag = rbDeliveryTag;
+    }
+
+    public void setMessage(Object message) {
+        this.message = message;
+    }
+
+    public void setDelayTime(long delayTime) {
+        this.delayTime = delayTime;
+    }
+
+    public void setPrpoMap(Map<String, String> prpoMap) {
+        this.prpoMap = prpoMap;
+    }
+
+    public void setDlxQueue(String dlxQueue) {
+        this.dlxQueue = dlxQueue;
     }
 }

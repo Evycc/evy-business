@@ -55,6 +55,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.curServiceInfo = [];
     self.curRedisView = [];
     self.curHttpInfoView = [];
+    self.curTraceListResult = [];
     /**
      * 定义展示页面ID
      */
@@ -149,6 +150,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.httpForm = {
         path : '',
         limit : ''
+    }
+    self.traceFrom = {
+        qryTraceId : ''
     }
     self.srvForm = {
         srvCode: '',
@@ -1329,6 +1333,168 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 self.showTips(value.branchName +'分支切换成功');
             }
         })
+    }
+
+    /**
+     * 提交查询traceId
+     */
+    self.SubmitQryTraceId = function (event) {
+        let btnId = event.currentTarget.attributes.item(0).nodeValue;
+        let spanId = event.target.attributes.item(0).nodeValue;
+        let spanClass = event.target.attributes.item(1).nodeValue;
+        self.btnDisplay(btnId, true);
+        self.BtnLodingStyle(spanId);
+
+        //提交请求
+        DeployMainService.qryTraceInfo(self.traceFrom)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('查询traceId失败 ' + response.errorMsg);
+                } else {
+                    //返回参考com.evy.linlin.trace.dto.QryTrackingInfoOutDTO
+                    console.log(response);
+                    if (response.traceList != null) {
+                        self.buildCurTraceListResult(response.traceList);
+                        self.viewShow.queryTrackingResultView = true;
+                    }
+                }
+                self.SubmitNewDeployInfoStyle(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            }, function (err){
+                self.showTips('查询traceId失败 ' + err);
+                self.SubmitNewDeployInfoStyle(btnId, false);
+                self.SetNewClass(spanId, spanClass);
+            });
+    }
+
+    self.buildCurTraceListResult = function (list) {
+        self.curTraceListResult = list;
+        self.buildTraceDivSpan();
+        self.buildTraceDivMsSpan();
+    }
+
+    /**
+     * 构建链路占比进度条
+     */
+    self.buildTraceDivSpan = function () {
+        let srvInt = 0;
+        let dbInt = 0;
+        let httpInt = 0;
+        let mqInt = 0;
+        let leftRadiusClass = 'left-div-radius';
+        let rightRadiusClass = 'right-div-radius';
+        let startFlag = true;
+        let endFlag = true;
+
+        for (let i=0; i < self.curTraceListResult.length; i++) {
+            switch (self.curTraceListResult[i].reqType) {
+                case '0' : ++srvInt; break;
+                case '1' : ++dbInt; break;
+                case '2' : ++httpInt; break;
+                case '3' : ++mqInt; break;
+            }
+        }
+
+        //赋值style属性
+        srvInt = srvInt <= 0? "0%" : Math.round((srvInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
+        dbInt = dbInt <= 0? "0%" : Math.round((dbInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
+        httpInt = httpInt <= 0? "0%" : Math.round((httpInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
+        mqInt = mqInt <= 0? "0%" : Math.round((mqInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
+        angular.element('#srv-span').attr('style', 'width:' + srvInt);
+        angular.element('#db-span').attr('style', 'width:' + dbInt);
+        angular.element('#http-span').attr('style', 'width:' + httpInt);
+        angular.element('#mq-span').attr('style', 'width:' + mqInt);
+
+        if (srvInt !== "0%" && startFlag) {
+            self.SetNewClass('srv-span', leftRadiusClass);
+            startFlag = false;
+        } else if (dbInt !== "0%" && startFlag) {
+            self.SetNewClass('db-span', leftRadiusClass);
+            startFlag = false;
+        } else if (httpInt !== "0%" && startFlag) {
+            self.SetNewClass('http-span', leftRadiusClass);
+            startFlag = false;
+        } else {
+            self.SetNewClass('mq-span', leftRadiusClass);
+            startFlag = false;
+        }
+
+        if (mqInt !== "0%" && endFlag) {
+            self.SetNewClass('mq-span', rightRadiusClass);
+            endFlag = false;
+        } else if (httpInt !== "0%" && endFlag) {
+            self.SetNewClass('http-span', rightRadiusClass);
+            endFlag = false;
+        } else if (dbInt !== "0%" && endFlag) {
+            self.SetNewClass('db-span', rightRadiusClass);
+            endFlag = false;
+        } else {
+            self.SetNewClass('srv-span', rightRadiusClass);
+            endFlag = false;
+        }
+    }
+
+    /**
+     * 构建链路耗时占比进度条
+     */
+    self.buildTraceDivMsSpan = function () {
+        let srvInt = 0;
+        let dbInt = 0;
+        let httpInt = 0;
+        let mqInt = 0;
+        let totalInt = 0;
+        let leftRadiusClass = 'left-div-radius';
+        let rightRadiusClass = 'right-div-radius';
+        let startFlag = true;
+        let endFlag = true;
+
+        for (let i=0; i < self.curTraceListResult.length; i++) {
+            switch (self.curTraceListResult[i].reqType) {
+                case '0' : srvInt += parseInt(self.curTraceListResult[i].takeTimeMs); break;
+                case '1' : dbInt += parseInt(self.curTraceListResult[i].takeTimeMs); break;
+                case '2' : httpInt += parseInt(self.curTraceListResult[i].takeTimeMs); break;
+                case '3' : mqInt += parseInt(self.curTraceListResult[i].takeTimeMs); break;
+            }
+            totalInt += parseInt(self.curTraceListResult[i].takeTimeMs);
+        }
+
+        //赋值style属性
+        srvInt = srvInt <= 0? "0%" : Math.round((srvInt / totalInt) * 10000) / 100.0 + "%";
+        dbInt = dbInt <= 0? "0%" : Math.round((dbInt / totalInt) * 10000) / 100.0 + "%";
+        httpInt = httpInt <= 0? "0%" : Math.round((httpInt / totalInt) * 10000) / 100.0 + "%";
+        mqInt = mqInt <= 0? "0%" : Math.round((mqInt / totalInt) * 10000) / 100.0 + "%";
+        angular.element('#srv-ms-span').attr('style', 'width:' + srvInt);
+        angular.element('#db-ms-span').attr('style', 'width:' + dbInt);
+        angular.element('#http-ms-span').attr('style', 'width:' + httpInt);
+        angular.element('#mq-ms-span').attr('style', 'width:' + mqInt);
+
+        if (srvInt !== "0%" && startFlag) {
+            self.SetNewClass('srv-ms-span', leftRadiusClass);
+            startFlag = false;
+        } else if (dbInt !== "0%" && startFlag) {
+            self.SetNewClass('db-ms-span', leftRadiusClass);
+            startFlag = false;
+        } else if (httpInt !== "0%" && startFlag) {
+            self.SetNewClass('http-ms-span', leftRadiusClass);
+            startFlag = false;
+        } else {
+            self.SetNewClass('mq-ms-span', leftRadiusClass);
+            startFlag = false;
+        }
+
+        if (mqInt !== "0%" && endFlag) {
+            self.SetNewClass('mq-ms-span', rightRadiusClass);
+            endFlag = false;
+        } else if (httpInt !== "0%" && endFlag) {
+            self.SetNewClass('http-ms-span', rightRadiusClass);
+            endFlag = false;
+        } else if (dbInt !== "0%" && endFlag) {
+            self.SetNewClass('db-ms-span', rightRadiusClass);
+            endFlag = false;
+        } else {
+            self.SetNewClass('srv-ms-span', rightRadiusClass);
+            endFlag = false;
+        }
     }
 
     /**

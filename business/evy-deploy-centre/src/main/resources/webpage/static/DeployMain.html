@@ -899,11 +899,11 @@
                     <li class="main-font-color">/</li>
                     <li class="eight_ul_style_1">{{v.reqUrl}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style_1">{{v.takeUpTime}}</li>
+                    <li class="eight_ul_style_1">{{v.takeUpTime}}ms</li>
                     <li class="main-font-color">/</li>
                     <li class="eight_ul_style_1">{{v.reqTimeStamp}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style_1">{{v.reqSuccess}}</li>
+                    <li class="eight_ul_style_1">{{v.reqSuccess == 1 ? 'success' : 'faild'}}</li>
                     <li class="main-font-color">/</li>
                     <li class="eight_ul_style_1">{{v.reqInput}}</li>
                     <li class="main-font-color">/</li>
@@ -923,13 +923,13 @@
                 </div>
                 <div id="trace-form-cell-1" class="form-cell deploy-form-cell">
                     <input type="text" placeholder="traceId" class="main-input-text-style"
-                           ng-model="main.mqForm.messageId"
+                           ng-model="main.traceFrom.qryTraceId"
                            ng-mouseenter="main.InputMouseEnterEvent('trace-form-cell-1')"
                            ng-mouseleave="main.InputMouseLevelEvent('trace-form-cell-1')">
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
-                            aria-label="提交" ng-click="main.SubmitNewDeployInfo($event)">
+                            aria-label="提交" ng-click="main.SubmitQryTraceId($event)">
                         提交
                         <span class="icon-arrow-right"></span>
                         <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
@@ -941,18 +941,48 @@
                  ng-show="main.viewShow.queryTrackingResultView">
                 <div class="form-cell deploy-form-cell">
                     <label>
-                        <input type="text" class="main-input-text-style" value="✳Http请求查询结果"/>
+                        <input type="text" class="main-input-text-style" value="✳全链路调用信息结果集"/>
                     </label>
                 </div>
+                <div class="form-cell deploy-form-cell">
+                    <div id="trace-div-span">
+                        <span id="srv-span"><label>服务调用</label></span>
+                        <span id="db-span"><label>数据库操作</label></span>
+                        <span id="http-span"><label>http调用</label></span>
+                        <span id="mq-span"><label>MQ占比</label></span>
+                    </div>
+                </div>
+                <div class="form-cell deploy-form-cell">
+                    <div id="trace-div-ms-span">
+                        <span id="srv-ms-span"><label>RPC耗时占比</label></span>
+                        <span id="db-ms-span"><label>数据库耗时占比</label></span>
+                        <span id="http-ms-span"><label>http耗时占比</label></span>
+                        <span id="mq-ms-span"><label>MQ耗时占比</label></span>
+                    </div>
+                </div>
                 <ul class="ul-div-style bottom-border-solid xs-font-size">
-                    <li class="eight_ul_style">traceId</li>
+                    <li class="four_ul_style">traceId</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">请求类型</li>
+                    <li class="four_ul_style">请求类型</li>
                     <li class="main-font-color">/</li>
-                    <li class="eight_ul_style">备注</li>
+                    <li class="four_ul_style">耗时</li>
                     <li class="main-font-color">/</li>
+                    <li class="four_ul_style">备注</li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">时间</li>
+                    <!--TODO 能否精准到表?-->
                 </ul>
                 <!--                通过循环生成trace链路信息-->
+                <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.curTraceListResult">
+                    <li class="four_ul_style">{{v.qryTraceId}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">{{v.reqType == '0' ? 'RPC' : v.reqType == '1' ? 'DB' : v.reqType == '2' ? 'HTTP'
+                            : v.reqType == '3' ? 'MQ' : '未知类型'}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">{{v.takeTimeMs}}ms</li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">{{v.remarks}}</li>
+                </ul>
             </div>
         </div>
     </div>

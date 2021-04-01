@@ -124,15 +124,18 @@ public class BaseCommandTemplateAgent {
         String mName = ctMethod.getName();
         stringBuilder.append("{")
                 .append("long startTime = System.currentTimeMillis();")
+                .append("String traceId = ((com.evy.common.command.infrastructure.tunnel.dto.InputDTO)$1).getTraceId();")
                 //Trace记录开始
-                .append("com.evy.common.trace.TraceLogUtils.setServiceTraceId(((com.evy.common.command.infrastructure.tunnel.dto.InputDTO)$1).getTraceId());")
+                .append("com.evy.common.trace.TraceLogUtils.setServiceTraceId(traceId);")
                 .append("com.evy.common.log.CommandLog.info(\"Start Service Flow...\");")
                 //执行原方法
                 .append("Object result = ").append(mName).append("($$);")
                 //Trace记录结束
-                .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId();")
+                .append("long agentEndTime = System.currentTimeMillis() -startTime;")
+                .append("com.evy.common.trace.TraceLogUtils.setServiceTraceId(com.evy.common.trace.TraceLogUtils.getCurTraceId(), agentEndTime);")
                 .append("com.evy.common.log.CommandLog.info(\"Service return {}\",").append("new Object[]{").append("($r)result").append("});")
-                .append("com.evy.common.log.CommandLog.info(\"End Service Flow--[{}ms]\",").append("new Object[]{Long.toString((System.currentTimeMillis() -startTime))});")
+                .append("com.evy.common.log.CommandLog.info(\"End Service Flow--[{}ms]\",").append("new Object[]{Long.toString(agentEndTime)});")
+                .append("com.evy.common.trace.TraceLogUtils.rmLogTraceId();")
                 .append("return ($r)result;")
                 .append("}");
     }

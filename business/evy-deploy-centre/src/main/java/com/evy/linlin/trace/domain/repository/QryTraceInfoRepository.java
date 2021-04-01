@@ -2,6 +2,7 @@ package com.evy.linlin.trace.domain.repository;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.trace.service.TraceTracking;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
 import com.evy.linlin.trace.domain.tunnel.constant.QryTraceErrorConstant;
 import com.evy.linlin.trace.domain.tunnel.model.*;
@@ -11,10 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -246,7 +244,7 @@ public class QryTraceInfoRepository {
      * @return true: 新增成功
      */
     public boolean createNewSrvInfo(CreateNewSrvInfoDo infoDo) throws BasicException {
-        boolean result = false;
+        boolean result;
         SrvInfoPO po = QryTraceAssembler.doConvertPo(infoDo);
         if (dataRepository.hasSrvInfo(po)) {
             throw new BasicException(QryTraceErrorConstant.SRV_EXIST_ERROR_CODE, QryTraceErrorConstant.SRV_EXIST_ERROR_MSG);
@@ -288,5 +286,44 @@ public class QryTraceInfoRepository {
                 .skip(beginIndex)
                 .limit(endIndex)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 查询traceId调用链路，按时间升序返回
+     * @param infoDO traceId
+     * @return 调用信息模型
+     */
+    public QryTrackingInfoOutDO qryTrackingInfo(QryTrackingInfoDO infoDO) {
+        QryTrackingInfoOutDO outDo = null;
+        List<String> list = TraceTracking.searchTraceList(infoDO.getTraceId());
+        if (!CollectionUtils.isEmpty(list)) {
+            //解析traceId
+            //traceId652963d801f7e000-0-69|evy-deploy-centre|25
+            //{traceId}-{0:服务调用,1:数据库}-{调用顺序}|{备注}|{耗时}
+            List<QryTrackingInfoModel> models = list.stream()
+                    .map(str -> str.split(BusinessConstant.SPLIT_LINE, -1))
+                    .filter(strings -> strings.length == 3)
+                    .map(strings -> {
+                        String traceId = strings[0];
+                        String reqType = null;
+                        int order = -1;
+                        String[] splitTraceId = traceId.split(BusinessConstant.STRIKE_THROUGH_STR, -1);
+                        if (splitTraceId.length == 3) {
+                            traceId = splitTraceId[0];
+                            reqType = splitTraceId[1];
+                            order = Integer.parseInt(splitTraceId[2]);
+                        }
+
+                        String remakes = strings[1];
+                        String takeTimeMs = strings[2];
+
+                        return new QryTrackingInfoModel(traceId, reqType, takeTimeMs, remakes, order);
+                    })
+                    .sorted(Comparator.comparingInt(QryTrackingInfoModel::getOrder))
+                    .collect(Collectors.toList());
+            outDo = new QryTrackingInfoOutDO(models);
+        }
+
+        return outDo;
     }
 }

@@ -85,6 +85,13 @@ public class QryTraceAssembler {
     }
 
     /**
+     * QryTrackingInfoDTO -> QryTrackingInfoDO
+     */
+    public static QryTrackingInfoDO dtoConvertDo(QryTrackingInfoDTO dto) {
+        return new QryTrackingInfoDO(dto.getQryTraceId());
+    }
+
+    /**
      * QryMqTraceInfoDTO -> QryMqTraceInfoListDO
      */
     public static QryMqTraceInfoListDO dtoConvertDo(QryMqTraceInfoDTO dto) {
@@ -330,6 +337,18 @@ public class QryTraceAssembler {
             outDto.setErrorCode(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND);
         } else {
             outDto.setList(models);
+        }
+
+        return outDto;
+    }
+
+    /**
+     * 创建实例 : QryTrackingInfoOutDTO
+     */
+    public static QryTrackingInfoOutDTO createQryTrackingInfoOutDTO(QryTrackingInfoOutDO outDo) {
+        QryTrackingInfoOutDTO outDto = new QryTrackingInfoOutDTO();
+        if (Objects.nonNull(outDo)) {
+            outDto.setTraceList(outDo.getModelList());
         }
 
         return outDto;

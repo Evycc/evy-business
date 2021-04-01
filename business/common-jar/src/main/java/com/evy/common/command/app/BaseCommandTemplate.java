@@ -12,6 +12,7 @@ import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.common.log.CommandLog;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.common.mq.common.app.basic.MqSender;
+import com.evy.common.trace.TraceLogUtils;
 import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ import java.util.stream.Collectors;
  * @Date: 2019/10/23 0:12
  */
 public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, R extends OutDTO> implements CommandTemplate<T, R> {
+    private static final String TRACEID = "traceId";
+    private static final String INPUT = "input";
+    private static final String OUTPUT = "output";
     /**
      * AnnoCommandInceptor Command拦截器列表
      */
@@ -158,14 +162,14 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
 
             if (StringUtils.isEmpty(reqContent)) {
                 map = new HashMap<>(2);
-                map.put("input", inputDTO);
-                map.put("output", outDTO);
+                map.put(INPUT, inputDTO);
+                map.put(OUTPUT, outDTO);
             } else {
                 String[] reqs = reqContent.split(BusinessConstant.SPLIT_LINE);
                 CommandUtils.conveterFromDto(inputDTO, commandContent);
                 CommandUtils.conveterFromDto(outDTO, commandContent);
+                map = new HashMap<>(reqs.length);
                 for (String s : reqs) {
-                    map = new HashMap<>(reqs.length);
                     map.put(s, String.valueOf(commandContent.get(s)));
                 }
             }
@@ -185,6 +189,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             commandContent.put("srcSendNo", inputDTO.getSrcSendNo());
             commandContent.put("errorCode", outDTO.getErrorCode());
             commandContent.put("errorMsg", outDTO.getErrorMsg());
+            commandContent.put(TRACEID, TraceLogUtils.getCurTraceId());
 
             String json = JsonUtils.convertToJson(commandContent);
 

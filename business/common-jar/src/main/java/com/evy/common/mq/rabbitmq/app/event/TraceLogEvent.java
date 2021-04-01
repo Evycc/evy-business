@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Component("traceLogEvent")
 public class TraceLogEvent extends BaseRabbitMqConsumer {
-    private final static String INSERT_LOG = "INSERT INTO public_log_flow(plf_srcSendNo,plf_code,plf_clientIp,plf_serverIp,plf_reqContent,plf_errorCode,plf_errorMsg) VALUES (?,?,?,?,?,?,?)";
+    private final static String INSERT_LOG = "INSERT INTO public_log_flow(plf_srcSendNo,plf_code,plf_trace_id,plf_clientIp,plf_serverIp,plf_reqContent,plf_errorCode,plf_errorMsg) VALUES (?,?,?,?,?,?,?,?)";
     private static final String SRCSENDNO = "srcSendNo";
     private static final String CODE = "code";
     private static final String CLIENTIP = "clientIp";
@@ -31,6 +31,7 @@ public class TraceLogEvent extends BaseRabbitMqConsumer {
     private static final String REQCONTENT = "reqContent";
     private static final String ERRORCODE = "errorCode";
     private static final String ERRORMSG = "errorMsg";
+    private static final String TRACEID = "traceId";
 
     public TraceLogEvent(Channel channel) {
         super(channel);
@@ -47,6 +48,7 @@ public class TraceLogEvent extends BaseRabbitMqConsumer {
         List<Object> params = new ArrayList<>(){{
            add(map.getOrDefault(SRCSENDNO, BusinessConstant.EMPTY_STR));
            add(map.getOrDefault(CODE, BusinessConstant.EMPTY_STR));
+            add(map.getOrDefault(TRACEID, BusinessConstant.EMPTY_STR));
            add(map.getOrDefault(CLIENTIP, BusinessConstant.EMPTY_STR));
            add(map.getOrDefault(SERVERIP, BusinessConstant.EMPTY_STR));
            add(map.getOrDefault(REQCONTENT, BusinessConstant.EMPTY_STR));
