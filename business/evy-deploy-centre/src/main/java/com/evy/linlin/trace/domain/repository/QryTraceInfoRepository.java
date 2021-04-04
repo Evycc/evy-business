@@ -68,9 +68,11 @@ public class QryTraceInfoRepository {
      * @param qryAppMermoryListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryListDO
      * @return com.evy.linlin.trace.dto.QryAppMermoryInfoModel
      */
-    public List<QryAppMermoryInfoModel> qryAppMermoryInfoList(QryAppMermoryInfoListDO qryAppMermoryListDo) {
+    public Map<String, List<QryAppMermoryInfoModel>> qryAppMermoryInfoList(QryAppMermoryInfoListDO qryAppMermoryListDo) {
         List<QryAppMermoryInfoModel> result = new ArrayList<>();
+        Map<String, List<QryAppMermoryInfoModel>> resultMap = new HashMap<>(8);
         List<String> targetIpList = getTargetIp(qryAppMermoryListDo.getSeq(), qryAppMermoryListDo.getUserSeq());
+
         if (!CollectionUtils.isEmpty(targetIpList)) {
             targetIpList.stream()
                     .map(targetIp -> dataRepository.qryAppMermoryList(
@@ -85,7 +87,15 @@ public class QryTraceInfoRepository {
                     .ifPresent(result::addAll);
         }
 
-        return result;
+        //归类
+        targetIpList.forEach(targetIp -> {
+                    List<QryAppMermoryInfoModel> temp = result.stream()
+                            .filter(qryAppMermoryInfoModel -> qryAppMermoryInfoModel.getAppIp().equals(targetIp))
+                            .collect(Collectors.toList());
+                    resultMap.put(targetIp, temp);
+                });
+
+        return resultMap;
     }
 
     /**
@@ -298,28 +308,30 @@ public class QryTraceInfoRepository {
         List<String> list = TraceTracking.searchTraceList(infoDO.getTraceId());
         if (!CollectionUtils.isEmpty(list)) {
             //解析traceId
-            //traceId652963d801f7e000-0-69|evy-deploy-centre|25
-            //{traceId}-{0:服务调用,1:数据库}-{调用顺序}|{备注}|{耗时}
+            //MQ traceId|链路类型|应用名|耗时|时间戳|{0发布者|1消费者}|topic|tag
+            //DB traceId|链路类型|应用名|耗时|时间戳|数据库名
+            //SERVICE traceId|链路类型|应用名|耗时|时间戳|服务码
+            //HTTP traceId|链路类型|应用名|耗时|时间戳|http请求路径
             List<QryTrackingInfoModel> models = list.stream()
                     .map(str -> str.split(BusinessConstant.SPLIT_LINE, -1))
-                    .filter(strings -> strings.length == 3)
                     .map(strings -> {
                         String traceId = strings[0];
-                        String reqType = null;
-                        int order = -1;
-                        String[] splitTraceId = traceId.split(BusinessConstant.STRIKE_THROUGH_STR, -1);
-                        if (splitTraceId.length == 3) {
-                            traceId = splitTraceId[0];
-                            reqType = splitTraceId[1];
-                            order = Integer.parseInt(splitTraceId[2]);
+                        String reqType = strings[1];
+                        String appName = strings[2];
+                        String takeTimeMs = strings[3];
+                        long order = Long.parseLong(strings[4]);
+                        String remakes = null;
+                        boolean isProvider = false;
+                        if (BusinessConstant.ZERO.equals(reqType) || BusinessConstant.ONE.equals(reqType) || "2".equals(reqType)) {
+                            remakes = strings[5];
+                        } else if ("3".equals(reqType)) {
+                            isProvider = strings[5].equals(BusinessConstant.ZERO);
+                            remakes = "[topic] " + strings[6] + "\n" + "[tag] " + strings[7];
                         }
 
-                        String remakes = strings[1];
-                        String takeTimeMs = strings[2];
-
-                        return new QryTrackingInfoModel(traceId, reqType, takeTimeMs, remakes, order);
+                        return new QryTrackingInfoModel(traceId, reqType, takeTimeMs, remakes, order, isProvider, appName);
                     })
-                    .sorted(Comparator.comparingInt(QryTrackingInfoModel::getOrder))
+                    .sorted((m1, m2) -> (int) (m1.getOrder() - m2.getOrder()))
                     .collect(Collectors.toList());
             outDo = new QryTrackingInfoOutDO(models);
         }

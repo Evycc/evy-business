@@ -374,8 +374,8 @@
             <div id="{{main.viewId.queryMemoryView}}"
                  class="form-table deploy-form-table left-div view-div transparent-form"
                  ng-show="main.viewShow.queryMemoryView">
-                <div id="appCpuView" style="max-width:800px;height:400px;padding: 4px;"></div>
-                <div id="appMemoryView" style="max-width:800px;height:400px;padding: 4px;"></div>
+                <div id="appCpuView" style="max-width:1200px;height:400px;padding: 4px;"></div>
+<!--                <div id="appMemoryView" style="max-width:1200px;height:400px;padding: 4px;"></div>-->
             </div>
             <!--            应用线程信息-->
             <div id="{{main.viewId.queryThreadView}}" class="form-table deploy-form-table left-div transparent-form"
@@ -965,6 +965,8 @@
                     <li class="main-font-color">/</li>
                     <li class="four_ul_style">请求类型</li>
                     <li class="main-font-color">/</li>
+                    <li class="four_ul_style">应用名</li>
+                    <li class="main-font-color">/</li>
                     <li class="four_ul_style">耗时</li>
                     <li class="main-font-color">/</li>
                     <li class="four_ul_style">备注</li>
@@ -977,11 +979,18 @@
                     <li class="four_ul_style">{{v.qryTraceId}}</li>
                     <li class="main-font-color">/</li>
                     <li class="four_ul_style">{{v.reqType == '0' ? 'RPC' : v.reqType == '1' ? 'DB' : v.reqType == '2' ? 'HTTP'
-                            : v.reqType == '3' ? 'MQ' : '未知类型'}}</li>
+                            : v.reqType == '3' ? 'MQ' : '未知类型'}}
+                        <span class="span-tag" ng-show="v.reqType == '3' && v.provider">provider</span>
+                        <span class="span-tag" ng-show="v.reqType == '3' && !v.provider">consumer</span>
+                    </li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">{{v.appName}}</li>
                     <li class="main-font-color">/</li>
                     <li class="four_ul_style">{{v.takeTimeMs}}ms</li>
                     <li class="main-font-color">/</li>
                     <li class="four_ul_style">{{v.remarks}}</li>
+                    <li class="main-font-color">/</li>
+                    <li class="four_ul_style">{{v.order}}</li>
                 </ul>
             </div>
         </div>

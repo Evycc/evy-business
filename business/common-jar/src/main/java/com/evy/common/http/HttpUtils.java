@@ -69,9 +69,8 @@ public class HttpUtils {
         String reqParam = !Objects.isNull(nameValuePairList) ? nameValuePairList.toString() : null;
 
         //trace
-        String traceIdTemp = TraceLogUtils.getCurTraceId();
-        String traceId = TraceLogUtils.buildHttpTraceId();
-        TraceLogUtils.setHttpTraceId(traceId);
+        String traceId = TraceLogUtils.buildTraceId();
+        TraceLogUtils.rmLogTraceId(traceId);
 
         try {
             URI uri = uriBuilder(path, nameValuePairList).build();
@@ -108,9 +107,8 @@ public class HttpUtils {
             TraceUtils.addTraceHttp(path, (System.currentTimeMillis() - startTime), false, reqParam, e.getMessage());
             throw e;
         } finally {
-            //trace
-            TraceLogUtils.setHttpTraceId(traceId, (System.currentTimeMillis() - startTime));
-            TraceLogUtils.rmLogTraceId(traceIdTemp);
+            //traceId
+            TraceLogUtils.setHttpTraceId(traceId, path, (System.currentTimeMillis() - startTime), startTime);
         }
     }
 

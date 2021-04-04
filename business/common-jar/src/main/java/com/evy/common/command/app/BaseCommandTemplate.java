@@ -154,8 +154,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
         //存储到上下文，用于记录@TraceLog
         int maxLength = 2048;
         Class<?> curClass = this.getClass();
-        TraceLog traceLog;
-        traceLog = (TraceLog) curClass.getAnnotation(TraceLog.class);
+        TraceLog traceLog = curClass.getAnnotation(TraceLog.class);
         if (traceLog != null) {
             String reqContent = traceLog.reqContent();
             Map<String, Object> map = null;
@@ -180,10 +179,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
             }
 
             commandContent.put("reqContent", reqContentJson);
-            String curCode = this.getClass().getName();
-            int temp1 = curCode.lastIndexOf(BusinessConstant.POINT);
-            curCode = curCode.substring(curCode.substring(0, temp1).lastIndexOf(BusinessConstant.POINT) + 1, curCode.length() - 1);
-            commandContent.put("code", curCode);
+            commandContent.put("code", getClass().getName());
             commandContent.put("serverIp", BusinessConstant.VM_HOST);
             commandContent.put("clientIp", inputDTO.getClientIp());
             commandContent.put("srcSendNo", inputDTO.getSrcSendNo());

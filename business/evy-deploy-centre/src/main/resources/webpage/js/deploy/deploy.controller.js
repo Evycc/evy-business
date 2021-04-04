@@ -394,6 +394,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.showClose();
         self.setDeployInfoTitle(title);
         self.viewShow.queryMemoryView = true;
+        self.qryAllMemoryInfoList();
     }
     /**
      * 展示部署配置信息页面
@@ -420,6 +421,26 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryThreadView = true;
         self.rmCurThreadAll();
         self.qryThreadInfoListSubmit();
+    }
+
+    self.qryAllMemoryInfoList = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        DeployMainService.qryMemory(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('查询内存信息失败 ' + response.errorMsg);
+                } else {
+                    if (response.outMap != null) {
+                        self.initMemoryViewJs(response.outMap);
+                    }
+                }
+                console.log(response)
+            }, function (err){
+                console.log('查询内存信息失败 ' + err)
+            });
+        //TODO
     }
 
     self.rmCurThreadAll = function () {
@@ -1368,6 +1389,12 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.buildCurTraceListResult = function (list) {
+        for (let i = 0; i < list.length; i++) {
+            let date = new Date(list[i].order);
+            list[i].order = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '
+                +('0'+date.getHours()).slice(-2)+':'+('0'+date.getMinutes()).slice(-2)+':'+('0'+date.getSeconds()).slice(-2)+'.'+date.getMilliseconds();
+        }
+
         self.curTraceListResult = list;
         self.buildTraceDivSpan();
         self.buildTraceDivMsSpan();
@@ -1569,67 +1596,13 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 deploySeq : '123546978'
             },
         ]
-
-        self.appMemoryInfoList = [
-            {
-                appIp: '127.0.0.1',
-                cpuCount: '8',
-                /**
-                 * CPU使用率
-                 */
-                cpuLoadPercentage: '',
-                /**
-                 * 系统内存,单位kb
-                 */
-                sysMermoryKb: '',
-                /**
-                 * 系统可用内存,单位kb
-                 */
-                sysAvailMermoryKb: '',
-                /**
-                 * 系统已用内存,单位kb
-                 */
-                sysUseMermoryKb: '',
-                /**
-                 * 应用最大堆内存,单位kb
-                 */
-                appHeapMaxMermoryKb: '',
-                /**
-                 * 应用最小堆内存,单位kb
-                 */
-                appHeapMinMermoryKb: '',
-                /**
-                 * 应用占用堆内存,单位kb
-                 */
-                appHeapUseMermoryKb: '',
-                /**
-                 * 应用最大非堆内存,单位kb
-                 */
-                appNoHeapMaxMermoryKb: '',
-                /**
-                 * 应用最小非堆内存,单位kb
-                 */
-                appNoHeapMinMermoryKb: '',
-                /**
-                 * 应用占用非堆内存,单位kb
-                 */
-                appNoHeapUseMermoryKb: '',
-                /**
-                 * 采集时间
-                 */
-                gmtModify: ''
-            }
-        ]
     }
 
     /**
      * 展示服务器cpu使用率
      */
-    self.initMemoryViewJs = function () {
-        let ip1 = '127.0.0.1';
-        let ip2 = '192.168.152.1';
-        let ip3 = '127.0.0.1';
-        let chart1 = Highcharts.chart('appCpuView', {
+    self.initMemoryViewJs = function (outMap) {
+        let chart1 = {
             title: {
                 text: '服务器cpu使用率'
             },
@@ -1666,20 +1639,16 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                         connectorAllowed: false,
                         format: '{value:%Y-%m-%d}'
                     },
-                    pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
-                    pointInterval: 60 * 1000
+                    // pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
+                    // pointInterval: 60 * 1000
                 }
             },
-            series: [{
-                name: '127.0.0.1',
-                data: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-            }, {
-                name: '192.168.152.1',
-                data: [0.34, 0.01, 0.01, 0.02, 0.02, 0.01, 0.02]
-            }, {
-                name: '127.0.0.2',
-                data: [1.21, 0.34, 0.01, 0.04, 0.02, 0.01, 0.12]
-            }],
+            series: [
+                {
+                    name: '127.0.0.2',
+                    data: [1.21, 0.34, 0.01, 0.04, 0.02, 0.01, 0.12]
+                }
+            ],
             responsive: {
                 rules: [{
                     condition: {
@@ -1694,74 +1663,157 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     }
                 }]
             }
-        });
+        };
 
-        let chart2 = Highcharts.chart('appMemoryView',{
-            chart: {
-                type: 'area'
-            },
-            title: {
-                text: '服务器内存使用率'
-            },
-            subtitle: {
-                text: '127.0.0.1'
-            },
-            xAxis: {
-                type: 'datetime',
-                labels: {
-                    format: '{value:%Y-%m-%d}',
-                    rotation: 45,
-                    align: 'left'
-                }
-            },
-            yAxis: {
-                title: {
-                    text: '系统内存,单位MB'
+        let index=0;
+        let maxIpLength = 0;
+        for (let ip in outMap) {
+            let sysMemoryTotal = 0;
+            let sysAvailMemoryList = [];
+            let appUseMemoryList = [];
+            let appHeapMaxTotal = [];
+            let appHeapMinTotal = [];
+            let appHeapUseList = [];
+            let appNoHeapMaxTotal = [];
+            let appNoHeapMinTotal = [];
+            let appNoHeapUseList = [];
+            /*cpu图形处理*/
+            if (chart1.series[index] === undefined) {
+                chart1.series[index] = {};
+            }
+            chart1.series[index].name = ip;
+            if (chart1.series[index].data === undefined) {
+                chart1.series[index].data = [];
+            }
+            /*cpu图像处理 end*/
+            for (let i =0; i < outMap[ip].length; i++) {
+                chart1.series[index].data.push(parseFloat(outMap[ip][i].cpuLoadPercentage) *100);
+
+                //服务器最大内存
+                sysMemoryTotal = sysMemoryTotal < parseInt(outMap[ip][i].sysMermoryKb) ? parseInt(outMap[ip][i].sysMermoryKb) : sysMemoryTotal;
+                //服务器系统可用内存集合
+                sysAvailMemoryList.push(parseInt(outMap[ip][i].sysAvailMermoryKb) /1024/1024);
+                //应用占用内存集合
+                appUseMemoryList.push(parseInt(outMap[ip][i].sysUseMermoryKb) /1024/1024);
+                //应用堆最大内存
+                appHeapMaxTotal.push(parseInt(outMap[ip][i].appHeapMaxMermoryKb) /1024/1024);
+                //应用堆最小内存
+                appHeapMinTotal.push(parseInt(outMap[ip][i].appHeapMinMermoryKb) /1024/1024);
+                //应用堆内存占用集合
+                appHeapUseList.push(parseInt(outMap[ip][i].appHeapUseMermoryKb) /1024/1024);
+                //应用非堆最大内存
+                appNoHeapMaxTotal.push(parseInt(outMap[ip][i].appNoHeapMaxMermoryKb) /1024/1024);
+                //应用非堆最小内存
+                appNoHeapMinTotal.push(parseInt(outMap[ip][i].appNoHeapMinMermoryKb) /1024/1024);
+                //应用非堆内存占用集合
+                appNoHeapUseList.push(parseInt(outMap[ip][i].appNoHeapUseMermoryKb) /1024/1024);
+            }
+
+            /*内存图像处理*/
+            let chart2 = {
+                chart: {
+                    type: 'area'
                 },
-                max: 17009004544/1024/1024,
-                endOnTick: false,
-                labels: {
-                    formatter: function () {
-                        return this.value + 'MB';
+                title: {
+                    text: '服务器内存使用率'
+                },
+                subtitle: {
+                    text: ip
+                },
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        format: '{value:%Y-%m-%d}',
+                        rotation: 45,
+                        align: 'left'
                     }
-                }
-            },
-            tooltip: {
-                pointFormat: '{series.name} <b>{point.y:,.0f}</b>MB'
-            },
-            plotOptions: {
-                series: {
-                    label: {
-                        connectorAllowed: false,
-                        format: '{value:%Y-%m-%d}'
+                },
+                yAxis: {
+                    title: {
+                        text: '系统内存,单位MB'
                     },
-                    pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
-                    pointInterval: 60 * 1000
-                }
-            },
+                    max: sysMemoryTotal/1024/1024,
+                    endOnTick: false,
+                    labels: {
+                        formatter: function () {
+                            return this.value + 'MB';
+                        }
+                    }
+                },
+                tooltip: {
+                    pointFormat: '{series.name} <b>{point.y:,.0f}</b>MB'
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false,
+                            format: '{value:%Y-%m-%d}'
+                        },
+                        // pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
+                        // pointInterval: 60 * 1000
+                    }
+                },
 
-            series: [{
-                name: '系统可用内存',
-                data: [11178192896/1024/1024, 11137314816/1024/1024, 10267836416/1024/1024,
-                    6142365696/1024/1024, 7768403968/1024/1024, 7729283072/1024/1024]
-            }, {
-                name: '应用占用内存',
-                data: [136314880/1024/1024, 136314880/1024/1024, 136314880/1024/1024,
-                    136314880/1024/1024, 136314880/1024/1024, 136314880/1024/1024,]
-            }, {
-                name: '应用占用内存',
-                data: [136314880/1024/1024, 136314880/1024/1024, 136314880/1024/1024,
-                    136314880/1024/1024, 136314880/1024/1024, 136314880/1024/1024,]
-            }, {
-                name: '最大堆内存',
-                data: [4253024256/1024/1024, 4253024256/1024/1024, 4253024256/1024/1024,
-                    4253024256/1024/1024, 4253024256/1024/1024, 4253024256/1024/1024,]
-            }, {
-                name: '堆使用内存',
-                data: [65060656/1024/1024, 95232176/1024/1024, 104692528/1024/1024,
-                    108886832/1024/1024, 114129712/1024/1024, 55257104/1024/1024,]
-            }]
-        });
+                series: [{
+                    name: '系统可用内存',
+                    data: sysAvailMemoryList
+                }, {
+                    name: '应用占用内存',
+                    data: appUseMemoryList
+                }, {
+                    name: '应用堆内存占用',
+                    data: appHeapUseList
+                }, {
+                    name: '应用非堆内存占用',
+                    data: appNoHeapUseList
+                }, {
+                    name: '应用最大堆内存',
+                    data: appHeapMaxTotal
+                }, {
+                    name: '应用最小堆内存',
+                    data: appHeapMinTotal
+                }, {
+                    name: '应用最大非堆内存',
+                    data: appNoHeapMaxTotal
+                }, {
+                    name: '应用最小非堆内存',
+                    data: appNoHeapMinTotal
+                }]
+            };
+            let viewId = 'appMemoryView'+index;
+            let div = document.createElement("div");
+            div.id = viewId;
+            angular.element('#' + self.viewId.queryMemoryView).append(div);
+            self.SetNewClass(viewId, 'chart-style');
+            console.log(chart2)
+            /*内存图像处理 end*/
+
+            maxIpLength = maxIpLength === 0 ? outMap[ip].length : maxIpLength < outMap[ip].length ? outMap[ip].length : maxIpLength;
+            index++;
+            self.chartPlotOptions(chart2, maxIpLength);
+            Highcharts.chart(viewId,chart2);
+        }
+
+        self.chartPlotOptions(chart1, maxIpLength);
+
+        Highcharts.chart('appCpuView', chart1);
+    }
+
+    self.chartPlotOptions = function (chart, len) {
+        let date = new Date();
+        if (chart.plotOptions === undefined) {
+            chart.plotOptions = {};
+        }
+        if (chart.plotOptions.series === undefined) {
+            chart.plotOptions.series = {};
+        }
+        if (chart.plotOptions.series.label === undefined) {
+            chart.plotOptions.series.label = {};
+        }
+        chart.plotOptions.series.label.connectorAllowed = false;
+        chart.plotOptions.series.label.format = '{value:%Y-%m-%d}';
+        chart.plotOptions.series.pointStart = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+        // chart.plotOptions.series.pointInterval = (24 * 60 * 60 * 1000) / len;
     }
 
     /**
@@ -1769,7 +1821,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      */
     self.init();
     // self.showDeployMainView('自动化部署');
-    self.initMemoryViewJs();
+    // self.initMemoryViewJs();
 }]);
 
 

@@ -48,7 +48,7 @@ public class EvyGatewayRequestUtils<T extends GatewayInputDTO, R extends Gateway
      */
     public R requestJson(@RequestBody T body, Class<R> responseCls) {
         if (Objects.nonNull(body)) {
-            String traceId = TraceLogUtils.buildServiceTraceId();
+            String traceId = TraceLogUtils.buildTraceId();
             body.setTraceId(traceId);
         }
         return restTemplate.postForObject(buildGatewayReqUrl(), body, responseCls);

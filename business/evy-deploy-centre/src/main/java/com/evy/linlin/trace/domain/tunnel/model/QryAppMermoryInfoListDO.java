@@ -12,5 +12,4 @@ import lombok.Getter;
 public class QryAppMermoryInfoListDO {
     private final String seq;
     private final String userSeq;
-    private final Integer limit;
 }

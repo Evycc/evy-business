@@ -29,10 +29,4 @@ public class QryAppMermoryInfoDTO extends InputDTO implements ValidatorDTO<QryAp
     @NotBlank(message = "userSeq不能为空")
     @Length(max = 64, message = "userSeq长度超限")
     private String userSeq;
-    /**
-     * 查询记录数
-     */
-    @Min(7)
-    @Max(100)
-    private String limit;
 }

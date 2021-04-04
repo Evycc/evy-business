@@ -8,8 +8,7 @@ import com.evy.common.utils.SequenceUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Trace Log 工具，用于给当前线程MDC日志赋值TraceId<br/>
- * traceId格式 : traceId[16进制唯一序列]-[int,类型枚举]-[int,顺序自增]
+ * Trace Log 工具，用于给当前线程MDC日志赋值TraceId
  * @Author: EvyLiuu
  * @Date: 2020/11/30 23:38
  */
@@ -55,149 +54,17 @@ public class TraceLogUtils {
     }
 
     /**
-     * 构建trace,服务化调用类型
+     * 从MDC当前线程获取或构建traceId
      * @return traceId
      */
-    public synchronized static String buildServiceTraceId() {
-        return buildTraceId(SERVICE_TYPE);
-    }
-
-    /**
-     * 构建trace,数据库调用类型
-     * @return traceId
-     */
-    public synchronized static String buildDbTraceId() {
-        return buildTraceId(DB_TYPE);
-    }
-
-    /**
-     * 构建trace,MQ类型
-     * @return traceId
-     */
-    public synchronized static String buildMqTraceId() {
-        return buildTraceId(MQ_TYPE);
-    }
-
-    /**
-     * 构建trace,Http调用类型
-     * @return traceId
-     */
-    public synchronized static String buildHttpTraceId() {
-        return buildTraceId(HTTP_TYPE);
-    }
-
-    /**
-     * 从MDC当前线程获取traceId,构建或更新一个新的traceId
-     * @param type trace类型
-     * @return 更新后的traceId
-     */
-    private static String buildTraceId(int type) {
+    public static String buildTraceId() {
         String traceId = CommandLog.getTraceId();
         if (StringUtils.isEmpty(traceId)) {
             //当前线程不存在traceId,新建一个新的traceId
-            traceId = buildNewTraceId(type);
-        } else {
-            traceId = updateTypeByTraceId(traceId, type);
+            traceId = TRACE_ID + Long.toHexString(SequenceUtils.nextId());
         }
 
         return traceId;
-    }
-
-    /**
-     * MDC当前线程赋值TraceId,服务化调用类型
-     * @param traceId 唯一序列
-     */
-    public synchronized static void setServiceTraceId(String traceId) {
-        String var = traceId;
-        if (StringUtils.isEmpty(var)) {
-            var = buildServiceTraceId();
-        }
-        setLogTraceId(var);
-        TraceTracking.saveTraceService(var, APP_NAME);
-    }
-
-    /**
-     * MDC当前线程赋值TraceId,服务化调用类型
-     * @param traceId 唯一序列
-     * @param takeTimeMs 耗时,ms
-     */
-    public synchronized static void setServiceTraceId(String traceId, long takeTimeMs) {
-        TraceTracking.saveTraceService(traceId, APP_NAME, takeTimeMs);
-    }
-
-    /**
-     * MDC赋值TraceId,数据库调用类型
-     * @param databaseName 数据库名
-     * @param traceId 唯一序列
-     */
-    public synchronized static void setDbTraceId(String traceId, String databaseName) {
-        String var = traceId;
-        if (StringUtils.isEmpty(var)) {
-            var = buildDbTraceId();
-        }
-        setLogTraceId(var);
-        TraceTracking.saveTraceDb(var, databaseName);
-    }
-
-    /**
-     * MDC赋值TraceId,数据库调用类型(从现有的traceId中获取)
-     * @param traceId 唯一序列
-     * @param databaseName 数据库名
-     * @param takeTimeMs 耗时,ms
-     */
-    public synchronized static void setDbTraceId(String traceId, String databaseName, long takeTimeMs) {
-        TraceTracking.saveTraceDb(traceId, databaseName, takeTimeMs);
-    }
-
-    /**
-     * MDC赋值TraceId,数据库调用类型
-     * @param topic topic
-     * @param tag tag
-     * @param traceId 唯一序列
-     */
-    public synchronized static void setMqTraceId(String traceId, String topic, String tag) {
-        String var = traceId;
-        if (StringUtils.isEmpty(var)) {
-            var = buildMqTraceId();
-        }
-        setLogTraceId(var);
-        TraceTracking.saveTraceMq(var, topic, tag);
-    }
-
-    /**
-     * MDC赋值TraceId,数据库调用类型
-     * @param topic topic
-     * @param tag tag
-     * @param traceId 唯一序列
-     * @param takeTimeMs 耗时,ms
-     */
-    public synchronized static void setMqTraceId(String traceId, String topic, String tag, long takeTimeMs) {
-        TraceTracking.saveTraceMq(traceId, topic, tag, takeTimeMs);
-    }
-
-    /**
-     * MDC赋值TraceId,Http调用类型
-     * @param traceId 唯一序列
-     */
-    public synchronized static void setHttpTraceId(String traceId) {
-        String var = traceId;
-        if (StringUtils.isEmpty(var)) {
-            var = buildHttpTraceId();
-        }
-        setLogTraceId(var);
-        TraceTracking.saveTraceHttp(var);
-    }
-
-    public synchronized static void setHttpTraceId(String traceId, long takeTimeMs) {
-        TraceTracking.saveTraceHttp(traceId, takeTimeMs);
-    }
-
-    /**
-     * 为当前线程赋值trace或赋值子traceId
-     * @param traceId 唯一序列
-     */
-    private static void setLogTraceId(String traceId) {
-        CommandLog.setTraceId(traceId);
     }
 
     /**
@@ -211,33 +78,52 @@ public class TraceLogUtils {
      * 更新MDC TraceId
      */
     public synchronized static void rmLogTraceId(String traceId) {
-        setLogTraceId(traceId);
+        CommandLog.setTraceId(traceId);
     }
 
     /**
-     * 返回traceId 格式 traceId
-     * @param type int,类型枚举
-     * @return 返回唯一traceId
+     * MDC赋值TraceId,http调用类型
+     * @param traceId 唯一序列
+     * @param takeTimeMs 耗时,ms
+     * @param reqPath http请求路径
+     * @param timestamp 交易发生时间戳
      */
-    private static String buildNewTraceId(int type) {
-        return TRACE_ID + Long.toHexString(SequenceUtils.nextId())
-                + BusinessConstant.STRIKE_THROUGH_STR + type
-                + BusinessConstant.STRIKE_THROUGH_STR + CommandLog.incr();
+    public synchronized static void setHttpTraceId(String traceId, String reqPath, long takeTimeMs, long timestamp) {
+        TraceTracking.saveHttpTraceId(traceId, HTTP_TYPE, APP_NAME, reqPath, takeTimeMs, timestamp);
     }
 
     /**
-     * 更新traceId中类型type
-     * @param traceId traceId
-     * @param type int,类型枚举
-     * @return 返回更新后traceId
+     * MDC赋值TraceId,数据库调用类型
+     * @param topic topic
+     * @param tag tag
+     * @param traceId 唯一序列
+     * @param takeTimeMs 耗时,ms
+     * @param timestamp 交易发生时间戳
      */
-    private static String updateTypeByTraceId(String traceId, int type) {
-        int one = traceId.indexOf(BusinessConstant.STRIKE_THROUGH_STR);
-        int two = traceId.indexOf(BusinessConstant.STRIKE_THROUGH_STR, one +1);
+    public synchronized static void setMqTraceId(String traceId, boolean isProvider, String topic, String tag, long takeTimeMs, long timestamp) {
+        TraceTracking.saveMqTraceId(traceId, MQ_TYPE, APP_NAME, isProvider, topic, tag, takeTimeMs, timestamp);
+    }
 
-        int order = Integer.parseInt(traceId.substring(two +1));
+    /**
+     * MDC赋值TraceId,数据库调用类型
+     * @param traceId 唯一序列
+     * @param databaseName 数据库名
+     * @param takeTimeMs 耗时,ms
+     * @param timestamp 交易发生时间戳
+     */
+    public synchronized static void setDbTraceId(String traceId, String databaseName, long takeTimeMs, long timestamp) {
+        TraceTracking.saveDbTraceId(traceId, DB_TYPE, APP_NAME, databaseName, takeTimeMs, timestamp);
+    }
 
-        return traceId.substring(0, one +1) + type + BusinessConstant.STRIKE_THROUGH_STR + (order + CommandLog.incr());
+    /**
+     * MDC赋值TraceId,服务调用类型
+     * @param traceId 唯一序列
+     * @param srvCode 服务码
+     * @param takeTimeMs 耗时,ms
+     * @param timestamp 交易发生时间戳
+     */
+    public synchronized static void setServiceTraceId(String traceId, String srvCode, long takeTimeMs, long timestamp) {
+        TraceTracking.saveSrvTraceId(traceId, SERVICE_TYPE, APP_NAME, srvCode, takeTimeMs, timestamp);
     }
 
     /**

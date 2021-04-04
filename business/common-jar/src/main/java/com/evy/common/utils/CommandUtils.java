@@ -109,7 +109,7 @@ public class CommandUtils {
         Object dto = null;
         try {
             dto = Class.forName(dtoName).getDeclaredConstructor().newInstance();
-            Class temp = dto.getClass();
+            Class<?> temp = dto.getClass();
 
             Field[] fields = getAllField(temp);
             for (Field field : fields) {
@@ -129,7 +129,7 @@ public class CommandUtils {
      * @param from  源对象
      * @param to    转化后对象
      */
-    public static void conveterFromDto(Object from, Map to){
+    public static void conveterFromDto(Object from, Map<String, Object> to){
         Field[] fields = getAllField(from.getClass());
         try {
             for (Field field : fields) {

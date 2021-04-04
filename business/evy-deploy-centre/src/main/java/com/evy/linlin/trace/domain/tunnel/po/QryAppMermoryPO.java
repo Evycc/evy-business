@@ -13,5 +13,4 @@ import lombok.ToString;
 @ToString
 public class QryAppMermoryPO {
     private final String appIp;
-    private final Integer limit;
 }

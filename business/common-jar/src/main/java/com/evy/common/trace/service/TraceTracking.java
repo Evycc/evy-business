@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 链路跟踪结果记录<br/>
@@ -44,9 +45,20 @@ public class TraceTracking {
             TRACE_LIST
                     .forEach(traceInfo -> {
                         String[] vars = traceInfo.split(BusinessConstant.SPLIT_LINE, -1);
-                        String traceId = vars[0];
-                        //链路执行顺序
-                        String order = traceId.substring(traceId.lastIndexOf(BusinessConstant.STRIKE_THROUGH_STR) +1);
+                        String type = vars[1];
+                        String srvType = BusinessConstant.ZERO;
+                        if (srvType.equals(type)) {
+                            String clsName = vars[5];
+                            if (Objects.nonNull(clsName)) {
+                                String srvName = TraceService.qrySrvName(clsName);
+                                if (Objects.nonNull(srvName)) {
+                                    //转换类名为对应服务码
+                                    traceInfo = traceInfo.replace(clsName, srvName);
+                                }
+                            }
+                        }
+                        //链路发生时间戳
+                        String order = vars[4];
                         template.opsForZSet()
                                 .add(TRACKING_KEY, traceInfo, Double.parseDouble(order))
                                 .subscribe();
@@ -57,127 +69,101 @@ public class TraceTracking {
     }
 
     /**
-     * Trace记录保存 服务化调用
-     * @param traceId   traceId
-     * @param appName   应用名
-     */
-    public static void saveTraceService(String traceId, String appName) {
-        TRACE_LIST.add(buildTraceStr(traceId, appName));
-    }
-
-    /**
-     * Trace记录保存 服务化调用
-     * @param traceId   traceId
-     * @param appName   应用名
-     */
-    public static void saveTraceService(String traceId, String appName, long takeTime) {
-        String var = buildTraceStr(traceId, appName);
-        int index = TRACE_LIST.indexOf(var);
-        if (index != -1) {
-            //更新
-            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
-        }
-    }
-
-    /**
-     * Trace记录保存 数据库操作
-     * @param traceId   traceId
-     * @param database   数据库名
-     */
-    public static void saveTraceDb(String traceId, String database) {
-        TRACE_LIST.add(buildTraceStr(traceId, database));
-    }
-
-    /**
-     * Trace记录保存 数据库操作
-     * @param traceId   traceId
-     * @param database   数据库名
-     * @param takeTime 耗时,ms
-     */
-    public static void saveTraceDb(String traceId, String database, long takeTime) {
-        String var = buildTraceStr(traceId, database);
-        int index = TRACE_LIST.indexOf(var);
-        if (index != -1) {
-            //更新
-            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
-        }
-    }
-
-    /**
-     * Trace记录保存 数据库操作
-     * @param traceId   traceId
-     * @param topic   topic
-     * @param tag tag
-     */
-    public static void saveTraceMq(String traceId, String topic, String tag) {
-        TRACE_LIST.add(buildTraceStr(traceId, topic, tag));
-    }
-
-    /**
-     * Trace记录保存 数据库操作
-     * @param traceId   traceId
-     * @param topic   topic
-     * @param tag tag
-     */
-    public static void saveTraceMq(String traceId, String topic, String tag, long takeTime) {
-        String var = buildTraceStr(traceId, topic, tag);
-        int index = TRACE_LIST.indexOf(var);
-        if (index != -1) {
-            //更新
-            TRACE_LIST.set(index, buildTakeTimeStr(var, takeTime));
-        }
-    }
-
-    /**
-     * 按照traceId的格式拼接字符串
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳|http请求路径
      * @param traceId traceId
-     * @param var 数据库名或应用名等
-     * @return string
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param reqPath http请求路径
+     * @param takeTime 耗时
      */
-    private static String buildTraceStr(String traceId, String var) {
-        return traceId + BusinessConstant.LINE + var;
+    public static void saveHttpTraceId(String traceId, int type, String appName, String reqPath, long takeTime, long timestamp) {
+        TRACE_LIST.add(buildLineStr(buildBaseTraceId(traceId, type, appName, takeTime, timestamp), reqPath));
     }
 
     /**
-     * 按照traceId的格式拼接字符串
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳|{0发布者|1消费者}|topic|tag
      * @param traceId traceId
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param isProvider true:发布者 false:消费者
      * @param topic topic
      * @param tag tag
-     * @return string
+     * @param takeTime 耗时
+     * @param timestamp 交易发生时间戳
      */
-    private static String buildTraceStr(String traceId, String topic, String tag) {
-        return traceId + BusinessConstant.LINE + topic + BusinessConstant.LINE + tag ;
+    public static void saveMqTraceId(String traceId, int type, String appName, boolean isProvider, String topic, String tag, long takeTime, long timestamp) {
+        TRACE_LIST.add(buildLineStr(buildBaseTraceId(traceId, type, appName, takeTime, timestamp),
+                isProvider ? BusinessConstant.ZERO : BusinessConstant.ONE, topic, tag));
     }
 
     /**
-     * 按照traceId的格式拼接字符串
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳|数据库名
      * @param traceId traceId
-     * @param takeTime 耗时,ms
-     * @return string
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param dataBase 数据库名
+     * @param takeTime 耗时
+     * @param timestamp 交易发生时间戳
      */
-    private static String buildTakeTimeStr(String traceId, long takeTime) {
-        return traceId + BusinessConstant.LINE + takeTime;
+    public static void saveDbTraceId(String traceId, int type, String appName, String dataBase, long takeTime, long timestamp) {
+        TRACE_LIST.add(buildLineStr(buildBaseTraceId(traceId, type, appName, takeTime, timestamp), dataBase));
     }
 
     /**
-     * Trace记录保存 http请求
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳|数据库名|表名
      * @param traceId traceId
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param dataBase 数据库名
+     * @param table 表名
+     * @param takeTime 耗时
+     * @param timestamp 交易发生时间戳
      */
-    public static void saveTraceHttp(String traceId) {
-        TRACE_LIST.add(traceId);
+    public static void saveDbTraceId(String traceId, int type, String appName, String dataBase, String table, long takeTime, long timestamp) {
+        TRACE_LIST.add(buildLineStr(buildBaseTraceId(traceId, type, appName, takeTime, timestamp), dataBase, table));
     }
 
     /**
-     * Trace记录保存 http请求
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳|服务码
      * @param traceId traceId
-     * @param takeTime 耗时,ms
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param srvCode 服务码
+     * @param takeTime 耗时
+     * @param timestamp 交易发生时间戳
      */
-    public static void saveTraceHttp(String traceId, long takeTime) {
-        int index = TRACE_LIST.indexOf(traceId);
-        if (index != -1) {
-            //更新
-            TRACE_LIST.set(index, buildTakeTimeStr(traceId, takeTime));
+    public static void saveSrvTraceId(String traceId, int type, String appName, String srvCode, long takeTime, long timestamp) {
+        TRACE_LIST.add(buildLineStr(buildBaseTraceId(traceId, type, appName, takeTime, timestamp), srvCode));
+    }
+
+    /**
+     * traceId存储的基本格式: traceId|链路类型|应用名|耗时|时间戳
+     * @param traceId traceId
+     * @param type 链路类型
+     * @param appName 应用名
+     * @param takeTime 耗时
+     * @return traceId|链路类型|应用名|耗时|时间戳
+     * @param timestamp 交易发生时间戳
+     */
+    private static String buildBaseTraceId(String traceId, int type, String appName, long takeTime, long timestamp) {
+        return buildLineStr(traceId, String.valueOf(type), appName, String.valueOf(takeTime), String.valueOf(timestamp));
+    }
+
+    /**
+     * 用|分割构造字符串
+     * @param strs 字符串数组
+     * @return 返回格式 str|str
+     */
+    private static String buildLineStr(String... strs) {
+        StringBuilder stringBuilder = new StringBuilder(strs.length);
+        for (int i = 0; i < strs.length; i++) {
+            stringBuilder.append(strs[i]);
+            if (i != strs.length -1) {
+                stringBuilder.append(BusinessConstant.LINE);
+            }
         }
+
+        return String.valueOf(stringBuilder);
     }
 
     /**

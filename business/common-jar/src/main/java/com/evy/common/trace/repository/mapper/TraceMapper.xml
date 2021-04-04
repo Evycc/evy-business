@@ -188,6 +188,12 @@
         FROM trace_services_info;
     </select>
 
+    <select id="querySrvName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT tsi_service_bean_name
+        FROM trace_services_info
+        WHERE tsi_service_name = #{clsName};
+    </select>
+
     <update id="updateConsumerServiceInfo"
             parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO">
         UPDATE trace_services_info

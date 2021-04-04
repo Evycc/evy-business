@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: EvyLiuu
@@ -17,5 +18,5 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 public class QryAppMermoryInfoOutDTO extends OutDTO {
-    private List<QryAppMermoryInfoModel> list;
+    private Map<String, List<QryAppMermoryInfoModel>> outMap;
 }

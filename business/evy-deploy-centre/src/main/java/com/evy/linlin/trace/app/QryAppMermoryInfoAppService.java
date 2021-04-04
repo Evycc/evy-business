@@ -11,6 +11,7 @@ import com.evy.linlin.trace.dto.QryAppMermoryInfoOutDTO;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 对外功能: 查询服务器内存使用信息
@@ -28,7 +29,7 @@ public class QryAppMermoryInfoAppService extends QryAppMermoryInfoService {
 
     @Override
     public QryAppMermoryInfoOutDTO execute(QryAppMermoryInfoDTO qryAppMermoryInfoDTO) throws BasicException {
-        List<QryAppMermoryInfoModel> modelList = qryTraceInfoRepository.qryAppMermoryInfoList(QryTraceAssembler.dtoConvertDo(qryAppMermoryInfoDTO));
+        Map<String, List<QryAppMermoryInfoModel>> modelList = qryTraceInfoRepository.qryAppMermoryInfoList(QryTraceAssembler.dtoConvertDo(qryAppMermoryInfoDTO));
         return QryTraceAssembler.createQryAppMermoryInfoOutDTO(modelList);
     }
 }

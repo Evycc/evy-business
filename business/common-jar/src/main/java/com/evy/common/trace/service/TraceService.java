@@ -55,6 +55,7 @@ public class TraceService {
      */
     private static final String UPDATE_CLEAN_IP = "com.evy.common.trace.repository.mapper.TraceMapper.cleanServiceByAppIp";
     private static final String QRY_ALL_SERVICE_BEAN = "com.evy.common.trace.repository.mapper.TraceMapper.queryAllServiceName";
+    private static final String QRY_SRVNAME = "com.evy.common.trace.repository.mapper.TraceMapper.querySrvName";
     /**
      * 应用名
      */
@@ -350,5 +351,14 @@ public class TraceService {
         }
 
         return method.getName().concat(BusinessConstant.SHARE_STR).concat(reqPath);
+    }
+
+    /**
+     * 根据类名找服务码
+     * @param clsName 类名
+     * @return 服务码
+     */
+    public static String qrySrvName(String clsName) {
+        return DBUtils.selectOne(QRY_SRVNAME, clsName);
     }
 }

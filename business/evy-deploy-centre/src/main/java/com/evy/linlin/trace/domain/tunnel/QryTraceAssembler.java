@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -70,11 +71,7 @@ public class QryTraceAssembler {
      * @return com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryListDO
      */
     public static QryAppMermoryInfoListDO dtoConvertDo(QryAppMermoryInfoDTO dto) {
-        int limit = BusinessConstant.ZERO_NUM;
-        if (!StringUtils.isEmpty(dto.getLimit())) {
-            limit = Integer.parseInt(dto.getLimit());
-        }
-        return new QryAppMermoryInfoListDO(dto.getBuildSeq(), dto.getUserSeq(), limit);
+        return new QryAppMermoryInfoListDO(dto.getBuildSeq(), dto.getUserSeq());
     }
 
     /**
@@ -177,9 +174,7 @@ public class QryTraceAssembler {
      * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryPO
      */
     public static QryAppMermoryPO createQryAppMermoryPO(String targetIp, QryAppMermoryInfoListDO qryAppMermoryInfoListDo) {
-        int limit = qryAppMermoryInfoListDo.getLimit();
-        limit = Math.max(limit, 7);
-        return new QryAppMermoryPO(targetIp, limit);
+        return new QryAppMermoryPO(targetIp);
     }
 
     /**
@@ -331,12 +326,12 @@ public class QryTraceAssembler {
     /**
      * 创建实例 : QryAppMermoryInfoOutDTO
      */
-    public static QryAppMermoryInfoOutDTO createQryAppMermoryInfoOutDTO(List<QryAppMermoryInfoModel> models) {
+    public static QryAppMermoryInfoOutDTO createQryAppMermoryInfoOutDTO(Map<String, List<QryAppMermoryInfoModel>> models) {
         QryAppMermoryInfoOutDTO outDto = new QryAppMermoryInfoOutDTO();
         if (CollectionUtils.isEmpty(models)) {
             outDto.setErrorCode(QryTraceErrorConstant.QRY_TRACE_NOT_FOUND);
         } else {
-            outDto.setList(models);
+            outDto.setOutMap(models);
         }
 
         return outDto;

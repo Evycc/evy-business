@@ -31,13 +31,8 @@
                gmt_modify                  as gmtModify
         FROM trace_app_mermory_info
         WHERE tami_app_ip = #{appIp}
-        ORDER BY gmt_create DESC
-        <if test="limit != null or limit != ''">
-            LIMIT #{limit};
-        </if>
-        <if test="limit == null or limit == ''">
-            LIMIT 7;
-        </if>
+          and gmt_create BETWEEN DATE_FORMAT(now(), '%Y-%m-%d 00:00:00') AND DATE_FORMAT(now(), '%Y-%m-%d 23:59:59')
+        order by tami_id;
     </select>
 
     <!--    根据服务器IP查询最新线程信息集合-->
