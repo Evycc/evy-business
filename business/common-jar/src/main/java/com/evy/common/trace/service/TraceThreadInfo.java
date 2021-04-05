@@ -62,7 +62,7 @@ public class TraceThreadInfo {
      * @return java.lang.management.ThreadInfo
      */
     public static ThreadInfo dumpThread(long threadId) {
-        return THREAD_MX_BEAN.getThreadInfo(threadId);
+        return THREAD_MX_BEAN.getThreadInfo(new long[]{threadId}, true, true)[0];
     }
 
     /**

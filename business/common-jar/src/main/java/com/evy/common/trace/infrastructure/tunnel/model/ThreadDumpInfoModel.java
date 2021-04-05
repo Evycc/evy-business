@@ -15,6 +15,10 @@ public class ThreadDumpInfoModel {
      */
     private String dumpResultErrorText;
     /**
+     * 线程名
+     */
+    private String threadName;
+    /**
      * 线程堆栈信息
      */
     private String threadStack;
@@ -43,16 +47,28 @@ public class ThreadDumpInfoModel {
      */
     private int threadBlockedId;
     /**
-     * 因为该线程而处于等待状态的线程组<br/>
+     * 当前线程等待释放锁的对方线程ID<br/>
      * 格式: |分割
      */
-    private String lockRelationThreadIds;
+    private String waitFromThreadIds;
     /**
-     * lockInfo
+     * 等待的锁名称
      */
-    private String lockInfo;
+    private String lockedMonitors;
+    /**
+     * 等待时间,ms
+     */
+    private String threadWaitedTimeMs;
 
     public ThreadDumpInfoModel() {
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
     }
 
     public String getThreadStack() {
@@ -111,20 +127,28 @@ public class ThreadDumpInfoModel {
         this.threadBlockedId = threadBlockedId;
     }
 
-    public String getLockRelationThreadIds() {
-        return lockRelationThreadIds;
+    public String getWaitFromThreadIds() {
+        return waitFromThreadIds;
     }
 
-    public void setLockRelationThreadIds(String lockRelationThreadIds) {
-        this.lockRelationThreadIds = lockRelationThreadIds;
+    public void setWaitFromThreadIds(String waitFromThreadIds) {
+        this.waitFromThreadIds = waitFromThreadIds;
     }
 
-    public String getLockInfo() {
-        return lockInfo;
+    public String getLockedMonitors() {
+        return lockedMonitors;
     }
 
-    public void setLockInfo(String lockInfo) {
-        this.lockInfo = lockInfo;
+    public void setLockedMonitors(String lockedMonitors) {
+        this.lockedMonitors = lockedMonitors;
+    }
+
+    public String getThreadWaitedTimeMs() {
+        return threadWaitedTimeMs;
+    }
+
+    public void setThreadWaitedTimeMs(String threadWaitedTimeMs) {
+        this.threadWaitedTimeMs = threadWaitedTimeMs;
     }
 
     public Integer getDumpResult() {

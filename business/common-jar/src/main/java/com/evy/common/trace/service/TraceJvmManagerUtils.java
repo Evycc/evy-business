@@ -9,11 +9,14 @@ import com.sun.management.HotSpotDiagnosticMXBean;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -92,27 +95,42 @@ public class TraceJvmManagerUtils {
             } else {
                 model.setDumpResult(BusinessConstant.ZERO_NUM);
                 model.setThreadAvailByte(String.valueOf(TraceThreadInfo.getThreadAllocatedBytes(threadId)));
+                model.setThreadName(threadInfo.getThreadName());
+                //堆栈跟踪
                 model.setThreadStack(threadInfo.toString());
                 model.setThreadState(threadInfo.getThreadState().name());
-                model.setLockInfo(threadInfo.getLockInfo().toString());
                 if (Thread.State.BLOCKED.equals(threadInfo.getThreadState())) {
+                    //总阻止数
                     model.setThreadBlockedCount(Math.toIntExact(threadInfo.getBlockedCount()));
+                    //持有锁时间
                     model.setThreadBlockedTimeMs(String.valueOf(threadInfo.getBlockedTime()));
+                    //持有锁名称
                     model.setThreadBlockedName(threadInfo.getLockName());
+                    //等待当前线程释放锁的线程ID
                     model.setThreadBlockedId(Math.toIntExact(threadInfo.getLockOwnerId()));
-                    StringBuilder stringBuilder = new StringBuilder();
+                } else if (Thread.State.WAITING.equals(threadInfo.getThreadState()) || Thread.State.TIMED_WAITING.equals(threadInfo.getThreadState())) {
+                    //找出当前线程等待锁释放的线程ID
+                    model.setThreadWaitedTimeMs(String.valueOf(threadInfo.getWaitedTime()));
+                    MonitorInfo[] monitorInfos = threadInfo.getLockedMonitors();
 
-                    ThreadInfo[] threadInfos = TraceThreadInfo.dumpThread(true, true);
-                    for (ThreadInfo info : threadInfos) {
-                        boolean isWaitState = Thread.State.WAITING.equals(info.getThreadState()) || Thread.State.TIMED_WAITING.equals(info.getThreadState());
-                        boolean isEqLockId = info.getLockOwnerId() == threadId;
-                        if (isWaitState && isEqLockId) {
-                            //存在等待threadId的线程
-                            stringBuilder.append(info.getLockOwnerId()).append(BusinessConstant.LINE);
+                    if (Objects.nonNull(monitorInfos)) {
+                        String monitors = Arrays.toString(monitorInfos);
+                        model.setLockedMonitors(monitors);
+                        StringBuilder stringBuilder = new StringBuilder();
+                        ThreadInfo[] threadInfos = TraceThreadInfo.dumpThread(true, true);
+
+                        for (ThreadInfo info : threadInfos) {
+                            LockInfo lockInfo = info.getLockInfo();
+                            if (Objects.nonNull(lockInfo) && monitors.contains(lockInfo.toString())) {
+                                //存在等待threadId的线程
+                                if (stringBuilder.length() > 0) {
+                                    stringBuilder.append(BusinessConstant.LINE);
+                                }
+                                stringBuilder.append(info.getThreadId());
+                            }
                         }
+                        model.setWaitFromThreadIds(stringBuilder.toString());
                     }
-
-                    model.setLockRelationThreadIds(stringBuilder.toString());
                 }
             }
         } catch (Exception exception) {
