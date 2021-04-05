@@ -131,19 +131,18 @@
 
     <insert id="threadInfoInsert"
             parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO">
-        INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status,
-        tati_thread_start_mtime, tati_thread_blocked_count,
-        tati_thread_blocked_mtime, tati_thread_blocked_name, tati_thread_blocked_id, tati_thread_waited_count,
-        tati_thread_waited_mtime,
-        tati_thread_max_count, tati_thread_stack)
+        INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status, tati_thread_avail_byte,
+        tati_thread_start_mtime, tati_thread_blocked_count, tati_thread_blocked_mtime,
+        tati_thread_blocked_name, tati_thread_blocked_id, tati_thread_waited_count,
+        tati_thread_waited_mtime, tati_thread_max_count, tati_thread_stack)
         VALUES
-            (#{tatiAppIp}, #{tatiThreadId}, #{tatiThreadName}, #{tatiThreadStatus},
-            #{tatiThreadStartMtime}, #{tatiThreadBlockedCount}, #{tatiThreadBlockedMtime},
-            #{tatiThreadBlockedName}, #{tatiThreadBlockedId}, #{tatiThreadWaitedCount},
-            #{tatiThreadWaitedMtime}, #{tatiThreadMaxCount}, #{tatiThreadStack})
+            (#{tatiAppIp}, #{tatiThreadId}, #{tatiThreadName}, #{tatiThreadStatus}, #{tatiThreadAvailByte},
+             #{tatiThreadStartMtime}, #{tatiThreadBlockedCount}, #{tatiThreadBlockedMtime},
+             #{tatiThreadBlockedName}, #{tatiThreadBlockedId}, #{tatiThreadWaitedCount},
+             #{tatiThreadWaitedMtime}, #{tatiThreadMaxCount}, #{tatiThreadStack})
         ON DUPLICATE KEY UPDATE
         tati_app_ip = VALUES(tati_app_ip), tati_thread_id = VALUES(tati_thread_id), tati_thread_name =
-        VALUES(tati_thread_name), tati_thread_status = VALUES(tati_thread_status),
+        VALUES(tati_thread_name), tati_thread_status = VALUES(tati_thread_status), tati_thread_avail_byte = VALUES(tati_thread_avail_byte),
         tati_thread_start_mtime = VALUES(tati_thread_start_mtime), tati_thread_blocked_count =
         VALUES(tati_thread_blocked_count), tati_thread_blocked_mtime = VALUES(tati_thread_blocked_mtime),
         tati_thread_blocked_name = VALUES(tati_thread_blocked_name), tati_thread_blocked_id =

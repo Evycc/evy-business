@@ -49,7 +49,12 @@ public class DeployShellRepository {
     private static final String SHELL_CMD = "/bin/bash";
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService(DeployShellRepository.class.getName());
     private static final String BRCHAN_FILTER_STR = "origin/";
-    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/applog/current/dump.log";
+    /**
+     * HeapDumpBeforeFullGC : FULL GC前进行head dump
+     * HeapDumpOnOutOfMemoryError : 内存溢出进行head dump
+     * HeapDumpPath : dump文件保存地址,必须事先创建
+     */
+    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpBeforeFullGC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/applog/current/dump/";
     private final DeployDataRepository deployDataRepository;
 
     public DeployShellRepository(DeployDataRepository deployDataRepository) {

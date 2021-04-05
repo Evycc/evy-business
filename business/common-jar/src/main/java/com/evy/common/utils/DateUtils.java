@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
  * @Date: 2020/5/6 23:55
  */
 public class DateUtils {
+    public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
     public static final String YYYYMMDD = "yyyyMMdd";
     public static final String YYYY_MM_DD = "yyyy-MM-dd";
     public static final String HH_MM_SS = "HH:mm:ss";

@@ -296,13 +296,4 @@ public class CommandUtils {
             throw e;
         }
     }
-
-    /**
-     * long -> int
-     * @param l long
-     * @return int
-     */
-    public static int longParseToInt(Long l) {
-        return Integer.parseInt(String.valueOf(l));
-    }
 }

@@ -14,6 +14,7 @@ public class TraceThreadInfoPO {
     private final int tatiThreadId;
     private final String tatiThreadName;
     private final String tatiThreadStatus;
+    private final String tatiThreadAvailByte;
     private final String tatiThreadStartMtime;
     private final int tatiThreadBlockedCount;
     private final String tatiThreadBlockedMtime;
@@ -24,11 +25,12 @@ public class TraceThreadInfoPO {
     private final int tatiThreadMaxCount;
     private final String tatiThreadStack;
 
-    private TraceThreadInfoPO(String tatiAppIp, int tatiThreadId, String tatiThreadName, String tatiThreadStatus, String tatiThreadStartMtime, int tatiThreadBlockedCount, String tatiThreadBlockedMtime, String tatiThreadBlockedName, int tatiThreadBlockedId, int tatiThreadWaitedCount, String tatiThreadWaitedMtime, int tatiThreadMaxCount, String tatiThreadStack) {
+    private TraceThreadInfoPO(String tatiAppIp, int tatiThreadId, String tatiThreadName, String tatiThreadStatus, String tatiThreadAvailByte, String tatiThreadStartMtime, int tatiThreadBlockedCount, String tatiThreadBlockedMtime, String tatiThreadBlockedName, int tatiThreadBlockedId, int tatiThreadWaitedCount, String tatiThreadWaitedMtime, int tatiThreadMaxCount, String tatiThreadStack) {
         this.tatiAppIp = tatiAppIp;
         this.tatiThreadId = tatiThreadId;
         this.tatiThreadName = tatiThreadName;
         this.tatiThreadStatus = tatiThreadStatus;
+        this.tatiThreadAvailByte = tatiThreadAvailByte;
         this.tatiThreadStartMtime = tatiThreadStartMtime;
         this.tatiThreadBlockedCount = tatiThreadBlockedCount;
         this.tatiThreadBlockedMtime = tatiThreadBlockedMtime;
@@ -43,7 +45,7 @@ public class TraceThreadInfoPO {
     /**
      * 隐藏构造方法细节,全量参数构造方法
      */
-    public static TraceThreadInfoPO create(int tatiThreadId, String tatiThreadName, String tatiThreadStatus, String tatiThreadStartMtime, int tatiThreadBlockedCount, String tatiThreadBlockedMtime, String tatiThreadBlockedName, int tatiThreadBlockedId, int tatiThreadWaitedCount, String tatiThreadWaitedMtime, int tatiThreadMaxCount, String tatiThreadStack) {
+    public static TraceThreadInfoPO create(int tatiThreadId, String tatiThreadName, String tatiThreadStatus, String tatiThreadAvailByte, String tatiThreadStartMtime, int tatiThreadBlockedCount, String tatiThreadBlockedMtime, String tatiThreadBlockedName, int tatiThreadBlockedId, int tatiThreadWaitedCount, String tatiThreadWaitedMtime, int tatiThreadMaxCount, String tatiThreadStack) {
         if (!StringUtils.isEmpty(tatiThreadBlockedMtime)) {
             long tempBlockedTime = Long.parseLong(tatiThreadBlockedMtime);
             long limit = 1000L;
@@ -51,6 +53,6 @@ public class TraceThreadInfoPO {
                 tatiThreadBlockedMtime = String.valueOf(tempBlockedTime / limit);
             }
         }
-        return new TraceThreadInfoPO(BusinessConstant.VM_HOST, tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadStartMtime, tatiThreadBlockedCount, tatiThreadBlockedMtime, tatiThreadBlockedName, tatiThreadBlockedId, tatiThreadWaitedCount, tatiThreadWaitedMtime, tatiThreadMaxCount, tatiThreadStack);
+        return new TraceThreadInfoPO(BusinessConstant.VM_HOST, tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadAvailByte, tatiThreadStartMtime, tatiThreadBlockedCount, tatiThreadBlockedMtime, tatiThreadBlockedName, tatiThreadBlockedId, tatiThreadWaitedCount, tatiThreadWaitedMtime, tatiThreadMaxCount, tatiThreadStack);
     }
 }
