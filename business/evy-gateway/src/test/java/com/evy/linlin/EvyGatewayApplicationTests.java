@@ -1,5 +1,6 @@
 package com.evy.linlin;
 
+import com.evy.linlin.app.EvyGatewayApplication;
 import com.google.gson.Gson;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = EvyGatewayApplication.class)
 public class EvyGatewayApplicationTests {
 
     @Autowired
@@ -48,6 +49,7 @@ public class EvyGatewayApplicationTests {
 
     @Test
     public void testRedis() throws InterruptedException {
+        Runtime.getRuntime().totalMemory();
 //		System.out.println("start");
 //		redisTemplate.<String,String>opsForHash()
 //				.put("a","b","redistest")

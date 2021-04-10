@@ -5,7 +5,7 @@ package com.evy.common.trace.infrastructure.tunnel.model;
  * @Author: EvyLiuu
  * @Date: 2021/4/4 21:38
  */
-public class HeadDumpInfoModel {
+public class HeapDumpInfoModel {
     /**
      * dump文件路径
      */
@@ -19,10 +19,10 @@ public class HeadDumpInfoModel {
      */
     private String dumpResultErrorText;
 
-    public HeadDumpInfoModel() {
+    public HeapDumpInfoModel() {
     }
 
-    public HeadDumpInfoModel(String dumpFilePath, Integer dumpResult, String dumpResultErrorText) {
+    public HeapDumpInfoModel(String dumpFilePath, Integer dumpResult, String dumpResultErrorText) {
         this.dumpFilePath = dumpFilePath;
         this.dumpResult = dumpResult;
         this.dumpResultErrorText = dumpResultErrorText;

@@ -2,7 +2,7 @@ package com.evy.common.trace.service;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
-import com.evy.common.trace.infrastructure.tunnel.model.HeadDumpInfoModel;
+import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
 import com.evy.common.utils.DateUtils;
 import com.sun.management.HotSpotDiagnosticMXBean;
@@ -13,8 +13,6 @@ import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,9 +57,9 @@ public class TraceJvmManagerUtils {
      * 默认生成到目录/applog/current/dump/
      * @return com.evy.common.trace.infrastructure.tunnel.model.HeadDumpInfoModel
      */
-    public static HeadDumpInfoModel heapDump() {
+    public static HeapDumpInfoModel heapDump() {
         //生成dump文件到指定目录
-        HeadDumpInfoModel model = new HeadDumpInfoModel();
+        HeapDumpInfoModel model = new HeapDumpInfoModel();
         String dumpFileName = "dump" + DateUtils.now(DateUtils.YYYYMMDDHHMMSS) + FILE_SUFFIX_NAME;
         String dumpFile = DUMP_FILE_PATH + dumpFileName;
         File file = new File(dumpFile);

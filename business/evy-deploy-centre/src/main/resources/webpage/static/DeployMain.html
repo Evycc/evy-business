@@ -395,6 +395,32 @@
                     <li>Jvm启动以来创建线程总数:{{main.ThreadCount}}</li>
                 </ul>
                 <ul class="ul-div-style bottom-border-solid xs-font-size">
+                    <li>
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                style="max-width: 90px !important; float: left; margin-right: 8px;"
+                                type="submit" aria-label="提交"
+                                ng-click="main.showQryRealTimeThreadId()">
+                            实时查询线程
+                        </button>
+                    </li>
+                    <li>
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                style="max-width: 90px !important; float: left; margin-right: 8px;"
+                                type="submit" aria-label="提交"
+                                ng-click="main.showQryRealTimeThreadId()">
+                            死锁查询
+                        </button>
+                    </li>
+                    <li>
+                        <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                                style="max-width: 90px !important; float: left; margin-right: 8px;"
+                                type="submit" aria-label="提交"
+                                ng-click="main.showThreadStack(t.threadStack)">
+                            heap dump
+                        </button>
+                    </li>
+                </ul>
+                <ul class="ul-div-style bottom-border-solid xs-font-size">
                     <li class="twelve-ul-style">线程ID</li>
                     <li class="main-font-color">/</li>
                     <li class="twelve-ul-style">线程名称</li>
@@ -403,13 +429,13 @@
                     <li class="main-font-color">/</li>
                     <li class="twelve-ul-style">线程运行时间(ms)</li>
                     <li class="main-font-color">/</li>
-                    <li class="twelve-ul-style">死锁阻止进入线程的总数</li>
+                    <li class="twelve-ul-style">阻止线程总数</li>
                     <li class="main-font-color">/</li>
-                    <li class="twelve-ul-style">死锁累计运行时间(ms)</li>
+                    <li class="twelve-ul-style">线程锁累计时间(ms)</li>
                     <li class="main-font-color">/</li>
-                    <li class="twelve-ul-style">等待的死锁线程名</li>
+                    <li class="twelve-ul-style">等待锁线程名</li>
                     <li class="main-font-color">/</li>
-                    <li class="twelve-ul-style">等待的死锁线程id</li>
+                    <li class="twelve-ul-style">等待锁线程id</li>
                     <li class="main-font-color">/</li>
                     <li class="twelve-ul-style">线程等待总数</li>
                     <li class="main-font-color">/</li>
@@ -780,8 +806,9 @@
                         <!--如果持久化类型开启,则显示对应rdb与aof标签-->
                         <li class="eight_ul_style">
                             <span class="show-red-span">
-                                {{v.aofRdbOpen == '1' ? '混合持久化' : v.aofOpen == '1' ? 'AOF持久化' : v.rdbOpen == '1' ? 'RDB持久化' : '无持久化'}}</li>
+                                {{v.aofRdbOpen == '1' ? '混合持久化' : v.aofOpen == '1' ? 'AOF持久化' : v.rdbOpen == '1' ? 'RDB持久化' : '无持久化'}}
                             </span>
+                        </li>
                         <li class="main-font-color">/</li>
                         <li class="eight_ul_style">{{v.rdbFile}}</li>
                         <li class="main-font-color">/</li>
@@ -925,7 +952,7 @@
                     <input type="text" placeholder="traceId" class="main-input-text-style"
                            ng-model="main.traceFrom.qryTraceId"
                            ng-mouseenter="main.InputMouseEnterEvent('trace-form-cell-1')"
-                           ng-mouseleave="main.InputMouseLevelEvent('trace-form-cell-1')">
+                           ng-mouseleave="main.InputMouseLevelEvent('trace-form-cell-1')"/>
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
@@ -997,6 +1024,33 @@
     </div>
 </div>
 <!--部署页面 end-->
+
+<div id="{{main.viewId.showAbsoluteDiv}}" class="form-table deploy-form-table left-div select-branch"
+    style="position: absolute;top: 20%;left: 30%;width: 680px;z-index: 9999;"
+    ng-show="main.viewShow.showAbsoluteDiv">
+    <div ng-show="main.showAbsoluteDiv.showTextDiv">
+        <span class="title-span">{{main.showAbsoluteDiv.showDivTitle}}</span>
+        <span class="text-span" style="word-wrap:break-word;">{{main.showAbsoluteDiv.showDivContent}}</span>
+    </div>
+    <div ng-show="main.showAbsoluteDiv.showThreadDiv">
+        <span class="title-span">线程ID</span>
+        <input type="text" style="border:none;outline:medium;background: transparent;"
+               class="show-input ng-pristine ng-untouched ng-valid ng-not-empty"
+               ng-model="main.showAbsoluteDiv.threadId"/>
+    </div>
+    <div ng-show="main.showAbsoluteDiv.showThreadResultDiv">
+        <span class="title-span">线程信息</span>
+        <span id="{{main.showAbsoluteDiv.threadResultDivId}}" class="text-span" style="word-wrap:break-word;"></span>
+    </div>
+    <div>
+        <input type="submit"  ng-show="main.showAbsoluteDiv.showThreadDiv"
+               class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
+               value="提交" ng-click="main.qryRealTimeThreadId()">
+        <input type="submit" class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
+               style="background: #0071f1;color: #fff !important;"
+               value="关闭" ng-click="main.closeAbsoluteDiv()">
+    </div>
+</div>
 
 <!--底部导航栏-->
 <div id="legal-footer" class="container row">

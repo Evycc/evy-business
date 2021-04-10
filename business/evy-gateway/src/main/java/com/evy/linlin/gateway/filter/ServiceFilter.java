@@ -123,8 +123,9 @@ public class ServiceFilter implements GatewayFilter, Ordered {
             //已在过滤器进行参数过滤，参数为空返回404
             Map<String, String> map = exchange.getAttribute(CACHE_REQUEST_BODY_OBJECT_KEY);
             CommandLog.info("服务码化路由 url:{} body:{}", exchange.getRequest().getURI(), map);
-            String srvCode = String.valueOf(map.getOrDefault(BODY_HEAD_SERVICE_CODE, BusinessConstant.EMPTY_STR));
+            String srvCode = String.valueOf(map.get(BODY_HEAD_SERVICE_CODE));
             //带方法的服务
+            //支持通过srvCode : 服务码#req_path的方式进行调用
             String[] srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
             srvCode = srvAndMethod[0];
 
@@ -256,13 +257,13 @@ public class ServiceFilter implements GatewayFilter, Ordered {
         //服务码存在#,表示路由到指定方法
         String postPaths = model.getPostPath();
         if (!StringUtils.isEmpty(method) && postPaths.contains(method)) {
-            methodPath = Arrays.stream(postPaths.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1))
+            methodPath = Arrays.stream(postPaths.split(BusinessConstant.SPLIT_LINE, -1))
                     .filter(path -> path.contains(method))
                     .map(methodPath1 -> methodPath1.split(BusinessConstant.SHARE_STR, -1)[1])
                     .findFirst()
                     .orElse(BusinessConstant.EMPTY_STR);
         } else if (postPaths.contains(method)) {
-            methodPath = Arrays.stream(postPaths.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1))
+            methodPath = Arrays.stream(postPaths.split(BusinessConstant.SPLIT_LINE, -1))
                     .findFirst()
                     .map(methodPath1 -> methodPath1.split(BusinessConstant.SHARE_STR, -1)[1])
                     .orElse(BusinessConstant.EMPTY_STR);

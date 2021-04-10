@@ -1,6 +1,6 @@
 package com.evy.common.web;
 
-import com.evy.common.trace.infrastructure.tunnel.model.HeadDumpInfoModel;
+import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
 import com.evy.common.trace.service.TraceJvmManagerUtils;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping(value = HealthyControllerConstant.HEALTHY_CONTROLLER_CODE)
 public class HealthyController {
     @GetMapping(value = HealthyControllerConstant.HEAP_DUMP_CODE)
-    public HeadDumpInfoModel heapDump() {
+    public HeapDumpInfoModel heapDump() {
         return TraceJvmManagerUtils.heapDump();
     }
 

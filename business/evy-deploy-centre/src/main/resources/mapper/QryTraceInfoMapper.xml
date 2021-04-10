@@ -55,13 +55,12 @@
         tati_thread_stack as tatiThreadStack,
         gmt_modify as gmtModify
         FROM trace_app_thread_info
-        <where>
+        WHERE
             tati_app_ip = #{appIp}
-            <if test="threadName != null and threadName != ''">
-                and tati_thread_name = #{threadName} LIMIT 1
-            </if>
-        </where>
-
+            AND gmt_modify BETWEEN DATE_FORMAT(now(), '%Y-%m-%d 00:00:00') AND DATE_FORMAT(now(), '%Y-%m-%d 23:59:59')
+        <if test="threadName != null and threadName != ''">
+            and tati_thread_name = #{threadName} LIMIT 1
+        </if>
     </select>
 
     <!--    根据服务器IP查询http请求记录集合-->

@@ -76,6 +76,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryHttpResultView : 'deploy-http-result-view',
         queryTrackingView : 'deploy-trace-view',
         queryTrackingResultView : 'deploy-trace-result-view',
+        showAbsoluteDiv: 'show-absolute-div'
     }
     /**
      * 定义展示页面ID
@@ -96,7 +97,18 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryHttpView : false,
         queryHttpResultView: false,
         queryTrackingView: false,
-        queryTrackingResultView: false
+        queryTrackingResultView: false,
+        showAbsoluteDiv: false
+    }
+
+    self.showAbsoluteDiv = {
+        showDivTitle : '',
+        showDivContent : '',
+        showTextDiv : true,
+        showThreadDiv : !this.showTextDiv,
+        showThreadResultDiv : !this.showTextDiv,
+        showThreadResult : '',
+        threadResultDivId : 'thread-result-div-id'
     }
 
     /**
@@ -380,6 +392,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryHttpResultView = false;
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
+        self.viewShow.showAbsoluteDiv = false;
     }
     /**
      * 展示新增部署应用页面
@@ -542,8 +555,56 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.showThreadStack = function (text) {
-        //TODO 居中显示div
-        console.log(text)
+        self.viewShow.showAbsoluteDiv = true;
+        self.showAbsoluteDiv.showDivTitle = '堆栈信息';
+        self.showAbsoluteDiv.showDivContent = text;
+        self.showAbsoluteDiv.showTextDiv = true;
+        self.showAbsoluteDiv.showThreadResultDiv = false;
+        self.showAbsoluteDiv.showThreadDiv = false;
+    }
+
+    self.showQryRealTimeThreadId = function () {
+        self.viewShow.showAbsoluteDiv = true;
+        self.showAbsoluteDiv.showTextDiv = false;
+        self.showAbsoluteDiv.showThreadResultDiv = true;
+        self.showAbsoluteDiv.showThreadDiv = true;
+    }
+
+    self.qryRealTimeThreadId = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        body.targetIp = self.curThreadIp;
+        body.threadId = self.showAbsoluteDiv.threadId;
+
+        DeployMainService.threadInfo(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('实时查询线程失败 ' + response.errorMsg);
+                } else {
+                    if (response.threadInfo != null) {
+                        self.showAbsoluteDiv.showThreadResult = '';
+                        if (response.threadInfo.dumpResult === 1) {
+                            self.showAbsoluteDiv.showThreadResult += response.threadInfo.dumpResultErrorText;
+                        } else {
+                            self.showAbsoluteDiv.showThreadResult += '线程名:' + response.threadInfo.threadName + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '线程状态:' + response.threadInfo.threadState + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '占用内存byte:' + response.threadInfo.threadAvailByte + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '线程锁:' + response.threadInfo.threadBlockedName + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '获取锁次数:' + response.threadInfo.threadBlockedCount + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '获取锁时长:' + response.threadInfo.threadBlockedTimeMs + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '等待锁ID:' + response.threadInfo.threadBlockedId + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控线程ID:' + response.threadInfo.waitFromThreadIds + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控锁名:' + response.threadInfo.lockedMonitors + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控等待时长:' + response.threadInfo.threadWaitedTimeMs + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '堆栈信息:' + response.threadInfo.threadStack;
+                        }
+                        angular.element('#' + self.showAbsoluteDiv.threadResultDivId).html(self.showAbsoluteDiv.showThreadResult);
+                    }
+                }
+            }, function (err){
+                console.log('实时查询线程失败 ' + err)
+            });
     }
 
     self.showQueryMqView = function (title) {
@@ -1008,8 +1069,13 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.showMqContent = function (text) {
-        //TODO 居中显示消息正文DIV
-        console.log(text)
+        self.viewShow.showAbsoluteDiv = true;
+        self.showAbsoluteDiv.showDivTitle = '消息正文';
+        self.showAbsoluteDiv.showDivContent = text;
+    }
+
+    self.closeAbsoluteDiv = function () {
+        self.viewShow.showAbsoluteDiv = false;
     }
 
     /**
@@ -1640,7 +1706,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                         format: '{value:%Y-%m-%d}'
                     },
                     // pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
-                    // pointInterval: 60 * 1000
+                    pointInterval: 60 * 1000
                 }
             },
             series: [
@@ -1750,7 +1816,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                             format: '{value:%Y-%m-%d}'
                         },
                         // pointStart: Date.UTC(2020, 11, 28, 20, 45, 27),
-                        // pointInterval: 60 * 1000
+                        pointInterval: 60 * 1000
                     }
                 },
 

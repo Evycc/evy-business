@@ -21,7 +21,10 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryThreadInfo : 'evy.trace.threadQry.app',
         createSrvInfo : 'evy.srv.create',
         modifySrvInfo : 'evy.srv.modify',
-        qryTraceInfo : 'evy.trace.trackingQry.app'
+        qryTraceInfo : 'evy.trace.trackingQry.app',
+        deadThreadList : 'evy.trace.dump.app#findDeadThreads',
+        threadInfo : 'evy.trace.dump.app#threadDump',
+        heapDumpInfo : 'evy.trace.dump.app#heapDump',
     }
 
     return {
@@ -44,8 +47,35 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryThreadInfo : qryThreadInfo,
         createSrvInfo : createSrvInfo,
         modifySrvInfo : modifySrvInfo,
-        qryTraceInfo : qryTraceInfo
+        qryTraceInfo : qryTraceInfo,
+        heapDumpInfo : heapDumpInfo,
+        threadInfo : threadInfo,
+        deadThreadList : deadThreadList
     };
+
+    /**
+     * 从指定服务器进行heap dump
+     * @param body target_ip
+     */
+    function heapDumpInfo(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.heapDumpInfo, body);
+    }
+
+    /**
+     * 实时查询线程信息
+     * @param body target_ip
+     */
+    function threadInfo(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.threadInfo, body);
+    }
+
+    /**
+     * 查询指定IP是否存在死锁
+     * @param body target_ip
+     */
+    function deadThreadList(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.deadThreadList, body);
+    }
 
     /**
      * 查询链路调用信息
@@ -257,7 +287,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
     }
 
     function incrSeq() {
-        return ++incr;
+        return curTimeStr() + ++incr;
     }
 
     function curTimeStr() {

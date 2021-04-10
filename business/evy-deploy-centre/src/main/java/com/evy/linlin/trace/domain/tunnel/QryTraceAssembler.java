@@ -23,6 +23,20 @@ public class QryTraceAssembler {
     /*---------------- dtoConvertDo DTO转DO ----------------*/
 
     /**
+     * QryDumpInfoDTO -> SearchDumpDO
+     *
+     * @param dto com.evy.linlin.trace.dto.QryDumpInfoDTO
+     * @return com.evy.linlin.trace.domain.tunnel.model.SearchDumpDO
+     */
+    public static SearchDumpDO dtoConvertDo(QryDumpInfoDTO dto) {
+        SearchDumpDO searchDumpDo = new SearchDumpDO();
+        searchDumpDo.setCode(dto.getCode());
+        searchDumpDo.setTargetIp(dto.getTargetIp());
+        searchDumpDo.setThreadId(dto.getThreadId());
+        return searchDumpDo;
+    }
+
+    /**
      * ModifySrvInfoDTO -> ModifySrvInfoDo
      *
      * @param dto com.evy.linlin.trace.dto.ModifySrvInfoDTO
@@ -146,6 +160,17 @@ public class QryTraceAssembler {
     /*---------------- create 创建实例 ----------------*/
 
     /**
+     * 创建实例 : QryDumpInfoOutDTO
+     */
+    public static QryDumpInfoOutDTO createQryDumpInfoOutDTO(SearchDumpOutDO searchDumpOutDo) {
+        QryDumpInfoOutDTO outDTO = new QryDumpInfoOutDTO();
+        outDTO.setDeadThreadList(searchDumpOutDo.getDeadThreadList());
+        outDTO.setHeapDumpInfo(searchDumpOutDo.getHeapDumpInfo());
+        outDTO.setThreadInfo(searchDumpOutDo.getThreadInfo());
+        return outDTO;
+    }
+
+    /**
      * 创建实例 : CreateSrvInfoOutDTO
      */
     public static CreateSrvInfoOutDTO createSrvInfoOutDTO() {
@@ -170,10 +195,9 @@ public class QryTraceAssembler {
      * 创建实例 : QryAppMermoryPO
      *
      * @param targetIp                目标服务器IP
-     * @param qryAppMermoryInfoListDo com.evy.linlin.trace.domain.repository.tunnel.model.QryAppMermoryInfoListDO
      * @return com.evy.linlin.trace.domain.repository.tunnel.po.QryAppMermoryPO
      */
-    public static QryAppMermoryPO createQryAppMermoryPO(String targetIp, QryAppMermoryInfoListDO qryAppMermoryInfoListDo) {
+    public static QryAppMermoryPO createQryAppMermoryPO(String targetIp) {
         return new QryAppMermoryPO(targetIp);
     }
 

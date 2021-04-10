@@ -67,9 +67,8 @@ public class TraceAppMemoryInfo {
         //应用占用内存
         long appUseMemory = Runtime.getRuntime().totalMemory();
         //cpu 负载 单位%
-        float sysCpuLoad = new BigDecimal(String.valueOf(SYSTEM_MX_BEAN.getSystemCpuLoad()))
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
+        BigDecimal sysCpuLoad = new BigDecimal(String.valueOf(SYSTEM_MX_BEAN.getSystemCpuLoad()))
+                .setScale(2, RoundingMode.HALF_UP);
 
         String tamiCpuLoad = String.valueOf(sysCpuLoad);
         String tamiSysMemory = String.valueOf(sysMaxMemory);

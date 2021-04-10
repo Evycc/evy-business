@@ -2,16 +2,32 @@ package com.evy.linlin.trace.domain.repository;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
+import com.evy.common.http.HttpUtils;
+import com.evy.common.http.tunnel.dto.HttpRequestDTO;
+import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
+import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
+import com.evy.common.trace.service.TraceJvmManagerUtils;
 import com.evy.common.trace.service.TraceTracking;
+import com.evy.common.utils.AppContextUtils;
+import com.evy.common.utils.JsonUtils;
+import com.evy.common.web.HealthyControllerConstant;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
 import com.evy.linlin.trace.domain.tunnel.constant.QryTraceErrorConstant;
 import com.evy.linlin.trace.domain.tunnel.model.*;
 import com.evy.linlin.trace.domain.tunnel.po.*;
 import com.evy.linlin.trace.dto.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,10 +39,12 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class QryTraceInfoRepository {
+    private final HttpUtils httpUtils;
     private final QryTraceInfoDataRepository dataRepository;
 
-    public QryTraceInfoRepository(QryTraceInfoDataRepository dataRepository) {
+    public QryTraceInfoRepository(QryTraceInfoDataRepository dataRepository, HttpUtils httpUtils) {
         this.dataRepository = dataRepository;
+        this.httpUtils = httpUtils;
     }
 
     /**
@@ -76,7 +94,7 @@ public class QryTraceInfoRepository {
         if (!CollectionUtils.isEmpty(targetIpList)) {
             targetIpList.stream()
                     .map(targetIp -> dataRepository.qryAppMermoryList(
-                            QryTraceAssembler.createQryAppMermoryPO(targetIp, qryAppMermoryListDo))
+                            QryTraceAssembler.createQryAppMermoryPO(targetIp))
                     )
                     .map(QryTraceAssembler::createQryAppMermoryInfoModel)
                     .filter(models -> !CollectionUtils.isEmpty(models))
@@ -337,5 +355,106 @@ public class QryTraceInfoRepository {
         }
 
         return outDo;
+    }
+
+    public SearchDumpOutDO searchDump(SearchDumpDO searchDumpDo) {
+        SearchDumpOutDO result = new SearchDumpOutDO();
+        boolean isLocalReq = BusinessConstant.VM_HOST.equals(searchDumpDo.getTargetIp());
+        switch (searchDumpDo.getCode()) {
+            case HealthyControllerConstant.DEAD_THREAD_DUMP_CODE:
+                result.setDeadThreadList(findDeadThreads(searchDumpDo.getTargetIp(), isLocalReq));
+                break;
+            case HealthyControllerConstant.HEAP_DUMP_CODE:
+                result.setHeapDumpInfo(heapDump(searchDumpDo.getTargetIp(), isLocalReq));
+                break;
+            case HealthyControllerConstant.THREAD_DUMP_CODE:
+                result.setThreadInfo(threadDump(searchDumpDo.getTargetIp(), searchDumpDo.getThreadId(), isLocalReq));
+                break;
+        }
+        return result;
+    }
+
+    private HeapDumpInfoModel heapDump(String targetIp, boolean isLocalReq) {
+        HeapDumpInfoModel model = null;
+        if (isLocalReq) {
+            model = TraceJvmManagerUtils.heapDump();
+        }
+        try {
+            String url = "http://" + targetIp + ":" + AppContextUtils.getForEnv("server.port")
+                    + "/" + HealthyControllerConstant.HEALTHY_CONTROLLER_CODE
+                    + "/" + HealthyControllerConstant.HEAP_DUMP_CODE;
+            model = httpUtils.httpRequest(HttpRequestDTO.create(url, new HttpGet(), null, null, null),
+                    httpResponse -> {
+                        HeapDumpInfoModel response = new HeapDumpInfoModel();
+                        try {
+                            response = JsonUtils.convertToObject(EntityUtils.toString(httpResponse.getEntity()), HeapDumpInfoModel.class);
+                        } catch (IOException e) {
+                            CommandLog.errorThrow("heapDump 返回异常", e);
+                        }
+
+                        return response;
+                    });
+        } catch (URISyntaxException e) {
+            CommandLog.errorThrow("heapDump URI构建异常", e);
+        } catch (IOException ioe) {
+            CommandLog.errorThrow("heapDump 请求异常", ioe);
+        }
+        return model;
+    }
+
+    private List<ThreadDumpInfoModel> findDeadThreads(String targetIp, boolean isLocalReq) {
+        List<ThreadDumpInfoModel> models = null;
+        if (isLocalReq) {
+            models = TraceJvmManagerUtils.findDeadThreads();
+        }
+        try {
+            String url = "http://" + targetIp + ":" + AppContextUtils.getForEnv("server.port")
+                    + "/" + HealthyControllerConstant.HEALTHY_CONTROLLER_CODE
+                    + "/" + HealthyControllerConstant.DEAD_THREAD_DUMP_CODE;
+            models = httpUtils.httpRequest(HttpRequestDTO.create(url, new HttpGet(), null, null, null),
+                    httpResponse -> {
+                        List<ThreadDumpInfoModel> response = new ArrayList<>();
+                        try {
+                            response = JsonUtils.convertToObject(EntityUtils.toString(httpResponse.getEntity()), List.class);
+                        } catch (IOException e) {
+                            CommandLog.errorThrow("threadDump 返回异常", e);
+                        }
+
+                        return response;
+                    });
+        } catch (URISyntaxException e) {
+            CommandLog.errorThrow("findDeadThreads URI构建异常", e);
+        } catch (IOException ioe) {
+            CommandLog.errorThrow("findDeadThreads 请求异常", ioe);
+        }
+        return models;
+    }
+
+    private ThreadDumpInfoModel threadDump(String targetIp, long threadId, boolean isLocalReq) {
+        ThreadDumpInfoModel model = null;
+        if (isLocalReq) {
+            model = TraceJvmManagerUtils.threadDump(threadId);
+        }
+        try {
+            String url = "http://" + targetIp + ":" + AppContextUtils.getForEnv("server.port")
+                    + "/" + HealthyControllerConstant.HEALTHY_CONTROLLER_CODE
+                    + "/" + HealthyControllerConstant.THREAD_DUMP_CODE;
+            model = httpUtils.httpRequest(HttpRequestDTO.create(url, new HttpPost(), new StringEntity(String.valueOf(threadId), ContentType.APPLICATION_JSON), null, null),
+                    httpResponse -> {
+                        ThreadDumpInfoModel response = new ThreadDumpInfoModel();
+                        try {
+                            response = JsonUtils.convertToObject(EntityUtils.toString(httpResponse.getEntity()), ThreadDumpInfoModel.class);
+                        } catch (IOException e) {
+                            CommandLog.errorThrow("threadDump 返回异常", e);
+                        }
+
+                        return response;
+                    });
+        } catch (URISyntaxException e) {
+            CommandLog.errorThrow("threadDump URI构建异常", e);
+        } catch (IOException ioe) {
+            CommandLog.errorThrow("threadDump 请求异常", ioe);
+        }
+        return model;
     }
 }

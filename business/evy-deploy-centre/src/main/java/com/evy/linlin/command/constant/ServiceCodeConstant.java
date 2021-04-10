@@ -78,4 +78,8 @@ public class ServiceCodeConstant {
      * com.evy.linlin.trace.app.QryTrackingInfoAppService
      */
     public static final String QRY_TRACKING_LIST_INFO = "evy.trace.trackingQry.app";
+    /**
+     * com.evy.linlin.trace.app.QryDumpInfoAppService
+     */
+    public static final String QRY_DUMP_UTILS = "evy.trace.dump.app";
 }
