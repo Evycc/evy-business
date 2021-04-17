@@ -53,7 +53,6 @@ public class NextDeployBuildSeqDTO extends InputDTO implements ValidatorDTO<Next
     /**
      * 备注
      */
-    @NotBlank(message = "remarks不能为空")
     @Length(max = 100)
     private String remarks;
     /**
@@ -68,17 +67,13 @@ public class NextDeployBuildSeqDTO extends InputDTO implements ValidatorDTO<Next
     @Length(max = 100)
     private String targetHost;
     /**
-     * 是否分批部署 0 开启 1 不开启
+     * 是否分批部署 true 开启 false 不开启
      */
     @NotNull(message = "switchBatchDeploy不能为空")
-    @Min(0)
-    @Max(1)
-    private Integer switchBatchDeploy;
+    private Boolean switchBatchDeploy;
     /**
-     * 是否开启Junit 0 开启 1 不开启
+     * 是否开启Junit true 开启 false 不开启
      */
     @NotNull(message = "switchJunit不能为空")
-    @Min(0)
-    @Max(1)
-    private Integer switchJunit;
+    private Boolean switchJunit;
 }

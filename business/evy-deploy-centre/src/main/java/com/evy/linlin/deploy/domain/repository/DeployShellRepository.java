@@ -104,7 +104,8 @@ public class DeployShellRepository {
                 //1.调用gitBuild.sh errorCode=0 && msg != ""
                 String gitPath = deployQryOutPo.getGitPath();
                 String projectName = DeployAssembler.subProjectNameFromGitPath(gitPath);
-                if (checkGitBuildShell(gitBuildShell(projectName, gitPath, deployQryOutPo.getGitBrchan()))) {
+                ShellOutDO shellOutDo = gitBuildShell(projectName, gitPath, deployQryOutPo.getGitBrchan());
+                if (checkGitBuildShell(shellOutDo)) {
                     //2.调用buildJar.sh 获取msg编译后目录
                     String timeStamp = DateUtils.nowStr3().replace(BusinessConstant.WHITE_EMPTY_STR, "T");
                     buildJarOutDo = buildJarShell(projectName, deployQryOutPo.getAppName(), buildInfoDo.isSwitchJunit(), timeStamp);
@@ -116,17 +117,18 @@ public class DeployShellRepository {
                                 DeployStageEnum.BUILD_SUCCESS.convertToFlag(), buildSeq));
                     }
                 } else {
-                    throw new BasicException(DeployErrorConstant.BUILD_ERROR_1, "gitBuild.sh编译失败 seq:" + buildSeq);
+                    throw new BasicException(DeployErrorConstant.BUILD_ERROR_1, JsonUtils.convertToJson(shellOutDo));
                 }
             } catch (Exception exception) {
                 //标记为编译失败
                 DeployUpdatePO deployUpdatePo;
+                String errMsg;
                 if (Objects.nonNull(buildJarOutDo)) {
-                    deployUpdatePo = DeployAssembler.createDeployUpdatePoBuildLog(buildJarOutDo.getMsg(),
-                            DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq);
+                    errMsg = buildJarOutDo.getMsg();
                 } else {
-                    deployUpdatePo = DeployAssembler.createDeployUpdatePo(DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq);
+                    errMsg = exception.getMessage();
                 }
+                deployUpdatePo = DeployAssembler.createDeployUpdatePoBuildLog(errMsg, DeployStageEnum.BUILD_FAILD.convertToFlag(), buildSeq);
                 deployDataRepository.updateStage(deployUpdatePo);
                 CommandLog.errorThrow("DeployShellRepository#build异常", exception);
             }
@@ -148,6 +150,9 @@ public class DeployShellRepository {
 
                 //1.调用startJar.sh 部署到指定服务器 (根据服务器列表,是否分批参数,选择并行还是串行)
                 String jarPath = deployQryOutPo.getJarPath();
+                if (Objects.isNull(jarPath)) {
+                    throw new BasicException(DeployErrorConstant.DEPLOY_ERROR_1, "请先编译应用后进行部署" + buildSeq);
+                }
                 String targetHost = deployQryOutPo.getTargetHost();
                 String jvmParam = StringUtils.isEmpty(deployQryOutPo.getJvmParam()) ?
                         BusinessConstant.WHITE_EMPTY_STR.concat(JVM_PARAM_DEFAULT) :
@@ -204,7 +209,7 @@ public class DeployShellRepository {
      * 检查gitBuild.sh执行是否成功
      */
     private boolean checkGitBuildShell(ShellOutDO shellOutDo) {
-        return BusinessConstant.ZERO.equals(shellOutDo.getErrorCode()) || !Objects.isNull(shellOutDo.getMsg());
+        return BusinessConstant.ZERO.equals(shellOutDo.getErrorCode());
     }
 
     /**
@@ -212,7 +217,7 @@ public class DeployShellRepository {
      * true 成功 false 失败
      */
     private boolean checkBuildJarShell(ShellOutDO shellOutDo) {
-        return !StringUtils.isEmpty(shellOutDo.getMsg());
+        return BusinessConstant.ZERO.equals(shellOutDo.getErrorCode()) && Objects.nonNull(shellOutDo.getMsg());
     }
 
     /**
@@ -220,7 +225,14 @@ public class DeployShellRepository {
      * true 成功 false 失败
      */
     private boolean checkGetStartJarShell(DeployStatusOutDO deployStatusOutDo) {
-        return !StringUtils.isEmpty(deployStatusOutDo.getPid());
+        boolean result = false;
+        try {
+            result = !StringUtils.isEmpty(deployStatusOutDo.getPid()) && Integer.parseInt(deployStatusOutDo.getPid()) != -1;
+        } catch (NumberFormatException e) {
+            result = false;
+        }
+
+        return  result;
     }
 
     /**

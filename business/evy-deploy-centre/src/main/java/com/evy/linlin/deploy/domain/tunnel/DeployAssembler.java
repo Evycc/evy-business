@@ -43,7 +43,7 @@ public class DeployAssembler {
                 projectName, nextDeployBuildSeqDTO.getAppName(), nextDeployBuildSeqDTO.getGitPath(),
                 nextDeployBuildSeqDTO.getBrchanName(), nextDeployBuildSeqDTO.getRemarks(),
                 nextDeployBuildSeqDTO.getJvmParam(), nextDeployBuildSeqDTO.getTargetHost(),
-                nextDeployBuildSeqDTO.getSwitchBatchDeploy(), nextDeployBuildSeqDTO.getSwitchJunit());
+                nextDeployBuildSeqDTO.getSwitchBatchDeploy() ? 0 : 1, nextDeployBuildSeqDTO.getSwitchJunit() ? 0 : 1);
     }
 
     /**

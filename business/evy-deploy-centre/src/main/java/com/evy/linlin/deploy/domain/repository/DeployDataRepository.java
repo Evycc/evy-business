@@ -1,9 +1,13 @@
 package com.evy.linlin.deploy.domain.repository;
 
+import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.db.DBUtils;
 import com.evy.linlin.deploy.domain.tunnel.po.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +41,24 @@ public class DeployDataRepository {
      * 根据userSeq查询客户所有部署记录
      */
     public List<DeployQryOutPO> qryForUserSeq(DeployQryPO qryPo) {
-        return DBUtils.selectList(QRY_DEPLOY_INFOS_FOR_USERSEQ, qryPo);
+        List<DeployQryOutPO> list = DBUtils.selectList(QRY_DEPLOY_INFOS_FOR_USERSEQ, qryPo);
+        List<DeployQryOutPO> result = list;
+
+        if (StringUtils.isEmpty(qryPo.getDeploySeq())) {
+            result  = new ArrayList<>(8);
+
+            if (!CollectionUtils.isEmpty(list)) {
+                List<String> indexStr = new ArrayList<>(8);
+                for (DeployQryOutPO deployQryOutPo : list) {
+                    if (!indexStr.contains(deployQryOutPo.getDeploySeq())) {
+                        result.add(deployQryOutPo);
+                        indexStr.add(deployQryOutPo.getDeploySeq());
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

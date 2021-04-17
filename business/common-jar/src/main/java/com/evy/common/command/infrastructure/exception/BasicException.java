@@ -12,11 +12,7 @@ import lombok.Setter;
  * @Date: 2019/10/23 0:12
  */
 public class BasicException extends Exception {
-    @Getter
-    @Setter
     private String errorCode = ErrorConstant.ERROR_01;
-    @Getter
-    @Setter
     private String errorMessage;
 
     public BasicException(Throwable throwable) {
@@ -39,6 +35,22 @@ public class BasicException extends Exception {
         super(throwable);
         setErrorCode(errorCode);
         setErrorMessage(errorMessage);
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     @Override

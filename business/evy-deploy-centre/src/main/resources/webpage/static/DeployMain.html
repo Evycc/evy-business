@@ -233,8 +233,8 @@
                 </div>
             </div>
             <!--            选择分支列表-->
-            <div class="form-table deploy-form-table left-div result-div" ng-show="main.deployViewReq.show">
-                <div class="list-group-item title-div">{{main.deployViewReq.title}}</div>
+            <div class="form-table deploy-form-table left-div result-div" ng-show="main.viewShow.deployViewReqDiv">
+                <div class="list-group-item title-div">选择分支</div>
                 <div class="content-div">
                     <div class="list-group-item" ng-repeat="list in main.deployViewReqList">
                         <a href="javascript:void(0);" ng-click="main.setBranchName($event)">{{list.branchName}}</a>
@@ -249,19 +249,27 @@
                 <div class="form-table deploy-form-table left-div select-branch">
                     <div>
                         <span class="title-span">应用名称</span>
-                        <span class="text-span">{{branchModel.appName}}</span>
+                        <input type="text" style="border:none;outline:medium;background: transparent;"
+                               class="show-input ng-pristine ng-untouched ng-valid ng-not-empty"
+                               disabled="" value="{{branchModel.appName}}"/>
                     </div>
                     <div>
                         <span class="title-span">分支</span>
-                        <span class="text-span">{{branchModel.branchName}}</span>
+                        <input type="text" style="border:none;outline:medium;background: transparent;"
+                               class="show-input ng-pristine ng-untouched ng-valid ng-not-empty"
+                               disabled="" value="{{branchModel.branchName}}"/>
                     </div>
                     <div>
                         <span class="title-span">git</span>
-                        <span class="text-span">{{branchModel.gitPath}}</span>
+                        <input type="text" style="border:none;outline:medium;background: transparent;"
+                               class="show-input ng-pristine ng-untouched ng-valid ng-not-empty"
+                               disabled="" value="{{branchModel.gitPath}}"/>
                     </div>
                     <div>
                         <span class="title-span">服务器IP</span>
-                        <span class="text-span">{{branchModel.serverIp}}</span>
+                        <input type="text" style="border:none;outline:medium;background: transparent;"
+                               class="show-input ng-pristine ng-untouched ng-valid ng-not-empty"
+                               disabled="" value="{{branchModel.serverIp}}"/>
                     </div>
                     <div>
                         <input type="submit" class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
@@ -274,16 +282,16 @@
             <div id="{{main.viewId.mainView}}" class="form-table deploy-form-table left-div"
                  ng-show="main.viewShow.mainViewShow">
                 <div class="form-cell deploy-form-cell">
-                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="重新部署"
-                            ng-click="main.redeployment($event)">
-                        编译应用 <span class="icon-repeat"></span>
-                    </button>
+<!--                    <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="重新部署"-->
+<!--                            ng-click="main.buildApp()">-->
+<!--                        编译应用 <span class="icon-repeat"></span>-->
+<!--                    </button>-->
                     <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="部署记录"
                             ng-click="main.deployRecord($event)">
                         部署记录 <span class="icon-list"></span>
                     </button>
                     <button class="login-btn deploy-info-btn btn left-btn" type="submit" aria-label="一键部署"
-                            ng-click="main.autoDeploySubmit($event)">
+                            ng-click="main.autoDeploySubmit()">
                         一键部署 <span class="icon-play"></span>
                     </button>
                 </div>
@@ -576,9 +584,9 @@
                     <li class="main-font-color">/</li>
                     <li class="six_ul_style">慢sql耗时</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">explain</li>
-                    <li class="main-font-color">/</li>
                     <li class="six_ul_style">优化建议</li>
+                    <li class="main-font-color">/</li>
+                    <li class="six_ul_style">explain</li>
                     <li class="main-font-color">/</li>
                     <li class="six_ul_style">慢sql记录时间</li>
                 </ul>
@@ -1032,6 +1040,7 @@
         <span class="title-span">{{main.showAbsoluteDiv.showDivTitle}}</span>
         <span class="text-span" style="word-wrap:break-word;">{{main.showAbsoluteDiv.showDivContent}}</span>
     </div>
+<!--    线程信息查询div-->
     <div ng-show="main.showAbsoluteDiv.showThreadDiv">
         <span class="title-span">线程ID</span>
         <input type="text" style="border:none;outline:medium;background: transparent;"
@@ -1041,6 +1050,36 @@
     <div ng-show="main.showAbsoluteDiv.showThreadResultDiv">
         <span class="title-span">线程信息</span>
         <span id="{{main.showAbsoluteDiv.threadResultDivId}}" class="text-span" style="word-wrap:break-word;"></span>
+    </div>
+<!--    部署历史div-->
+    <div class="form-table deploy-form-table left-div"
+         style="width: 94%;"
+         ng-show="main.showAbsoluteDiv.showDeployHistoryDiv">
+        <ul class="ul-div-style bottom-border-solid xs-font-size">
+            <li class="six_ul_style">应用名称</li>
+            <li class="six_ul_style">部署分支</li>
+            <li class="six_ul_style">部署流水</li>
+            <li class="six_ul_style">备注</li>
+            <li class="six_ul_style">部署时间</li>
+            <li class="six_ul_style">执行操作</li>
+        </ul>
+        <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.deployHistoryInfoList">
+            <li class="six_ul_style">{{v.appName}}</li>
+            <li class="six_ul_style">{{v.gitBrchan}}</li>
+            <li class="six_ul_style">{{v.buildSeq}}</li>
+            <li class="six_ul_style">{{v.remarks}}</li>
+            <li class="six_ul_style">{{v.createDateTime}}</li>
+            <li class="six_ul_style">
+                <p style="margin: 0">
+                    <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
+                            type="submit" aria-label="提交"
+                            ng-click="main.rollbackDeployInfo(v)">
+                        回滚
+                        <span class="icon-spinner icon-spin ng-hide" ng-show="false"></span>
+                    </button>
+                </p>
+            </li>
+        </ul>
     </div>
     <div>
         <input type="submit"  ng-show="main.showAbsoluteDiv.showThreadDiv"

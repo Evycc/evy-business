@@ -1,9 +1,6 @@
 package com.evy.linlin;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
+import javassist.*;
 
 /**
  * 监听mysql底层，统计慢sql
@@ -21,7 +18,7 @@ public class DBUtilsAgent {
      *
      * mysql需要使用8.0.17以上的版本,否则或提示找不到方法com.mysql.cj.Query#getCurrentDatabase()
      */
-    public static byte[] agentExecute(String args) {
+    public static byte[] agentExecute(String args, int slowSqlTime) {
         try {
             ClassPool classPool = ClassPool.getDefault();
             CtClass ctClass = classPool.get(DB_METHOD);
@@ -30,6 +27,9 @@ public class DBUtilsAgent {
             String newMethodName = "JavaSsitAop";
             StringBuilder stringBuilder = new StringBuilder();
             CtMethod ctNewMethod = CtNewMethod.copy(ctMethod, ctClass, null);
+            //添加字段,慢SQL记录时长
+            CtField ctField = CtField.make("int slowSqlTime=" + slowSqlTime + ";", ctClass);
+            ctClass.addField(ctField);
             ctNewMethod.setName(methodName + newMethodName);
             ctClass.addMethod(ctNewMethod);
 
@@ -45,7 +45,7 @@ public class DBUtilsAgent {
                     //Trace记录开始 END
                     .append("Object result= ").append(ctNewMethod.getName()).append("($$);")
                     .append("long agentEndTime = System.currentTimeMillis() -agentStartTime;")
-                    .append("if(null != $1 && agentEndTime >= 1000){")
+                    .append("if(null != $1 && agentEndTime >= slowSqlTime){")
                     .append("final String pre = \"com.mysql.cj.jdbc.ClientPreparedStatement: \";")
                     .append("String slowSql = String.valueOf($1);")
                     .append("slowSql = slowSql.replaceAll(pre,\"\");")

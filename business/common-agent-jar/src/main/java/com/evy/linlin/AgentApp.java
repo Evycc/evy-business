@@ -13,7 +13,7 @@ import java.lang.instrument.Instrumentation;
 public class AgentApp {
     /**
      * agent
-     * @param agentArg  DEBUG : 打印修改后字节码字符串
+     * @param agentArg  DEBUG : 打印修改后字节码字符串 SLOW_SQL=1000
      * @param instrumentation   java.lang.instrument.Instrumentation
      */
     public static void premain(String agentArg, Instrumentation instrumentation)

@@ -105,7 +105,8 @@
         FROM public_deploy_info
         WHERE pdi_user_seq = #{userSeq}
           <if test="deploySeq != null and deploySeq != ''">
-              and pdi_deploy_seq = #{deploySeq};
+              and pdi_deploy_seq = #{deploySeq}
           </if>
+        order by pdi_id desc
     </select>
 </mapper>

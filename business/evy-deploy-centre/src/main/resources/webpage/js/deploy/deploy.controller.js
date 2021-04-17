@@ -33,6 +33,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         deploySeq : ''
     }
     /**
+     * 存放用户部署记录信息
+     */
+    self.tempDeployList = [];
+    /**
      * 线程ip select 列表
      * @type {*[]}
      */
@@ -48,7 +52,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         branch: 'none',
         appName: 'none',
         deploySeq : '',
-        userSeq : ''
+        userSeq : '',
+        buildSeq : '',
+        //部署状态 false 未部署 true 已执行部署
+        deployStatus : false
     }
     self.curMqTraceInfo = [];
     self.curSlowSqlModel = [];
@@ -56,6 +63,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.curRedisView = [];
     self.curHttpInfoView = [];
     self.curTraceListResult = [];
+    self.deployHistoryInfoList = [];
     /**
      * 定义展示页面ID
      */
@@ -76,7 +84,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryHttpResultView : 'deploy-http-result-view',
         queryTrackingView : 'deploy-trace-view',
         queryTrackingResultView : 'deploy-trace-result-view',
-        showAbsoluteDiv: 'show-absolute-div'
+        showAbsoluteDiv: 'show-absolute-div',
+        showDeployHistoryDiv : 'show-DeployHistory-Div',
     }
     /**
      * 定义展示页面ID
@@ -98,7 +107,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         queryHttpResultView: false,
         queryTrackingView: false,
         queryTrackingResultView: false,
-        showAbsoluteDiv: false
+        showAbsoluteDiv: false,
+        deployViewReqDiv : false
     }
 
     self.showAbsoluteDiv = {
@@ -108,7 +118,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         showThreadDiv : !this.showTextDiv,
         showThreadResultDiv : !this.showTextDiv,
         showThreadResult : '',
-        threadResultDivId : 'thread-result-div-id'
+        threadResultDivId : 'thread-result-div-id',
+        showDeployHistoryDiv : false,
     }
 
     /**
@@ -144,6 +155,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * 当前自动化部署表单
      */
     self.lastDeployForm = {
+        userSeq : '',
+        deploySeq : '',
+        buildSeq : '',
         deployTime : '',
         appName : '',
         switchJunit : false,
@@ -151,7 +165,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         gitPath: '',
         targetHost: '',
         jvmParam: '',
-        remarks: ''
+        remarks: '',
+        brchanName: ''
     }
     self.mqForm = {
         topic: '',
@@ -199,48 +214,14 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         }
     ];
     /**
-     * INextBuildSeq 模型
-     * 用于新部署任务
-     */
-    self.nextDeployBuild = {
-        userSeq: '',
-        appName: '',
-        gitPath: '',
-        branchName: '',
-        remarks: '',
-        targetHost: '',
-        switchJunit: 1,
-        switchBatchDeploy: 1,
-        jvmParam: ''
-    }
-    /**
-     * 获取分支列表结果
-     */
-    self.deployViewReq = {
-        show : false,
-        title : '选择分支'
-    }
-    /**
      * 选择分支模块
      */
-    self.selectBranch = [
-        // {
-        //     appName : '',
-        //     branchName : '',
-        //     gitPath : '',
-        //     serverIp : '',
-        //     deploySeq : ''
-        // }
-    ]
+    self.selectBranch = []
     /**
      * 分支列表结果list模型
      *
      */
-    self.deployViewReqList = [
-        // {
-        //     branchName : 'master'
-        // }
-    ]
+    self.deployViewReqList = []
     /**
      * 回滚部署记录列表模型
      */
@@ -374,6 +355,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      */
     self.setBranchName = function ($event) {
         self.deployForm.brchanName = $event.target.innerText;
+
     }
     self.showClose = function () {
         self.viewShow.createViewShow = false;
@@ -393,6 +375,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.viewShow.queryTrackingView = false;
         self.viewShow.queryTrackingResultView = false;
         self.viewShow.showAbsoluteDiv = false;
+        self.viewShow.deployViewReqDiv = false;
     }
     /**
      * 展示新增部署应用页面
@@ -449,11 +432,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                         self.initMemoryViewJs(response.outMap);
                     }
                 }
-                console.log(response)
             }, function (err){
-                console.log('查询内存信息失败 ' + err)
+                self.showTips('查询内存信息失败 ' + err)
             });
-        //TODO
     }
 
     self.rmCurThreadAll = function () {
@@ -503,7 +484,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     }
                 }
             }, function (err){
-                console.log('查询线程信息失败 ' + err)
+                self.showTips('查询线程信息失败 ' + err)
             });
     }
 
@@ -561,6 +542,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.showAbsoluteDiv.showTextDiv = true;
         self.showAbsoluteDiv.showThreadResultDiv = false;
         self.showAbsoluteDiv.showThreadDiv = false;
+        self.showAbsoluteDiv.showDeployHistoryDiv = false;
     }
 
     self.showQryRealTimeThreadId = function () {
@@ -568,6 +550,38 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.showAbsoluteDiv.showTextDiv = false;
         self.showAbsoluteDiv.showThreadResultDiv = true;
         self.showAbsoluteDiv.showThreadDiv = true;
+        self.showAbsoluteDiv.showDeployHistoryDiv = false;
+    }
+
+    self.showDeployHistoryInfoDiv = function(dtoList) {
+        self.initDeployHistoryInfoList(dtoList);
+        self.viewShow.showAbsoluteDiv = true;
+        self.showAbsoluteDiv.showTextDiv = false;
+        self.showAbsoluteDiv.showThreadResultDiv = false;
+        self.showAbsoluteDiv.showThreadDiv = false;
+        self.showAbsoluteDiv.showDeployHistoryDiv = true;
+    }
+
+    self.initDeployHistoryInfoList = function (dtoList) {
+        self.deployHistoryInfoList = dtoList;
+    }
+
+    /**
+     * 回滚指定部署记录
+     * @param deployInfo com.evy.linlin.deploy.dto.DeployInfoDTO
+     */
+    self.rollbackDeployInfo = function (deployInfo) {
+        self.lastDeployForm.userSeq = deployInfo.userSeq;
+        self.lastDeployForm.deploySeq = deployInfo.deploySeq;
+        self.lastDeployForm.appName = deployInfo.appName;
+        self.lastDeployForm.switchJunit = deployInfo.switchJunit === 0;
+        self.lastDeployForm.switchBatchDeploy = true;
+        self.lastDeployForm.gitPath = deployInfo.gitPath;
+        self.lastDeployForm.targetHost = deployInfo.targetHost;
+        self.lastDeployForm.jvmParam = deployInfo.jvmParam;
+        self.lastDeployForm.brchanName = deployInfo.gitBrchan;
+        self.autoDeploySubmit();
+        self.showDeployMainView('自动化部署');
     }
 
     self.qryRealTimeThreadId = function () {
@@ -603,7 +617,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     }
                 }
             }, function (err){
-                console.log('实时查询线程失败 ' + err)
+                self.showTips('实时查询线程失败 ' + err)
             });
     }
 
@@ -632,7 +646,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     }
                 }
             }, function (err){
-                console.log('查询慢sql失败 ' + err)
+                self.showTips('查询慢sql失败 ' + err)
             });
     }
     self.savecurSlowSqlModel = function (list) {
@@ -669,7 +683,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.srvModifyForm.consumerName = tempConsumerName;
         self.srvModifyForm.limitQps = srvInfo.limitQps;
         self.srvModifyForm.limitFallback = srvInfo.limitFallback;
-        console.log(self.srvModifyForm);
     }
     self.closeServiceModifyView = function () {
         self.viewShow.queryServiceModifyView = false;
@@ -699,11 +712,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('新增服务码成功,服务加载时进行发布者更新');
                     self.srvForm = {};
                 }
-                console.log(response)
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             }, function (err){
-                console.log('新增服务码失败 ' + err);
+                self.showTips('新增服务码失败 ' + err);
                 self.srvForm = {};
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
@@ -725,11 +737,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('提交修改服务信息成功');
                     self.srvModifyForm = {};
                 }
-                console.log(response)
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             }, function (err){
-                console.log('提交修改服务信息失败 ' + err);
+                self.showTips('提交修改服务信息失败 ' + err);
                 self.srvModifyForm = {};
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
@@ -755,12 +766,11 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     }
                 }
             }, function (err){
-                console.log('查询服务信息失败 ' + err)
+                self.showTips('查询服务信息失败 ' + err)
             });
     }
     self.saveCurServiceInfo = function (list) {
         self.curServiceInfo = list;
-        console.log(list)
     }
 
     self.showQueryRedisView = function (title) {
@@ -782,7 +792,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.saveCurRedisList(response.list);
                 }
             }, function (err){
-                console.log('查询Redis健康信息失败 ' + err)
+                self.showTips('查询Redis健康信息失败 ' + err)
             });
     }
     self.saveCurRedisList = function (list) {
@@ -812,7 +822,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             }, function (err){
-                console.log('查询Http请求信息失败 ' + err);
+                self.showTips('查询Http请求信息失败 ' + err);
                 self.btnDisplay(btnId, false);
                 self.SetNewClass(spanId, spanClass);
             });
@@ -910,7 +920,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.GetGitBranchListBtnText = {
         isSubmit: false,
         noSubmitText: '获取分支列表 ',
-        SubmitText: '稍等... ',
+        SubmitText: '获取中... ',
         lodingSpan: false
     }
     /**
@@ -1053,7 +1063,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.curMqTraceInfo = [];
                 } else {
                     //返回0到N条记录,参考com.evy.linlin.trace.dto.QryMqTraceInfoOutDTO
-                    console.log(response.list)
                     if (response.list != null) {
                         self.curMqTraceInfo = response.list;
                         self.viewShow.queryMqQueryResultView = true;
@@ -1084,7 +1093,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param userSeq
      */
     self.qryDeployInfoReq = function (userSeq) {
-        //检查用户名下最新部署记录,用于展示"自动化部署"界面,不存在记录则展示"新增部署应用"
+        //TODO 检查用户名下最新部署记录,用于展示"自动化部署"界面,不存在记录则展示"新增部署应用"
         self.qryDeployInfo.userSeq = userSeq;
         DeployMainService.qryDeployInfo(self.qryDeployInfo)
             .then(function (response){
@@ -1093,14 +1102,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 } else {
                     //返回0到N条记录,参考com.evy.linlin.deploy.dto.QryDeployInfoOutDTO
                     if (response.dtoList !== null && response.dtoList.length > 0) {
+                        self.tempDeployList = response.dtoList;
                         //展示最新一条记录
                         let lastArray = response.dtoList[response.dtoList.length -1];
-                        if (self.cur.appName === 'none') {
-                            self.cur.appName = lastArray.appName;
-                        }
-                        if (self.cur.branch === 'none') {
-                            self.cur.branch = lastArray.gitBrchan;
-                        }
                         self.initBranch(response);
                         self.initLastDeployForm(lastArray);
                     }
@@ -1113,6 +1117,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.buildInfoSuccess =function () {
         self.deployInfoStyle.buildInfo.show = true;
         self.deployInfoStyle.buildInfo.buildSuccessStatus = true;
+        self.deployInfoStyle.buildInfo.buildCheckStatus = false;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
         self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildSuccessTitle;
         self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-success');
     }
@@ -1120,6 +1126,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.buildInfoChecked =function () {
         self.deployInfoStyle.buildInfo.show = true;
         self.deployInfoStyle.buildInfo.buildCheckStatus = true;
+        self.deployInfoStyle.buildInfo.buildSuccessStatus = false;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
+        self.deployInfoStyle.deployInfo.show = false; //编译中,不显示部署状态
+        self.deployInfoStyle.checkInfo.show = false; //编译中,不显示回查服务状态
         self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildCheckTitle;
         self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-checking');
     }
@@ -1127,6 +1137,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.buildInfoFaild =function () {
         self.deployInfoStyle.buildInfo.show = true;
         self.deployInfoStyle.buildInfo.buildFalidStatus = true;
+        self.deployInfoStyle.buildInfo.buildCheckStatus = false;
+        self.deployInfoStyle.buildInfo.buildSuccessStatus = false;
+        self.deployInfoStyle.deployInfo.show = false; //编译中,不显示部署状态
+        self.deployInfoStyle.checkInfo.show = false; //编译失败,不显示回查服务状态
         self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildFalidTitle;
         self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-faild');
     }
@@ -1135,6 +1149,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.buildInfoSuccess();
         self.deployInfoStyle.deployInfo.show = true;
         self.deployInfoStyle.deployInfo.deploySuccessStatus = true;
+        self.deployInfoStyle.deployInfo.deployCheckStatus = false;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
         self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deploySuccessTitle;
         self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-success');
     }
@@ -1143,6 +1159,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.buildInfoSuccess();
         self.deployInfoStyle.deployInfo.show = true;
         self.deployInfoStyle.deployInfo.deployCheckStatus = true;
+        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
+        self.deployInfoStyle.deployInfo.deploySuccessStatus = false;
+        self.deployInfoStyle.checkInfo.show = false; //部署中,不显示回查服务状态
         self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployCheckTitle;
         self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-checking');
     }
@@ -1151,6 +1170,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.buildInfoSuccess();
         self.deployInfoStyle.deployInfo.show = true;
         self.deployInfoStyle.deployInfo.deployFalidStatus = true;
+        self.deployInfoStyle.deployInfo.deployCheckStatus = false;
+        self.deployInfoStyle.buildInfo.deploySuccessStatus = false;
+        self.deployInfoStyle.checkInfo.show = false; //部署失败,不显示回查服务状态
         self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployFalidTitle;
         self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-faild');
     }
@@ -1160,6 +1182,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.deployInfoSuccess();
         self.deployInfoStyle.checkInfo.show = true;
         self.deployInfoStyle.checkInfo.checkSuccessStatus = true;
+        self.deployInfoStyle.checkInfo.checkCheckStatus = false;
+        self.deployInfoStyle.checkInfo.checkFalidStatus = false;
         self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkSuccessTitle;
         self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-success');
     }
@@ -1169,6 +1193,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.deployInfoSuccess();
         self.deployInfoStyle.checkInfo.show = true;
         self.deployInfoStyle.checkInfo.checkCheckStatus = true;
+        self.deployInfoStyle.checkInfo.checkFalidStatus = false;
+        self.deployInfoStyle.checkInfo.checkSuccessStatus = false;
         self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkCheckTitle;
         self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-checking');
     }
@@ -1178,6 +1204,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.deployInfoSuccess();
         self.deployInfoStyle.checkInfo.show = true;
         self.deployInfoStyle.checkInfo.checkFalidStatus = true;
+        self.deployInfoStyle.checkInfo.checkSuccessStatus = false;
+        self.deployInfoStyle.checkInfo.checkCheckStatus = false;
         self.deployInfoStyle.checkInfo.title = self.deployInfoStyle.checkInfo.checkFalidTitle;
         self.SetNewClass(self.deployInfoStyle.checkInfo.id, 'title-span left-span span-faild');
     }
@@ -1187,16 +1215,24 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param lastArray
      */
     self.initLastDeployForm = function (lastArray) {
+        self.cur.appName = lastArray.appName;
+        self.cur.branch = lastArray.gitBrchan;
+        self.cur.deploySeq = lastArray.deploySeq;
+        self.cur.buildSeq = lastArray.buildSeq;
+
+        self.lastDeployForm.userSeq = lastArray.userSeq;
+        self.lastDeployForm.deploySeq = lastArray.deploySeq;
+        self.lastDeployForm.buildSeq = lastArray.buildSeq;
+        self.lastDeployForm.brchanName = lastArray.gitBrchan;
         self.lastDeployForm.deployTime = lastArray.createDateTime;
         self.lastDeployForm.appName = lastArray.appName;
         self.lastDeployForm.switchJunit = (lastArray.switchJunit === 0);
-        self.lastDeployForm.switswitchBatchDeploy = (lastArray.switchBatchDeploy === 0);
+        self.lastDeployForm.switchBatchDeploy = (lastArray.switchBatchDeploy === 0);
         self.lastDeployForm.gitPath = lastArray.gitPath;
         self.lastDeployForm.targetHost = lastArray.targetHost;
         self.lastDeployForm.jvmParam = lastArray.jvmParam;
-        self.checkStageFlag(lastArray.stageFlag);
+        self.checkStageFlag(lastArray.stageFlag, lastArray.deploySeq);
 
-        self.cur.deploySeq = lastArray.deploySeq;
         if (lastArray.targetHost !== null && lastArray.targetHost !== '') {
             self.curSelectIp = lastArray.targetHost.split(',', -1);
             self.curThreadIp = self.curSelectIp[0];
@@ -1206,20 +1242,22 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     /**
      * 检查并设置部署状态
      * @param stageFlag
+     * @param deploySeq 部署流水
      * @return boolean 返回true表示状态明确
      */
-    self.checkStageFlag = function (stageFlag) {
-        console.log(stageFlag)
+    self.checkStageFlag = function (stageFlag, deploySeq) {
         let flag = false;
         //jar部署阶段 0a:编译成功 0b:编译中 0c:编译失败 1a:部署成功 1b:部署中 1c:部署失败
         //顺序: 编译->部署->检查服务
         switch (stageFlag) {
             case '0a' :
                 self.buildInfoSuccess();
+                self.autoDeploy();
                 flag = true;
                 break;
             case '0b' :
                 self.buildInfoChecked();
+                self.newReviewDeployInfoTask(deploySeq);
                 break;
             case '0c' :
                 self.buildInfoFaild();
@@ -1231,6 +1269,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 break;
             case '1b' :
                 self.deployInfoChecked();
+                self.newReviewDeployInfoTask(deploySeq);
                 break;
             case '1c' :
                 self.deployInfoFaild();
@@ -1245,7 +1284,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param response
      */
     self.initBranch = function (response) {
-        for (let i =0; i < response.length; i++) {
+        self.selectBranch = [];
+        for (let i =0; i < response.dtoList.length; i++) {
+            self.selectBranch[i] = {};
             self.selectBranch[i].appName = response.dtoList[i].appName;
             self.selectBranch[i].branchName = response.dtoList[i].gitBrchan;
             self.selectBranch[i].gitPath = response.dtoList[i].gitPath;
@@ -1267,11 +1308,27 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     /**
-     * 重新部署
-     * @param event
+     * 发起编译应用
      */
-    self.redeployment = function (event) {
+    self.buildApp = function () {
+        let body = {};
+        body.switchJunit = self.lastDeployForm.switchBatchDeploy ? 0 : 1;
+        body.buildSeq = self.cur.buildSeq;
 
+        DeployMainService.buildProject(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('编译应用失败 ' + response.errorMsg);
+                } else {
+                    if (response.buildSeq != null) {
+                        self.showTips('编译中 编译ID' + response.buildSeq);
+                        self.buildInfoChecked();
+                        self.newReviewDeployInfoTask(response.buildSeq);
+                    }
+                }
+            }, function (err){
+                self.showTips('编译应用失败 ' + err)
+            });
     }
 
     /**
@@ -1279,39 +1336,70 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param event
      */
     self.deployRecord = function (event) {
-
+        let body = {};
+        body.userSeq = self.cur.userSeq;
+        body.deploySeq = self.cur.deploySeq;
+        DeployMainService.qryDeployInfo(body)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('获取用户部署历史异常 ' + response.errorMsg);
+                } else {
+                    //返回0到N条记录,参考com.evy.linlin.deploy.dto.QryDeployInfoOutDTO
+                    self.showDeployHistoryInfoDiv(response.dtoList);
+                }
+            }, function (err){
+                self.showTips('获取用户部署历史异常 ' + err);
+            });
     }
 
     /**
      * 一键部署
-     * @param event
      */
-    self.autoDeploySubmit = function (event) {
-        DeployMainService.nextDeployBuild(self.lastDeployForm)
+    self.autoDeploySubmit = function () {
+        self.nextDeployBuild();
+    }
+
+    /**
+     * 一键部署
+     */
+    self.autoDeploy = function () {
+        let body = {};
+        body.buildSeq = self.cur.buildSeq;
+        DeployMainService.autoDeploy(body)
             .then(function (response){
                 if (response.errorCode !== '0') {
                     self.showTips('部署异常 ' + response.errorMsg);
                 } else {
+                    //新建定时回查任务
+                    self.showTips('发起部署任务成功,部署ID' + buildSeq);
+                    self.newReviewDeployInfoTask(buildSeq);
+                }
+                self.cur.deployStatus = true;
+            }, function (err){
+                self.showTips('一键部署异常 ', err);
+                self.cur.deployStatus = true;
+            });
+    }
+
+    self.nextDeployBuild = function () {
+        // if ((self.cur.buildSeq == null || self.cur.buildSeq === '') || self.cur.deployStatus) {//..}
+        DeployMainService.nextSeq(self.lastDeployForm)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('新建部署任务异常 ' + response.errorMsg);
+                } else {
                     //返回buildSeq,参考com.evy.linlin.deploy.dto.NextDeployBuildSeqOutDTO
                     if (response.buildSeq === '') {
-                        self.showTips('部署异常 buildSeq为空');
+                        self.showTips('新建部署任务异常 buildSeq为空');
                     } else {
-                        let buildSeq = response.buildSeq;
-                        DeployMainService.autoDeploy(buildSeq)
-                            .then(function (response){
-                                if (response.errorCode !== '0') {
-                                    self.showTips('部署异常 ' + response.errorMsg);
-                                } else {
-                                    //新建定时回查任务
-                                    self.newReviewDeployInfoTask(buildSeq);
-                                }
-                            }, function (err){
-                                self.showTips('一键部署异常 ', err);
-                            });
+                        self.cur.buildSeq = response.buildSeq;
+                        self.lastDeployForm.buildSeq = response.buildSeq;
+                        self.buildApp();
                     }
+                    self.cur.deployStatus = false;
                 }
             }, function (err){
-                self.showTips('部署异常 ' + err);
+                self.showTips('新建部署任务异常 ' + err);
             });
     }
 
@@ -1319,28 +1407,49 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * 定时回查,状态为:失败，则停止回查
      */
     self.timerTask;
+    /**
+     * 定时回查状态
+     * @type {boolean} true 回查中 false 未回查
+     */
+    self.timerTaskStatus = false;
+    /**
+     * 回查的部署流水 self.timerTaskStatus=true时必定存在值
+     */
+    self.timerTaskBuildSeq = '';
+
     self.newReviewDeployInfoTask = function (buildSeq) {
-        //回查前清除存量定时任务
-        self.rmReviewDeployInfoTask();
-        self.timerTask = setTimeout(function (){
-            DeployMainService.deployReview(buildSeq)
-                .then(function (response){
-                    if (response.errorCode !== '0') {
-                    } else {
-                        //返回stageFlag,参考com.evy.linlin.deploy.dto.ReviewStatusOutDTO
-                        let result = self.checkStageFlag(response.stageFlag);
-                        if (result) {
-                            //状态明确，停止回查
+        if (!self.timerTaskStatus || self.timerTaskBuildSeq !== buildSeq) {
+            //回查前清除存量定时任务
+            self.rmReviewDeployInfoTask();
+            self.timerTaskStatus = true;
+            let body = {};
+            body.buildSeq = buildSeq;
+            self.timerTask = setInterval(function (){
+                DeployMainService.deployReview(body)
+                    .then(function (response){
+                        if (response.errorCode !== '0') {
+                            self.showTips('部署状态异常 ' + response.errorMsg + ' 部署流水 ' + buildSeq);
                             self.rmReviewDeployInfoTask();
+                        } else {
+                            //返回stageFlag,参考com.evy.linlin.deploy.dto.ReviewStatusOutDTO
+                            let result = self.checkStageFlag(response.stageFlag);
+                            if (result) {
+                                //状态明确，停止回查
+                                self.rmReviewDeployInfoTask();
+                            }
                         }
-                    }
-                }, function (err){});
-        }, 3000);
+                    }, function (err){
+                        self.showTips('部署状态异常 ' + response.errorMsg + ' 部署流水 ' + buildSeq);
+                        self.rmReviewDeployInfoTask();
+                    });
+            }, 3000);
+        }
     }
 
     self.rmReviewDeployInfoTask = function () {
         if (self.timerTask !== undefined){
-            clearTimeout(self.timerTask);
+            clearInterval(self.timerTask);
+            self.timerTaskStatus = false;
         }
     }
 
@@ -1379,8 +1488,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('新建部署信息异常 ' + response.errorMsg);
                 } else {
                     //返回deploySeq,参考com.evy.linlin.deploy.dto.CreateDeployInfoOutDTO
-                    console.log(response);
-                    self.qryDeployInfo.deploySeq = response.deploySeq;
+                    // self.qryDeployInfo.deploySeq = response.deploySeq;
 
                     //重新获取部署信息,新用户获取了也没用呀？
                     self.qryDeployInfoReq(self.cur.userSeq);
@@ -1404,9 +1512,32 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
 
         self.GetGitBranchListStyle(btnId, true);
         self.BtnLodingStyle(spanId);
-        //TODO 获取分支请求
+
+        let body = {};
+        body.gitPath = self.deployForm.gitPath;
+        DeployMainService.getBranch(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('获取分支失败 ' + response.errorMsg);
+                } else {
+                    if (response.branchs != null) {
+                        self.viewShow.deployViewReqDiv = true;
+                        self.initGitBranchSelect(response.branchs);
+                    }
+                }
+            }, function (err){
+                self.showTips('获取分支失败 ' + err)
+            });
+
         self.GetGitBranchListStyle(btnId, false);
         self.SetNewClass(spanId, spanClass);
+    }
+
+    self.initGitBranchSelect = function (list) {
+        self.deployViewReqList = [];
+        for (let i = 0; i < list.length; i++) {
+            self.deployViewReqList[i].branchName = list[i].branchName;
+        }
     }
 
     /**
@@ -1414,12 +1545,13 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param deploySeq 部署序列号,根据序列号获取相应分支配置
      */
     self.selectBranchSubmit = function (deploySeq) {
-        self.selectBranch.forEach(value => {
-            console.log(value)
-            if (value.deploySeq === deploySeq) {
-                self.showTips(value.branchName +'分支切换成功');
+        console.log(self.tempDeployList)
+        for (let i = 0; i < self.tempDeployList.length; i++) {
+            if (self.tempDeployList[i].deploySeq === deploySeq) {
+                self.initLastDeployForm(self.tempDeployList[i]);
+                self.showTips(self.tempDeployList[i].gitBrchan +'分支切换成功');
             }
-        })
+        }
     }
 
     /**
@@ -1439,7 +1571,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('查询traceId失败 ' + response.errorMsg);
                 } else {
                     //返回参考com.evy.linlin.trace.dto.QryTrackingInfoOutDTO
-                    console.log(response);
                     if (response.traceList != null) {
                         self.buildCurTraceListResult(response.traceList);
                         self.viewShow.queryTrackingResultView = true;
@@ -1616,51 +1747,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             {
                 'branchName' : 'YD_2020_11_23_222222222'
             }
-        ]
-
-        self.selectBranch = [
-            {
-                appName : 'evy-deploy-center',
-                branchName : 'YD_2020_11_27',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
-            {
-                appName : 'evy-deploy-centeradfasdfadf',
-                branchName : 'YD_2020_11_27',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
-            {
-                appName : 'evy-deploy-center',
-                branchName : 'YD_2020_11_27asdfasdfasdf',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
-            {
-                appName : 'evy-deploy-centerasdfasdfasdf',
-                branchName : 'YD_2020_11_27asdfasdfasdf',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
-            {
-                appName : 'evy-deploy-center',
-                branchName : 'YD_2020_11_27asdf',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
-            {
-                appName : 'evy-deploy-centerasdf',
-                branchName : 'YD_2020_11_27',
-                gitPath : 'https://github.com/Evycc/evy-business',
-                serverIp : '127.0.0.1',
-                deploySeq : '123546978'
-            },
         ]
     }
 
@@ -1851,7 +1937,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             div.id = viewId;
             angular.element('#' + self.viewId.queryMemoryView).append(div);
             self.SetNewClass(viewId, 'chart-style');
-            console.log(chart2)
             /*内存图像处理 end*/
 
             maxIpLength = maxIpLength === 0 ? outMap[ip].length : maxIpLength < outMap[ip].length ? outMap[ip].length : maxIpLength;
