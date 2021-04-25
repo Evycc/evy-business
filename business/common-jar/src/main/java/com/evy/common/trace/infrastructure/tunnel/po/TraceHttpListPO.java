@@ -1,7 +1,5 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 import java.util.List;
 
 /**
@@ -9,7 +7,6 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/6/14 17:51
  */
-@Getter
 public class TraceHttpListPO {
     private final List<TraceHttpPO> httpsPos;
 
@@ -22,5 +19,9 @@ public class TraceHttpListPO {
      */
     public static TraceHttpListPO create(List<TraceHttpPO> httpsPos) {
         return new TraceHttpListPO(httpsPos);
+    }
+
+    public List<TraceHttpPO> getHttpsPos() {
+        return httpsPos;
     }
 }

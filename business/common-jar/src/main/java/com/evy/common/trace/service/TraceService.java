@@ -1,7 +1,7 @@
 package com.evy.common.trace.service;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.model.TraceServiceModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceServiceBeanAndConsumerPO;

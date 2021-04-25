@@ -1,10 +1,6 @@
 package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
@@ -12,10 +8,24 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/10/11 18:08
  */
-@Getter
-@ToString
-@NoArgsConstructor
-@Setter
 public class QryRedisInfoOutDTO extends OutDTO {
     private List<QryRedisInfoModel> list;
+
+    public QryRedisInfoOutDTO() {
+    }
+
+    @Override
+    public String toString() {
+        return "QryRedisInfoOutDTO{" +
+                "list=" + list +
+                '}';
+    }
+
+    public List<QryRedisInfoModel> getList() {
+        return list;
+    }
+
+    public void setList(List<QryRedisInfoModel> list) {
+        this.list = list;
+    }
 }

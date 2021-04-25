@@ -1,6 +1,6 @@
 package com.evy.linlin.gateway.filter.repository;
 
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.linlin.gateway.filter.repository.po.ServiceInfoPO;
 import com.evy.linlin.gateway.filter.repository.po.ServiceLimitInfoPO;
 import org.springframework.stereotype.Repository;

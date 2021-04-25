@@ -1,13 +1,10 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 /**
  * Trace Http对象PO类
  * @Author: EvyLiuu
  * @Date: 2020/6/14 17:06
  */
-@Getter
 public class TraceHttpPO {
     private final String thfReqIp;
     private final String thfUrl;
@@ -40,5 +37,33 @@ public class TraceHttpPO {
             thfResult = thfResult.substring(0, limit);
         }
         return new TraceHttpPO(thfReqIp, thfUrl, thfTakeUpTime, thfReqTimestamp, thfResultSuccess, thfInput, thfResult);
+    }
+
+    public String getThfReqIp() {
+        return thfReqIp;
+    }
+
+    public String getThfUrl() {
+        return thfUrl;
+    }
+
+    public String getThfTakeUpTime() {
+        return thfTakeUpTime;
+    }
+
+    public String getThfReqTimestamp() {
+        return thfReqTimestamp;
+    }
+
+    public boolean isThfResultSuccess() {
+        return thfResultSuccess;
+    }
+
+    public String getThfInput() {
+        return thfInput;
+    }
+
+    public String getThfResult() {
+        return thfResult;
     }
 }

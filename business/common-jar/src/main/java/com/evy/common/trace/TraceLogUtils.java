@@ -1,6 +1,5 @@
 package com.evy.common.trace;
 
-import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.service.TraceTracking;
 import com.evy.common.utils.AppContextUtils;

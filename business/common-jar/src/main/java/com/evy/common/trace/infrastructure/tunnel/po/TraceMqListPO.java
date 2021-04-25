@@ -1,7 +1,5 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 import java.util.List;
 
 /**
@@ -9,7 +7,6 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/6/14 10:18
  */
-@Getter
 public class TraceMqListPO {
     private List<TraceMqPO> mqPoList;
 
@@ -22,5 +19,9 @@ public class TraceMqListPO {
      */
     public static TraceMqListPO create(List<TraceMqPO> mqPoList) {
         return new TraceMqListPO(mqPoList);
+    }
+
+    public List<TraceMqPO> getMqPoList() {
+        return mqPoList;
     }
 }

@@ -1,8 +1,5 @@
 package com.evy.linlin.deploy.domain.tunnel.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.List;
 
 /**
@@ -10,9 +7,20 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/9/5 23:29
  */
-@AllArgsConstructor
-@Getter
 public class GitBrchanOutDO {
     private final String gitPath;
     private final List<String> gitBrchans;
+
+    public GitBrchanOutDO(String gitPath, List<String> gitBrchans) {
+        this.gitPath = gitPath;
+        this.gitBrchans = gitBrchans;
+    }
+
+    public String getGitPath() {
+        return gitPath;
+    }
+
+    public List<String> getGitBrchans() {
+        return gitBrchans;
+    }
 }

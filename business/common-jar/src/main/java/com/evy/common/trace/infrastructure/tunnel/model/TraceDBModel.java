@@ -1,14 +1,9 @@
 package com.evy.common.trace.infrastructure.tunnel.model;
 
-import lombok.Getter;
-import lombok.ToString;
-
 /**
  * @Author: EvyLiuu
  * @Date: 2020/6/7 20:25
  */
-@Getter
-@ToString
 public class TraceDBModel extends TraceModel {
     private String slowSql;
     private String explain;
@@ -27,5 +22,26 @@ public class TraceDBModel extends TraceModel {
 
     public static TraceDBModel create(String reqIp, long takeUpTimestamp, String slowSql) {
         return new TraceDBModel(reqIp, takeUpTimestamp, slowSql, null, null);
+    }
+
+    @Override
+    public String toString() {
+        return "TraceDBModel{" +
+                "slowSql='" + slowSql + '\'' +
+                ", explain='" + explain + '\'' +
+                ", explainContent='" + explainContent + '\'' +
+                '}';
+    }
+
+    public String getSlowSql() {
+        return slowSql;
+    }
+
+    public String getExplain() {
+        return explain;
+    }
+
+    public String getExplainContent() {
+        return explainContent;
     }
 }

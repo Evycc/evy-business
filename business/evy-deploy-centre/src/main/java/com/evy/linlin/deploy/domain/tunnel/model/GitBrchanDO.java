@@ -1,15 +1,18 @@
 package com.evy.linlin.deploy.domain.tunnel.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /**
  * getGitBrchansShell 入参DO
  * @Author: EvyLiuu
  * @Date: 2020/9/5 22:50
  */
-@AllArgsConstructor
-@Getter
 public class GitBrchanDO {
     private final String gitPath;
+
+    public GitBrchanDO(String gitPath) {
+        this.gitPath = gitPath;
+    }
+
+    public String getGitPath() {
+        return gitPath;
+    }
 }

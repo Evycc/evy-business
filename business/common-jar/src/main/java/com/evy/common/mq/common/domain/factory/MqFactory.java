@@ -6,7 +6,6 @@ import com.evy.common.utils.CommandUtils;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.Getter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,6 @@ import java.util.concurrent.TimeoutException;
  */
 @Component
 public class MqFactory {
-    @Getter
     private ConnectionFactory rabbitmqConnFactory;
     private final String rabbitmqUser;
     private final String rabbitmqPassword;
@@ -187,5 +185,9 @@ public class MqFactory {
         channel.queueBind(queue, exchange, rk);
 
         return queue;
+    }
+
+    public ConnectionFactory getRabbitmqConnFactory() {
+        return rabbitmqConnFactory;
     }
 }

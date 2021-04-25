@@ -1,14 +1,9 @@
 package com.evy.linlin.trace.domain.tunnel.po;
 
-import lombok.Getter;
-import lombok.ToString;
-
 /**
  * @Author: EvyLiuu
  * @Date: 2020/10/17 15:32
  */
-@Getter
-@ToString
 public class QryServiceInfoListPO {
     private String tsiServiceBeanName;
     private String tsiServiceName;
@@ -18,4 +13,50 @@ public class QryServiceInfoListPO {
     private String tsiProviderNames;
     private String tsiConsumerNames;
     private String gmtModify;
+
+    public String getTsiServiceBeanName() {
+        return tsiServiceBeanName;
+    }
+
+    public String getTsiServiceName() {
+        return tsiServiceName;
+    }
+
+    public String getTsiServicePath() {
+        return tsiServicePath;
+    }
+
+    public String getTsiProvider() {
+        return tsiProvider;
+    }
+
+    public String getTsiConsumer() {
+        return tsiConsumer;
+    }
+
+    public String getTsiProviderNames() {
+        return tsiProviderNames;
+    }
+
+    public String getTsiConsumerNames() {
+        return tsiConsumerNames;
+    }
+
+    public String getGmtModify() {
+        return gmtModify;
+    }
+
+    @Override
+    public String toString() {
+        return "QryServiceInfoListPO{" +
+                "tsiServiceBeanName='" + tsiServiceBeanName + '\'' +
+                ", tsiServiceName='" + tsiServiceName + '\'' +
+                ", tsiServicePath='" + tsiServicePath + '\'' +
+                ", tsiProvider='" + tsiProvider + '\'' +
+                ", tsiConsumer='" + tsiConsumer + '\'' +
+                ", tsiProviderNames='" + tsiProviderNames + '\'' +
+                ", tsiConsumerNames='" + tsiConsumerNames + '\'' +
+                ", gmtModify='" + gmtModify + '\'' +
+                '}';
+    }
 }

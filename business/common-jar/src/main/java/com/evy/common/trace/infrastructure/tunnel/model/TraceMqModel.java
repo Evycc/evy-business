@@ -1,15 +1,11 @@
 package com.evy.common.trace.infrastructure.tunnel.model;
 
 import com.evy.common.utils.DateUtils;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/6/7 20:29
  */
-@Getter
-@ToString
 public class TraceMqModel extends TraceModel {
     private String topic;
     private String tag;
@@ -32,5 +28,36 @@ public class TraceMqModel extends TraceModel {
 
     public static TraceMqModel create(String reqIp, long takeUpTimestamp, String msgId) {
         return new TraceMqModel(reqIp, takeUpTimestamp, null, null, DateUtils.nowStr3(), msgId, null);
+    }
+
+    @Override
+    public String toString() {
+        return "TraceMqModel{" +
+                "topic='" + topic + '\'' +
+                ", tag='" + tag + '\'' +
+                ", reqTimestamp='" + reqTimestamp + '\'' +
+                ", msgId='" + msgId + '\'' +
+                ", mqContent='" + mqContent + '\'' +
+                '}';
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public String getReqTimestamp() {
+        return reqTimestamp;
+    }
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public String getMqContent() {
+        return mqContent;
     }
 }

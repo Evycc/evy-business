@@ -2,8 +2,6 @@ package com.evy.linlin.trace.domain.repository;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
-import com.evy.common.http.HttpUtils;
-import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
@@ -12,6 +10,8 @@ import com.evy.common.trace.service.TraceTracking;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.JsonUtils;
 import com.evy.common.web.HealthyControllerConstant;
+import com.evy.common.web.tunnel.dto.HttpRequestDTO;
+import com.evy.common.web.utils.HttpUtils;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
 import com.evy.linlin.trace.domain.tunnel.constant.QryTraceErrorConstant;
 import com.evy.linlin.trace.domain.tunnel.model.*;

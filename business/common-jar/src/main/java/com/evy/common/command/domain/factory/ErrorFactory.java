@@ -2,14 +2,13 @@ package com.evy.common.command.domain.factory;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.common.command.infrastructure.tunnel.po.ErrorInfoPO;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -24,8 +23,8 @@ import java.util.stream.Collectors;
 public class ErrorFactory {
     private Map<String, String> errorCodeMap;
     private final static String QUERY_ALL_ERROR_CODE = "ErrorMapMapper.queryAllErrorCode";
-    private static final ScheduledThreadPoolExecutor EXECUTOR_SERVICE = new ScheduledThreadPoolExecutor(1,
-            CreateFactory.createThreadFactory("ErrorMap-ThreadTask"));
+    private static final ScheduledThreadPoolExecutor EXECUTOR_SERVICE = CreateFactory.returnScheduledExecutorService("ErrorMap-ThreadTask", 1);
+
     /**
      * 从数据库加载错误码表，并缓存到内存
      */

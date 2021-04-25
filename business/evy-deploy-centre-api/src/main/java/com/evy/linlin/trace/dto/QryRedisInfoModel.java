@@ -1,19 +1,11 @@
 package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/10/11 18:24
  */
-@ToString
-@AllArgsConstructor
-@Getter
-@NoArgsConstructor
 public class QryRedisInfoModel extends CommandModel {
     private String appIp;
     private String redisIp;
@@ -121,4 +113,184 @@ public class QryRedisInfoModel extends CommandModel {
      * 哨兵配置文件路径
      */
     private String sentinelConfigPath;
+
+    public QryRedisInfoModel() {
+    }
+
+    public QryRedisInfoModel(String appIp, String redisIp, String redisFlag, String slaveIp, String clusterType, String rdbOpen, String rdbFile, String rdbSaveType, String aofOpen, String aofFile, String aofSaveType, String aofRdbOpen, String mermoryCountKb, String mermoryAvailableCountKb, String mermoryPeakKb, String mermoryFragmentationRatio, String keyspaceRatio, String keysCount, String lastRdbStatus, String lastAofStatus, String lastForkUsec, String connTotalCount, String connCurCount, String connBlockCount, String redisLogPath, String redisConfigPath, String sentinelMonitor, String sentinelConfigPath) {
+        this.appIp = appIp;
+        this.redisIp = redisIp;
+        this.redisFlag = redisFlag;
+        this.slaveIp = slaveIp;
+        this.clusterType = clusterType;
+        this.rdbOpen = rdbOpen;
+        this.rdbFile = rdbFile;
+        this.rdbSaveType = rdbSaveType;
+        this.aofOpen = aofOpen;
+        this.aofFile = aofFile;
+        this.aofSaveType = aofSaveType;
+        this.aofRdbOpen = aofRdbOpen;
+        this.mermoryCountKb = mermoryCountKb;
+        this.mermoryAvailableCountKb = mermoryAvailableCountKb;
+        this.mermoryPeakKb = mermoryPeakKb;
+        this.mermoryFragmentationRatio = mermoryFragmentationRatio;
+        this.keyspaceRatio = keyspaceRatio;
+        this.keysCount = keysCount;
+        this.lastRdbStatus = lastRdbStatus;
+        this.lastAofStatus = lastAofStatus;
+        this.lastForkUsec = lastForkUsec;
+        this.connTotalCount = connTotalCount;
+        this.connCurCount = connCurCount;
+        this.connBlockCount = connBlockCount;
+        this.redisLogPath = redisLogPath;
+        this.redisConfigPath = redisConfigPath;
+        this.sentinelMonitor = sentinelMonitor;
+        this.sentinelConfigPath = sentinelConfigPath;
+    }
+
+    @Override
+    public String toString() {
+        return "QryRedisInfoModel{" +
+                "appIp='" + appIp + '\'' +
+                ", redisIp='" + redisIp + '\'' +
+                ", redisFlag='" + redisFlag + '\'' +
+                ", slaveIp='" + slaveIp + '\'' +
+                ", clusterType='" + clusterType + '\'' +
+                ", rdbOpen='" + rdbOpen + '\'' +
+                ", rdbFile='" + rdbFile + '\'' +
+                ", rdbSaveType='" + rdbSaveType + '\'' +
+                ", aofOpen='" + aofOpen + '\'' +
+                ", aofFile='" + aofFile + '\'' +
+                ", aofSaveType='" + aofSaveType + '\'' +
+                ", aofRdbOpen='" + aofRdbOpen + '\'' +
+                ", mermoryCountKb='" + mermoryCountKb + '\'' +
+                ", mermoryAvailableCountKb='" + mermoryAvailableCountKb + '\'' +
+                ", mermoryPeakKb='" + mermoryPeakKb + '\'' +
+                ", mermoryFragmentationRatio='" + mermoryFragmentationRatio + '\'' +
+                ", keyspaceRatio='" + keyspaceRatio + '\'' +
+                ", keysCount='" + keysCount + '\'' +
+                ", lastRdbStatus='" + lastRdbStatus + '\'' +
+                ", lastAofStatus='" + lastAofStatus + '\'' +
+                ", lastForkUsec='" + lastForkUsec + '\'' +
+                ", connTotalCount='" + connTotalCount + '\'' +
+                ", connCurCount='" + connCurCount + '\'' +
+                ", connBlockCount='" + connBlockCount + '\'' +
+                ", redisLogPath='" + redisLogPath + '\'' +
+                ", redisConfigPath='" + redisConfigPath + '\'' +
+                ", sentinelMonitor='" + sentinelMonitor + '\'' +
+                ", sentinelConfigPath='" + sentinelConfigPath + '\'' +
+                '}';
+    }
+
+    public String getAppIp() {
+        return appIp;
+    }
+
+    public String getRedisIp() {
+        return redisIp;
+    }
+
+    public String getRedisFlag() {
+        return redisFlag;
+    }
+
+    public String getSlaveIp() {
+        return slaveIp;
+    }
+
+    public String getClusterType() {
+        return clusterType;
+    }
+
+    public String getRdbOpen() {
+        return rdbOpen;
+    }
+
+    public String getRdbFile() {
+        return rdbFile;
+    }
+
+    public String getRdbSaveType() {
+        return rdbSaveType;
+    }
+
+    public String getAofOpen() {
+        return aofOpen;
+    }
+
+    public String getAofFile() {
+        return aofFile;
+    }
+
+    public String getAofSaveType() {
+        return aofSaveType;
+    }
+
+    public String getAofRdbOpen() {
+        return aofRdbOpen;
+    }
+
+    public String getMermoryCountKb() {
+        return mermoryCountKb;
+    }
+
+    public String getMermoryAvailableCountKb() {
+        return mermoryAvailableCountKb;
+    }
+
+    public String getMermoryPeakKb() {
+        return mermoryPeakKb;
+    }
+
+    public String getMermoryFragmentationRatio() {
+        return mermoryFragmentationRatio;
+    }
+
+    public String getKeyspaceRatio() {
+        return keyspaceRatio;
+    }
+
+    public String getKeysCount() {
+        return keysCount;
+    }
+
+    public String getLastRdbStatus() {
+        return lastRdbStatus;
+    }
+
+    public String getLastAofStatus() {
+        return lastAofStatus;
+    }
+
+    public String getLastForkUsec() {
+        return lastForkUsec;
+    }
+
+    public String getConnTotalCount() {
+        return connTotalCount;
+    }
+
+    public String getConnCurCount() {
+        return connCurCount;
+    }
+
+    public String getConnBlockCount() {
+        return connBlockCount;
+    }
+
+    public String getRedisLogPath() {
+        return redisLogPath;
+    }
+
+    public String getRedisConfigPath() {
+        return redisConfigPath;
+    }
+
+    public String getSentinelMonitor() {
+        return sentinelMonitor;
+    }
+
+    public String getSentinelConfigPath() {
+        return sentinelConfigPath;
+    }
 }

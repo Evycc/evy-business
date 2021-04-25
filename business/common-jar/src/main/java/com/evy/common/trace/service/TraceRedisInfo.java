@@ -2,7 +2,7 @@ package com.evy.common.trace.service;
 
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO;
 import com.evy.common.utils.AppContextUtils;

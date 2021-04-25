@@ -71,8 +71,8 @@ public class ServiceFilter implements GatewayFilter, Ordered {
     /**
      * 定时调度器
      */
-    private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(2,
-            CreateFactory.createThreadFactory(ServiceFilter.class.getName()));
+    private static final ScheduledThreadPoolExecutor executorService = CreateFactory.returnScheduledExecutorService(ServiceFilter.class.getName(), 2);
+
     /**
      * 未找到指定服务,跳转到降级方法
      */

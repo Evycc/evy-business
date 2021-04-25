@@ -1,15 +1,11 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/6/26 0:07
  */
-@Getter
-@ToString
 public class TraceRedisPO {
     private final String trhAppIp;
     private final String trhRedisIp;
@@ -86,5 +82,151 @@ public class TraceRedisPO {
         return new TraceRedisPO(BusinessConstant.VM_HOST, trhRedisIp, trhRedisFlag, trhSlaveIp, trhClusterType, trhRdbOpen, trhAofOpen, trhAofRdbOpen, trhRdbFile, trhRdbSaveType, trhAofFile, trhAofSaveType,
                 trhMemoryCount, trhMemoryAvailableCount, trhMemoryPeak, trhMemoryFragmentationRatio, trhKeyspaceRatio, trhKeysCount, trhLastRdbStatus, trhLastAofStatus,
                 trhLastForkUsec, trhConnTotalCount, trhConnCurCount, trhConnBlockCount, trhLogPath, trhConfigPath, trhSentinelMonitor, trhSentinelConfigPath);
+    }
+
+    @Override
+    public String toString() {
+        return "TraceRedisPO{" +
+                "trhAppIp='" + trhAppIp + '\'' +
+                ", trhRedisIp='" + trhRedisIp + '\'' +
+                ", trhRedisFlag='" + trhRedisFlag + '\'' +
+                ", trhSlaveIp='" + trhSlaveIp + '\'' +
+                ", trhClusterType='" + trhClusterType + '\'' +
+                ", trhRdbOpen=" + trhRdbOpen +
+                ", trhAofOpen=" + trhAofOpen +
+                ", trhAofRdbOpen=" + trhAofRdbOpen +
+                ", trhRdbFile='" + trhRdbFile + '\'' +
+                ", trhRdbSaveType='" + trhRdbSaveType + '\'' +
+                ", trhAofFile='" + trhAofFile + '\'' +
+                ", trhAofSaveType='" + trhAofSaveType + '\'' +
+                ", trhMemoryCount='" + trhMemoryCount + '\'' +
+                ", trhMemoryAvailableCount='" + trhMemoryAvailableCount + '\'' +
+                ", trhMemoryPeak='" + trhMemoryPeak + '\'' +
+                ", trhMemoryFragmentationRatio='" + trhMemoryFragmentationRatio + '\'' +
+                ", trhKeyspaceRatio='" + trhKeyspaceRatio + '\'' +
+                ", trhKeysCount='" + trhKeysCount + '\'' +
+                ", trhLastRdbStatus='" + trhLastRdbStatus + '\'' +
+                ", trhLastAofStatus='" + trhLastAofStatus + '\'' +
+                ", trhLastForkUsec='" + trhLastForkUsec + '\'' +
+                ", trhConnTotalCount='" + trhConnTotalCount + '\'' +
+                ", trhConnCurCount='" + trhConnCurCount + '\'' +
+                ", trhConnBlockCount='" + trhConnBlockCount + '\'' +
+                ", trhLogPath='" + trhLogPath + '\'' +
+                ", trhConfigPath='" + trhConfigPath + '\'' +
+                ", trhSentinelMonitor='" + trhSentinelMonitor + '\'' +
+                ", trhSentinelConfigPath='" + trhSentinelConfigPath + '\'' +
+                '}';
+    }
+
+    public String getTrhAppIp() {
+        return trhAppIp;
+    }
+
+    public String getTrhRedisIp() {
+        return trhRedisIp;
+    }
+
+    public String getTrhRedisFlag() {
+        return trhRedisFlag;
+    }
+
+    public String getTrhSlaveIp() {
+        return trhSlaveIp;
+    }
+
+    public String getTrhClusterType() {
+        return trhClusterType;
+    }
+
+    public boolean isTrhRdbOpen() {
+        return trhRdbOpen;
+    }
+
+    public boolean isTrhAofOpen() {
+        return trhAofOpen;
+    }
+
+    public boolean isTrhAofRdbOpen() {
+        return trhAofRdbOpen;
+    }
+
+    public String getTrhRdbFile() {
+        return trhRdbFile;
+    }
+
+    public String getTrhRdbSaveType() {
+        return trhRdbSaveType;
+    }
+
+    public String getTrhAofFile() {
+        return trhAofFile;
+    }
+
+    public String getTrhAofSaveType() {
+        return trhAofSaveType;
+    }
+
+    public String getTrhMemoryCount() {
+        return trhMemoryCount;
+    }
+
+    public String getTrhMemoryAvailableCount() {
+        return trhMemoryAvailableCount;
+    }
+
+    public String getTrhMemoryPeak() {
+        return trhMemoryPeak;
+    }
+
+    public String getTrhMemoryFragmentationRatio() {
+        return trhMemoryFragmentationRatio;
+    }
+
+    public String getTrhKeyspaceRatio() {
+        return trhKeyspaceRatio;
+    }
+
+    public String getTrhKeysCount() {
+        return trhKeysCount;
+    }
+
+    public String getTrhLastRdbStatus() {
+        return trhLastRdbStatus;
+    }
+
+    public String getTrhLastAofStatus() {
+        return trhLastAofStatus;
+    }
+
+    public String getTrhLastForkUsec() {
+        return trhLastForkUsec;
+    }
+
+    public String getTrhConnTotalCount() {
+        return trhConnTotalCount;
+    }
+
+    public String getTrhConnCurCount() {
+        return trhConnCurCount;
+    }
+
+    public String getTrhConnBlockCount() {
+        return trhConnBlockCount;
+    }
+
+    public String getTrhLogPath() {
+        return trhLogPath;
+    }
+
+    public String getTrhConfigPath() {
+        return trhConfigPath;
+    }
+
+    public String getTrhSentinelMonitor() {
+        return trhSentinelMonitor;
+    }
+
+    public String getTrhSentinelConfigPath() {
+        return trhSentinelConfigPath;
     }
 }

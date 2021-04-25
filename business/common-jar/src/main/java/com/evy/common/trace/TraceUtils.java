@@ -18,8 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2020/5/23 16:49
  */
 public class TraceUtils {
-    private static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(8,
-            CreateFactory.createThreadFactory("TraceUtils"));
+    private static final ScheduledThreadPoolExecutor EXECUTOR = CreateFactory.returnScheduledExecutorService("TraceUtils", 8);
 
     public static void init(){
         //定时监控队列，存在数据则进行处理后入库

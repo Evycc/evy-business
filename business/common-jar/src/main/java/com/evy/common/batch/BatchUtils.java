@@ -1,7 +1,7 @@
 package com.evy.common.batch;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.app.basic.MqSender;
 import com.evy.common.mq.rabbitmq.app.basic.BaseBatchRabbitMqConsumer;

@@ -1,13 +1,10 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 /**
  * Trace MQ对象PO类
  * @Author: EvyLiuu
  * @Date: 2020/6/13 20:06
  */
-@Getter
 public class TraceMqPO {
     private final String tmfTopic;
     private final String tmfReqIp;
@@ -50,5 +47,41 @@ public class TraceMqPO {
      */
     public static TraceMqPO createConsume(String tmfMsgId, String tmfRespIp, String tmfConsumerEndTimestamp, String tmfConsumerTakeUpTimestamp) {
         return new TraceMqPO(null, null, null, tmfMsgId, null, tmfRespIp, null, tmfConsumerEndTimestamp, tmfConsumerTakeUpTimestamp);
+    }
+
+    public String getTmfTopic() {
+        return tmfTopic;
+    }
+
+    public String getTmfReqIp() {
+        return tmfReqIp;
+    }
+
+    public String getTmfTag() {
+        return tmfTag;
+    }
+
+    public String getTmfMsgId() {
+        return tmfMsgId;
+    }
+
+    public String getTmfMsgContent() {
+        return tmfMsgContent;
+    }
+
+    public String getTmfRespIp() {
+        return tmfRespIp;
+    }
+
+    public String getTmfProducerStartTimestamp() {
+        return tmfProducerStartTimestamp;
+    }
+
+    public String getTmfConsumerEndTimestamp() {
+        return tmfConsumerEndTimestamp;
+    }
+
+    public String getTmfConsumerTakeUpTimestamp() {
+        return tmfConsumerTakeUpTimestamp;
     }
 }

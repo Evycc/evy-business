@@ -1,12 +1,9 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 /**
  * @Author: EvyLiuu
  * @Date: 2020/7/11 15:11
  */
-@Getter
 public class TraceServicesInfoPO {
     private final String tsiProvider;
 
@@ -16,5 +13,9 @@ public class TraceServicesInfoPO {
 
     public static TraceServicesInfoPO create(String tsiProvider) {
         return new TraceServicesInfoPO(tsiProvider);
+    }
+
+    public String getTsiProvider() {
+        return tsiProvider;
     }
 }

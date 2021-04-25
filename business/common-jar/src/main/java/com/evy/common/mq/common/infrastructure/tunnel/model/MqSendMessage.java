@@ -1,8 +1,6 @@
 package com.evy.common.mq.common.infrastructure.tunnel.model;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;

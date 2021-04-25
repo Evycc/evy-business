@@ -1,14 +1,11 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
-import lombok.Getter;
-
 import java.util.List;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/7/5 13:51
  */
-@Getter
 public class TraceThreadInfoListPO {
     private final List<TraceThreadInfoPO> traceThreadInfos;
 
@@ -21,5 +18,9 @@ public class TraceThreadInfoListPO {
      */
     public static TraceThreadInfoListPO create(List<TraceThreadInfoPO> traceThreadInfos) {
         return new TraceThreadInfoListPO(traceThreadInfos);
+    }
+
+    public List<TraceThreadInfoPO> getTraceThreadInfos() {
+        return traceThreadInfos;
     }
 }

@@ -1,17 +1,11 @@
 package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.CommandModel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/10/11 18:14
  */
-@ToString
-@AllArgsConstructor
-@Getter
 public class QrySlowSqlInfoModel extends CommandModel {
     /**
      * 请求的服务器IP
@@ -37,4 +31,49 @@ public class QrySlowSqlInfoModel extends CommandModel {
      * 最后记录时间
      */
     private final String gmtModify;
+
+    public QrySlowSqlInfoModel(String appIp, String slowSql, String takeTime, String explain, String explainContent, String gmtModify) {
+        this.appIp = appIp;
+        this.slowSql = slowSql;
+        this.takeTime = takeTime;
+        this.explain = explain;
+        this.explainContent = explainContent;
+        this.gmtModify = gmtModify;
+    }
+
+    public String getAppIp() {
+        return appIp;
+    }
+
+    public String getSlowSql() {
+        return slowSql;
+    }
+
+    public String getTakeTime() {
+        return takeTime;
+    }
+
+    public String getExplain() {
+        return explain;
+    }
+
+    public String getExplainContent() {
+        return explainContent;
+    }
+
+    public String getGmtModify() {
+        return gmtModify;
+    }
+
+    @Override
+    public String toString() {
+        return "QrySlowSqlInfoModel{" +
+                "appIp='" + appIp + '\'' +
+                ", slowSql='" + slowSql + '\'' +
+                ", takeTime='" + takeTime + '\'' +
+                ", explain='" + explain + '\'' +
+                ", explainContent='" + explainContent + '\'' +
+                ", gmtModify='" + gmtModify + '\'' +
+                '}';
+    }
 }

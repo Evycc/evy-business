@@ -47,15 +47,16 @@ public class CreateFactory {
 
     /**
      * 返回基于CPU核心数的线程池
-     * @param name 线程池名称
+     * @param corePoolSize 核心线程数
+     * @param maximumPoolSize  最大线程数
      * @return java.util.concurrent.ExecutorService
      */
-    public static ExecutorService returnExecutorService(String name){
+    public static ExecutorService returnExecutorService(String name, int corePoolSize, int maximumPoolSize){
         ExecutorService es = new ThreadPoolExecutor(
                 //核心线程数
-                BusinessConstant.CORE_CPU_COUNT + 1,
+                corePoolSize == 0 ? (BusinessConstant.CORE_CPU_COUNT + 1) : corePoolSize,
                 //最大线程数 核心数*2+1
-                (BusinessConstant.CORE_CPU_COUNT << 1) + 1,
+                maximumPoolSize == 0 ? ((BusinessConstant.CORE_CPU_COUNT << 1) + 1) : maximumPoolSize,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingDeque<>(1000),
                 createThreadFactory(name),
@@ -65,6 +66,28 @@ public class CreateFactory {
         //停止线程，不可submit，等待已执行的线程
         Runtime.getRuntime().addShutdownHook(new Thread(es::shutdown));
         return es;
+    }
+
+    /**
+     * 返回基于CPU核心数的线程池
+     * @param name 线程池名称
+     * @return java.util.concurrent.ExecutorService
+     */
+    public static ExecutorService returnExecutorService(String name){
+        return returnExecutorService(name, BusinessConstant.CORE_CPU_COUNT + 1,
+                (BusinessConstant.CORE_CPU_COUNT << 1) + 1);
+    }
+
+    /**
+     * 返回定时调度线程池
+     * @param name 线程池名称
+     * @return java.util.concurrent.ExecutorService
+     */
+    public static ScheduledThreadPoolExecutor returnScheduledExecutorService(String name, int corePoolSize){
+        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(corePoolSize, CreateFactory.createThreadFactory(name));
+        //停止线程，不可submit，等待已执行的线程
+        Runtime.getRuntime().addShutdownHook(new Thread(scheduledThreadPoolExecutor::shutdown));
+        return scheduledThreadPoolExecutor;
     }
 
     /**

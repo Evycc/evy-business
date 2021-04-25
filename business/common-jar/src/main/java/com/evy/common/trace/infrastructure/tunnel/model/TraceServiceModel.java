@@ -1,14 +1,9 @@
 package com.evy.common.trace.infrastructure.tunnel.model;
 
-import lombok.Getter;
-import lombok.ToString;
-
 /**
  * @Author: EvyLiuu
  * @Date: 2020/7/8 21:42
  */
-@Getter
-@ToString
 public class TraceServiceModel {
     private final String beanName;
     private final String spcServiceName;
@@ -22,5 +17,26 @@ public class TraceServiceModel {
 
     public static TraceServiceModel create(String beanName, String spcServiceName, String postPath) {
         return new TraceServiceModel(beanName, spcServiceName, postPath);
+    }
+
+    @Override
+    public String toString() {
+        return "TraceServiceModel{" +
+                "beanName='" + beanName + '\'' +
+                ", spcServiceName='" + spcServiceName + '\'' +
+                ", postPath='" + postPath + '\'' +
+                '}';
+    }
+
+    public String getBeanName() {
+        return beanName;
+    }
+
+    public String getSpcServiceName() {
+        return spcServiceName;
+    }
+
+    public String getPostPath() {
+        return postPath;
     }
 }

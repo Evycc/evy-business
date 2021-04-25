@@ -1,16 +1,11 @@
 package com.evy.common.trace.infrastructure.tunnel.model;
 
-import lombok.Getter;
-import lombok.ToString;
-
 /**
  * explain模型
  *
  * @Author: EvyLiuu
  * @Date: 2020/6/20 10:59
  */
-@Getter
-@ToString
 public class ExplainModel {
     private final String id;
     private final String selectType;
@@ -45,5 +40,71 @@ public class ExplainModel {
      */
     public static ExplainModel create(String id, String selectType, String table, String partitions, String type, String possibleKeys, String key, String keyLen, String ref, String rows, String filtered, String extra){
         return new ExplainModel(id, selectType, table, partitions, type, possibleKeys, key, keyLen, ref, rows, filtered, extra);
+    }
+
+    @Override
+    public String toString() {
+        return "ExplainModel{" +
+                "id='" + id + '\'' +
+                ", selectType='" + selectType + '\'' +
+                ", table='" + table + '\'' +
+                ", partitions='" + partitions + '\'' +
+                ", type='" + type + '\'' +
+                ", possibleKeys='" + possibleKeys + '\'' +
+                ", key='" + key + '\'' +
+                ", keyLen='" + keyLen + '\'' +
+                ", ref='" + ref + '\'' +
+                ", rows='" + rows + '\'' +
+                ", filtered='" + filtered + '\'' +
+                ", extra='" + extra + '\'' +
+                '}';
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getSelectType() {
+        return selectType;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public String getPartitions() {
+        return partitions;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getPossibleKeys() {
+        return possibleKeys;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getKeyLen() {
+        return keyLen;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public String getRows() {
+        return rows;
+    }
+
+    public String getFiltered() {
+        return filtered;
+    }
+
+    public String getExtra() {
+        return extra;
     }
 }

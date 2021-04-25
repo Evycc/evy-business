@@ -1,7 +1,7 @@
 package com.evy.linlin.trace.domain.repository;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.linlin.trace.domain.tunnel.po.*;
 import org.springframework.stereotype.Repository;
 

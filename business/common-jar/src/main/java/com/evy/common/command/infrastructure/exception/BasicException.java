@@ -2,8 +2,6 @@ package com.evy.common.command.infrastructure.exception;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 异常基类，通过初始化数据库中错误码表，转换对应异常码后返回

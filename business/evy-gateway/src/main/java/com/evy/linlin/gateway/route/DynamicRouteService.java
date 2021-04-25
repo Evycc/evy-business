@@ -2,7 +2,7 @@ package com.evy.linlin.gateway.route;
 
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.JsonUtils;
 import com.google.gson.JsonSyntaxException;
@@ -36,8 +36,7 @@ public class DynamicRouteService implements CommandLineRunner {
     private final ReactiveRedisRouteDefinitionRepository definitionRepository;
     private final ReactiveRedisTemplate<String, String> template;
     private static final String ROUTE_MAP_KEYS = "gateway:routemap";
-    private static final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1,
-            CreateFactory.createThreadFactory("DynamicRouteService"));
+    private static final ScheduledThreadPoolExecutor executorService = CreateFactory.returnScheduledExecutorService("DynamicRouteService", 1);
     private static final String QUERY_ROUTERS_SQL = "SELECT tr_router_id,tr_router_uri,tr_predicate_name,tr_filters_name,tr_predicate_args,tr_filters_args,tr_order,gmt_modify FROM td_router";
     private static final String TR_ROUTER_ID = "tr_router_id";
     private static final String TR_ROUTER_URI = "tr_router_uri";

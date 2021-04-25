@@ -1,7 +1,6 @@
 package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
-import lombok.*;
 
 import java.util.List;
 
@@ -10,11 +9,28 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:07
  */
-@Setter
-@ToString
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
 public class QryDeployInfoOutDTO extends OutDTO {
     List<DeployInfoDTO> dtoList;
+
+    public QryDeployInfoOutDTO() {
+    }
+
+    public QryDeployInfoOutDTO(List<DeployInfoDTO> dtoList) {
+        this.dtoList = dtoList;
+    }
+
+    @Override
+    public String toString() {
+        return "QryDeployInfoOutDTO{" +
+                "dtoList=" + dtoList +
+                '}';
+    }
+
+    public List<DeployInfoDTO> getDtoList() {
+        return dtoList;
+    }
+
+    public void setDtoList(List<DeployInfoDTO> dtoList) {
+        this.dtoList = dtoList;
+    }
 }

@@ -2,8 +2,6 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
@@ -14,8 +12,6 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2020/10/7 22:45
  */
-@Getter
-@ToString
 public class QryHttpInfoDTO extends InputDTO implements ValidatorDTO<QryHttpInfoDTO> {
     /**
      * 编译流水,用于关联编译应用信息
@@ -40,4 +36,30 @@ public class QryHttpInfoDTO extends InputDTO implements ValidatorDTO<QryHttpInfo
     @Min(1)
     @Max(100)
     private Integer limit;
+
+    @Override
+    public String toString() {
+        return "QryHttpInfoDTO{" +
+                "buildSeq='" + buildSeq + '\'' +
+                ", userSeq='" + userSeq + '\'' +
+                ", path='" + path + '\'' +
+                ", limit=" + limit +
+                '}';
+    }
+
+    public String getBuildSeq() {
+        return buildSeq;
+    }
+
+    public String getUserSeq() {
+        return userSeq;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
 }

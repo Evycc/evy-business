@@ -13,6 +13,10 @@ import javassist.CtNewMethod;
  */
 public class RabbitMqSendAgent {
     private final static String MQ_SENDER_STR = "com.evy.common.mq.rabbitmq.app.RabbitMqSender";
+    /**
+     * true 已经进行agent false 未进行ange
+     */
+    private static boolean IS_AGENT = false;
 
     /**
      * com.evy.common.mq.impl.RabbitMqSender#sendAndConfirm
@@ -80,6 +84,8 @@ public class RabbitMqSendAgent {
                 e.printStackTrace();
             }
             return new byte[0];
+        } finally {
+            IS_AGENT = true;
         }
     }
 

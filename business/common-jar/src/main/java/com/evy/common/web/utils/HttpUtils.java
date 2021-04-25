@@ -1,12 +1,12 @@
-package com.evy.common.http;
+package com.evy.common.web.utils;
 
 import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.http.tunnel.dto.HttpRequestDTO;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.TraceLogUtils;
 import com.evy.common.trace.TraceUtils;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.tunnel.dto.HttpRequestDTO;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

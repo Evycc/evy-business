@@ -11,6 +11,10 @@ import javassist.CtNewMethod;
  */
 public class RabbitMqConsumerAgent {
     private static final String MQ_CONSUMER_STR = "com.evy.common.mq.rabbitmq.app.basic.BaseRabbitMqConsumer";
+    /**
+     * true 已经进行agent false 未进行ange
+     */
+    private static boolean IS_AGENT = false;
 
     /**
      * com.evy.common.mq.basic.BaseRabbitMqConsumer#doExecute
@@ -58,10 +62,12 @@ public class RabbitMqConsumerAgent {
                 e.printStackTrace();
             }
             return new byte[0];
+        } finally {
+            IS_AGENT = true;
         }
     }
 
     public static boolean judge(String className) {
-        return MQ_CONSUMER_STR.equals(className);
+        return MQ_CONSUMER_STR.equals(className) && IS_AGENT;
     }
 }

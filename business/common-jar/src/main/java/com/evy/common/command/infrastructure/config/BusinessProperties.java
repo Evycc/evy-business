@@ -1,7 +1,5 @@
 package com.evy.common.command.infrastructure.config;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -21,42 +19,65 @@ public class BusinessProperties {
     /**
      * 执行com.evy.common.infrastructure.common.command.CommandUtils#execute方法超时时间，默认30s
      */
-    @Getter
-    @Setter
     private int executeTimeout = 30000;
+
     /**
      * MQ消息中心
      */
-    @Getter
-    @Setter
     private BusinessProperties.mq mq;
     /**
      * 数据库配置
      */
-    @Getter
-    @Setter
-    private BusinessProperties.db db;
+    private database database;
     /**
      * 文服工具
      */
-    @Getter
-    @Setter
     private BusinessProperties.ftp ftp;
     /**
      * HttpClient配置
      */
-    @Getter
-    @Setter
     private BusinessProperties.http http;
+    /**
+     * udp配置
+     */
+    private BusinessProperties.udp udp;
 
     /**
      * 构造参数
      */
     public BusinessProperties() {
         this.mq = new BusinessProperties.mq();
-        this.db = new BusinessProperties.db();
+        this.database = new database();
         this.ftp = new BusinessProperties.ftp();
         this.http = new BusinessProperties.http();
+    }
+
+    public static class udp {
+        public udp(){}
+        /**
+         * udp server连接超时时间，单位ms，默认1s
+         */
+        private int connTimeOut = 1000;
+        /**
+         * udp接收及发送报文长度,默认10240byte
+         */
+        private int messageLength = 10240;
+
+        public int getConnTimeOut() {
+            return connTimeOut;
+        }
+
+        public void setConnTimeOut(int connTimeOut) {
+            this.connTimeOut = connTimeOut;
+        }
+
+        public int getMessageLength() {
+            return messageLength;
+        }
+
+        public void setMessageLength(int messageLength) {
+            this.messageLength = messageLength;
+        }
     }
 
     /**
@@ -69,15 +90,27 @@ public class BusinessProperties {
         /**
          * http请求连接超时时间，单位ms，默认2s
          */
-        @Getter
-        @Setter
         private int connTimeOut = 2000;
         /**
          * http请求超时时间，单位ms，默认30s
          */
-        @Getter
-        @Setter
         private int reqTimeOut = 30000;
+
+        public int getConnTimeOut() {
+            return connTimeOut;
+        }
+
+        public void setConnTimeOut(int connTimeOut) {
+            this.connTimeOut = connTimeOut;
+        }
+
+        public int getReqTimeOut() {
+            return reqTimeOut;
+        }
+
+        public void setReqTimeOut(int reqTimeOut) {
+            this.reqTimeOut = reqTimeOut;
+        }
     }
 
     /**
@@ -90,74 +123,126 @@ public class BusinessProperties {
         /**
          * 文服FTP用户名
          */
-        @Getter
-        @Setter
         private String username;
         /**
          * 文服FTP密码
          */
-        @Getter
-        @Setter
         private String password;
         /**
          * 文服FTP密钥
          */
-        @Getter
-        @Setter
         private String privateKey;
         /**
          * 文服FTP密钥密码
          */
-        @Getter
-        @Setter
         private String passphrase;
         /**
          * 文服FTP host
          */
-        @Getter
-        @Setter
         private String host;
         /**
          * 文服FTP port
          */
-        @Getter
-        @Setter
         private int port = 22;
         /**
          * 文服FTP连接超时时间,单位ms
          */
-        @Getter
-        @Setter
         private int loginTimeout = 3000;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
+        }
+
+        public String getPassphrase() {
+            return passphrase;
+        }
+
+        public void setPassphrase(String passphrase) {
+            this.passphrase = passphrase;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public int getLoginTimeout() {
+            return loginTimeout;
+        }
+
+        public void setLoginTimeout(int loginTimeout) {
+            this.loginTimeout = loginTimeout;
+        }
     }
 
     /**
      * 数据库配置
      */
-    public static class db {
-        public db() {
+    public static class database {
+        public database() {
         }
 
         /**
          * Mybatis Xml配置文件，默认名：mybatis.xml
          */
-        @Getter
-        @Setter
         private String mybatisXmlPath = "mybatis.xml";
         /**
          * Batch模式，单次最多批量提交数
          */
-        @Getter
-        @Setter
         private int batchInsertCount = 3000;
+
+        public String getMybatisXmlPath() {
+            return mybatisXmlPath;
+        }
+
+        public void setMybatisXmlPath(String mybatisXmlPath) {
+            this.mybatisXmlPath = mybatisXmlPath;
+        }
+
+        public int getBatchInsertCount() {
+            return batchInsertCount;
+        }
+
+        public void setBatchInsertCount(int batchInsertCount) {
+            this.batchInsertCount = batchInsertCount;
+        }
     }
 
     /**
      * 消息中心配置
      */
     public static class mq {
-        @Getter
-        @Setter
         private rabbitmq rabbitmq;
 
         public mq() {
@@ -171,75 +256,203 @@ public class BusinessProperties {
             /**
              * RabbitMQ用户名
              */
-            @Getter
-            @Setter
             private String user = "root";
             /**
              * RabbitMQ密码
              */
-            @Getter
-            @Setter
             private String password = "root";
             /**
              * RabbitMQ host
              */
-            @Getter
-            @Setter
             private String host = "localhost";
             /**
              * RabbitMQ port
              */
-            @Getter
-            @Setter
             private int port = 5672;
             /**
              * 持久化rabbitmq消息
              */
-            @Getter
-            @Setter
             private int deliveryMode = 2;
             /**
              * 消息优先级，默认0
              */
-            @Getter
-            @Setter
             private int priority = 0;
             /**
              * 消息确认
              */
-            @Getter
-            @Setter
             private boolean autoAck = true;
             /**
              * 自动重连
              */
-            @Getter
-            @Setter
             private boolean autoRecovery = true;
             /**
              * 连接重试次数，默认3
              */
-            @Getter
-            @Setter
             private int connRetryCount = 3;
             /**
              * 重试消费次数，默认5
              */
-            @Getter
-            @Setter
             private int consumerRetryCount = 5;
             /**
              * 重试消费时间间隔，单位s，默认5分钟
              */
-            @Getter
-            @Setter
             private int consumerRetryTime = 300;
             /**
              * rabbitmq最多消费数量，默认不限制
              */
-            @Getter
-            @Setter
             private int basicQos = 0;
+
+            public String getUser() {
+                return user;
+            }
+
+            public void setUser(String user) {
+                this.user = user;
+            }
+
+            public String getPassword() {
+                return password;
+            }
+
+            public void setPassword(String password) {
+                this.password = password;
+            }
+
+            public String getHost() {
+                return host;
+            }
+
+            public void setHost(String host) {
+                this.host = host;
+            }
+
+            public int getPort() {
+                return port;
+            }
+
+            public void setPort(int port) {
+                this.port = port;
+            }
+
+            public int getDeliveryMode() {
+                return deliveryMode;
+            }
+
+            public void setDeliveryMode(int deliveryMode) {
+                this.deliveryMode = deliveryMode;
+            }
+
+            public int getPriority() {
+                return priority;
+            }
+
+            public void setPriority(int priority) {
+                this.priority = priority;
+            }
+
+            public boolean isAutoAck() {
+                return autoAck;
+            }
+
+            public void setAutoAck(boolean autoAck) {
+                this.autoAck = autoAck;
+            }
+
+            public boolean isAutoRecovery() {
+                return autoRecovery;
+            }
+
+            public void setAutoRecovery(boolean autoRecovery) {
+                this.autoRecovery = autoRecovery;
+            }
+
+            public int getConnRetryCount() {
+                return connRetryCount;
+            }
+
+            public void setConnRetryCount(int connRetryCount) {
+                this.connRetryCount = connRetryCount;
+            }
+
+            public int getConsumerRetryCount() {
+                return consumerRetryCount;
+            }
+
+            public void setConsumerRetryCount(int consumerRetryCount) {
+                this.consumerRetryCount = consumerRetryCount;
+            }
+
+            public int getConsumerRetryTime() {
+                return consumerRetryTime;
+            }
+
+            public void setConsumerRetryTime(int consumerRetryTime) {
+                this.consumerRetryTime = consumerRetryTime;
+            }
+
+            public int getBasicQos() {
+                return basicQos;
+            }
+
+            public void setBasicQos(int basicQos) {
+                this.basicQos = basicQos;
+            }
         }
+
+        public BusinessProperties.mq.rabbitmq getRabbitmq() {
+            return rabbitmq;
+        }
+
+        public void setRabbitmq(BusinessProperties.mq.rabbitmq rabbitmq) {
+            this.rabbitmq = rabbitmq;
+        }
+    }
+
+    public int getExecuteTimeout() {
+        return executeTimeout;
+    }
+
+    public void setExecuteTimeout(int executeTimeout) {
+        this.executeTimeout = executeTimeout;
+    }
+
+    public BusinessProperties.mq getMq() {
+        return mq;
+    }
+
+    public void setMq(BusinessProperties.mq mq) {
+        this.mq = mq;
+    }
+
+    public BusinessProperties.database getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(BusinessProperties.database database) {
+        this.database = database;
+    }
+
+    public BusinessProperties.ftp getFtp() {
+        return ftp;
+    }
+
+    public void setFtp(BusinessProperties.ftp ftp) {
+        this.ftp = ftp;
+    }
+
+    public BusinessProperties.http getHttp() {
+        return http;
+    }
+
+    public void setHttp(BusinessProperties.http http) {
+        this.http = http;
+    }
+
+    public BusinessProperties.udp getUdp() {
+        return udp;
+    }
+
+    public void setUdp(BusinessProperties.udp udp) {
+        this.udp = udp;
     }
 }

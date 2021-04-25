@@ -1,8 +1,5 @@
 package com.evy.common.trace.infrastructure.tunnel.model;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import java.util.List;
 
 /**
@@ -10,8 +7,6 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/6/20 14:53
  */
-@Getter
-@ToString
 public class ExplainListModel {
     private final List<ExplainModel> explainModelList;
 
@@ -24,5 +19,16 @@ public class ExplainListModel {
      */
     public static ExplainListModel create(List<ExplainModel> explainModelList) {
         return new ExplainListModel(explainModelList);
+    }
+
+    public List<ExplainModel> getExplainModelList() {
+        return explainModelList;
+    }
+
+    @Override
+    public String toString() {
+        return "ExplainListModel{" +
+                "explainModelList=" + explainModelList +
+                '}';
     }
 }

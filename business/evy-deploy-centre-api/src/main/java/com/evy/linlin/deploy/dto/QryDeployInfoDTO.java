@@ -2,9 +2,6 @@ package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -14,9 +11,6 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:04
  */
-@ToString
-@Getter
-@Setter
 public class QryDeployInfoDTO extends InputDTO implements ValidatorDTO<QryDeployInfoDTO> {
     /**
      * 用户标识
@@ -29,4 +23,28 @@ public class QryDeployInfoDTO extends InputDTO implements ValidatorDTO<QryDeploy
      */
     @Length(max = 64, message = "deploySeq长度超限")
     private String deploySeq;
+
+    @Override
+    public String toString() {
+        return "QryDeployInfoDTO{" +
+                "userSeq='" + userSeq + '\'' +
+                ", deploySeq='" + deploySeq + '\'' +
+                '}';
+    }
+
+    public String getUserSeq() {
+        return userSeq;
+    }
+
+    public void setUserSeq(String userSeq) {
+        this.userSeq = userSeq;
+    }
+
+    public String getDeploySeq() {
+        return deploySeq;
+    }
+
+    public void setDeploySeq(String deploySeq) {
+        this.deploySeq = deploySeq;
+    }
 }

@@ -1,14 +1,12 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import lombok.Getter;
 import org.springframework.util.StringUtils;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/7/5 10:48
  */
-@Getter
 public class TraceThreadInfoPO {
     private final String tatiAppIp;
     private final int tatiThreadId;
@@ -54,5 +52,61 @@ public class TraceThreadInfoPO {
             }
         }
         return new TraceThreadInfoPO(BusinessConstant.VM_HOST, tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadAvailByte, tatiThreadStartMtime, tatiThreadBlockedCount, tatiThreadBlockedMtime, tatiThreadBlockedName, tatiThreadBlockedId, tatiThreadWaitedCount, tatiThreadWaitedMtime, tatiThreadMaxCount, tatiThreadStack);
+    }
+
+    public String getTatiAppIp() {
+        return tatiAppIp;
+    }
+
+    public int getTatiThreadId() {
+        return tatiThreadId;
+    }
+
+    public String getTatiThreadName() {
+        return tatiThreadName;
+    }
+
+    public String getTatiThreadStatus() {
+        return tatiThreadStatus;
+    }
+
+    public String getTatiThreadAvailByte() {
+        return tatiThreadAvailByte;
+    }
+
+    public String getTatiThreadStartMtime() {
+        return tatiThreadStartMtime;
+    }
+
+    public int getTatiThreadBlockedCount() {
+        return tatiThreadBlockedCount;
+    }
+
+    public String getTatiThreadBlockedMtime() {
+        return tatiThreadBlockedMtime;
+    }
+
+    public String getTatiThreadBlockedName() {
+        return tatiThreadBlockedName;
+    }
+
+    public int getTatiThreadBlockedId() {
+        return tatiThreadBlockedId;
+    }
+
+    public int getTatiThreadWaitedCount() {
+        return tatiThreadWaitedCount;
+    }
+
+    public String getTatiThreadWaitedMtime() {
+        return tatiThreadWaitedMtime;
+    }
+
+    public int getTatiThreadMaxCount() {
+        return tatiThreadMaxCount;
+    }
+
+    public String getTatiThreadStack() {
+        return tatiThreadStack;
     }
 }

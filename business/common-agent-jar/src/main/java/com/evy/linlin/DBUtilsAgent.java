@@ -9,7 +9,11 @@ import javassist.*;
  */
 public class DBUtilsAgent {
     private final static String DB_METHOD = "com.mysql.cj.NativeSession";
-    private final static String DB_UTILS_METHOD = "com.evy.common.db.DBUtils";
+    private final static String DB_UTILS_METHOD = "com.evy.common.database.DBUtils";
+    /**
+     * true 已经进行agent false 未进行ange
+     */
+    private static boolean IS_AGENT = false;
 
     /**
      * 监听mysql底层com.mysql.cj.NativeSession#execSQL(Query callingQuery, String query, int maxRows,
@@ -68,10 +72,12 @@ public class DBUtilsAgent {
                 e.printStackTrace();
             }
             return new byte[0];
+        } finally {
+            IS_AGENT = true;
         }
     }
 
     public static boolean judge(String className) {
-        return DB_METHOD.equals(className);
+        return DB_METHOD.equals(className) && !IS_AGENT;
     }
 }

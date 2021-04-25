@@ -12,11 +12,13 @@ import java.io.IOException;
  */
 public class BaseCommandTemplateAgent {
     private static final String EXECUTE_METHOD = "com.evy.common.command.app.BaseCommandTemplate";
+    /**
+     * true 已经进行agent false 未进行ange
+     */
+    private static boolean IS_AGENT = false;
 
     /**
      * 通过copy原方法的内容到一个新方法，替换原方法body为 insertBodyBefore + 调用新方法 + insertBodyAfter，实现jvm级的AOP
-     *
-     * @return
      */
     public static byte[] agentExecute(String args) {
         try {
@@ -58,6 +60,8 @@ public class BaseCommandTemplateAgent {
                 e.printStackTrace();
             }
             return new byte[0];
+        } finally {
+            IS_AGENT = true;
         }
     }
 
@@ -144,6 +148,6 @@ public class BaseCommandTemplateAgent {
     }
 
     public static boolean judge(String className) {
-        return EXECUTE_METHOD.equals(className);
+        return EXECUTE_METHOD.equals(className) && !IS_AGENT;
     }
 }

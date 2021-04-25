@@ -1,4 +1,4 @@
-package com.evy.common.db;
+package com.evy.common.database;
 
 import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
@@ -7,7 +7,6 @@ import com.evy.common.log.CommandLog;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
 import com.zaxxer.hikari.HikariDataSource;
-import lombok.Getter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -48,8 +47,8 @@ public class DBUtils {
     private static void init(){
         CommandLog.info("初始化DBUtils");
         BusinessProperties properties = AppContextUtils.getPrpo();
-        MYBATIS_CONF_XML = properties.getDb().getMybatisXmlPath();
-        BATCH_INSERT_COUNT = properties.getDb().getBatchInsertCount();
+        MYBATIS_CONF_XML = properties.getDatabase().getMybatisXmlPath();
+        BATCH_INSERT_COUNT = properties.getDatabase().getBatchInsertCount();
         initDataSource();
         initMybatis();
         JDBC_TRANSACTION_FACTORY = new JdbcTransactionFactory();
@@ -654,19 +653,15 @@ public class DBUtils {
         /**
          * mapper
          */
-        @Getter
         String mapper;
         /**
          * sql 入参 键值对
          */
-        @Getter
         Map<String, String> map;
         /**
          * sql 入参
          */
-        @Getter
         Object param;
-        @Getter
         BatchType type;
 
         private BatchModel(String mapper, Object param, BatchType type) {
@@ -687,6 +682,22 @@ public class DBUtils {
 
         public static BatchModel create(String mapper, Map<String, String> map, BatchType batchType) {
             return new BatchModel(mapper, map, batchType);
+        }
+
+        public String getMapper() {
+            return mapper;
+        }
+
+        public Map<String, String> getMap() {
+            return map;
+        }
+
+        public Object getParam() {
+            return param;
+        }
+
+        public BatchType getType() {
+            return type;
         }
     }
 

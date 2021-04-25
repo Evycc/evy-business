@@ -2,8 +2,6 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
@@ -13,8 +11,6 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2020/10/11 20:01
  */
-@Getter
-@ToString
 public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThreadsInfoDTO> {
     /**
      * 编译流水,用于关联编译应用信息
@@ -50,4 +46,40 @@ public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThrea
      */
     @Min(value = 10, message = "endIndex最小值10")
     private Integer endIndex;
+
+    @Override
+    public String toString() {
+        return "QryThreadsInfoDTO{" +
+                "buildSeq='" + buildSeq + '\'' +
+                ", userSeq='" + userSeq + '\'' +
+                ", threadName='" + threadName + '\'' +
+                ", serviceIp='" + serviceIp + '\'' +
+                ", beginIndex=" + beginIndex +
+                ", endIndex=" + endIndex +
+                '}';
+    }
+
+    public String getBuildSeq() {
+        return buildSeq;
+    }
+
+    public String getUserSeq() {
+        return userSeq;
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public String getServiceIp() {
+        return serviceIp;
+    }
+
+    public Integer getBeginIndex() {
+        return beginIndex;
+    }
+
+    public Integer getEndIndex() {
+        return endIndex;
+    }
 }

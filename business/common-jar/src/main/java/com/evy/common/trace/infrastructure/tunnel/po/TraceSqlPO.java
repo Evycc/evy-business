@@ -1,15 +1,11 @@
 package com.evy.common.trace.infrastructure.tunnel.po;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/6/20 10:06
  */
-@Getter
-@ToString
 public class TraceSqlPO {
     private final String tssReqIp;
     private final String tssSlowSql;
@@ -48,5 +44,36 @@ public class TraceSqlPO {
      */
     public static TraceSqlPO create(String tssReqIp, String tssSlowSql, String tssTakeTime) {
         return new TraceSqlPO(tssReqIp, tssSlowSql, tssTakeTime, BusinessConstant.EMPTY_STR, BusinessConstant.EMPTY_STR);
+    }
+
+    @Override
+    public String toString() {
+        return "TraceSqlPO{" +
+                "tssReqIp='" + tssReqIp + '\'' +
+                ", tssSlowSql='" + tssSlowSql + '\'' +
+                ", tssTakeTime='" + tssTakeTime + '\'' +
+                ", tssExplain='" + tssExplain + '\'' +
+                ", tssExplainContent='" + tssExplainContent + '\'' +
+                '}';
+    }
+
+    public String getTssReqIp() {
+        return tssReqIp;
+    }
+
+    public String getTssSlowSql() {
+        return tssSlowSql;
+    }
+
+    public String getTssTakeTime() {
+        return tssTakeTime;
+    }
+
+    public String getTssExplain() {
+        return tssExplain;
+    }
+
+    public String getTssExplainContent() {
+        return tssExplainContent;
     }
 }

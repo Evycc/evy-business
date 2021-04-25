@@ -32,7 +32,6 @@
         <jasypt.versoin>1.9.3</jasypt.versoin>
         <httpmime.version>4.5.12</httpmime.version>
         <javassist.version>3.25.0-GA</javassist.version>
-        <lombok.version>1.18.8</lombok.version>
         <snakeyaml.version>1.25</snakeyaml.version>
     </properties>
 
@@ -114,13 +113,6 @@
             <artifactId>logback-access</artifactId>
             <version>${logback.version}</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!--lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
 
         <!--校验 JSR-380-->

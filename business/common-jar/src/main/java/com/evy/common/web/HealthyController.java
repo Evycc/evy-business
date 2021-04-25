@@ -15,16 +15,28 @@ import java.util.List;
 @RestController
 @RequestMapping(value = HealthyControllerConstant.HEALTHY_CONTROLLER_CODE)
 public class HealthyController {
+    /**
+     * 执行heap dump操作
+     * @return com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel
+     */
     @GetMapping(value = HealthyControllerConstant.HEAP_DUMP_CODE)
     public HeapDumpInfoModel heapDump() {
         return TraceJvmManagerUtils.heapDump();
     }
 
+    /**
+     * 查找指定线程,执行thread dump操作
+     * @return com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel
+     */
     @PostMapping(value = HealthyControllerConstant.THREAD_DUMP_CODE)
     public ThreadDumpInfoModel threadDump(@RequestBody long threadId) {
         return TraceJvmManagerUtils.threadDump(threadId);
     }
 
+    /**
+     * 检查是否存在死锁
+     * @return com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel
+     */
     @GetMapping(value = HealthyControllerConstant.DEAD_THREAD_DUMP_CODE)
     public List<ThreadDumpInfoModel> deadThreadDump() {
         return TraceJvmManagerUtils.findDeadThreads();

@@ -5,13 +5,17 @@ import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
-import lombok.Getter;
-import lombok.Setter;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -27,13 +31,7 @@ public class CommandUtils {
     private static long EXECUTE_TIME_OUT = 30000;
     private static final String TIMEOUT_ERRORCODE = "TIMEOUT_ERR";
     private static final String TIMEOUT_ERRMSG = "接口调用超时";
-    private static BusinessProperties prpoties;
-    /**
-     * lambda表达式内获取值用
-     */
-    @Getter
-    @Setter
-    private static volatile Map<Integer, Object> tempObject = new HashMap<>();
+    private static BusinessProperties properties;
 
     static {
         CommandLog.info("初始化CommandUtils");
@@ -46,12 +44,12 @@ public class CommandUtils {
 
     private static void initPrpo() {
         try {
-            prpoties = AppContextUtils.getPrpo();
+            properties = AppContextUtils.getPrpo();
         } catch (Exception e) {
             CommandLog.errorThrow("CommandUtils#execute初始化异常", e);
         } finally {
-            if (prpoties != null) {
-                EXECUTE_TIME_OUT = prpoties.getExecuteTimeout();
+            if (properties != null) {
+                EXECUTE_TIME_OUT = properties.getExecuteTimeout();
             }
             CommandLog.info("CommandUtils#execute默认超时时间{}ms", EXECUTE_TIME_OUT);
         }
@@ -71,8 +69,7 @@ public class CommandUtils {
         CommandLog.info("Start Service");
         int returnCode;
         long s = System.currentTimeMillis();
-        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1,
-                CreateFactory.createThreadFactory("CommandUtils#execute"));
+        ScheduledExecutorService executor = CreateFactory.returnScheduledExecutorService("CommandUtils#execute", 1);
 
         try {
             if (timeout > BusinessConstant.ZERO_NUM) {
@@ -80,7 +77,7 @@ public class CommandUtils {
                         .get(timeout, TimeUnit.MILLISECONDS);
             }
             else {
-                if (prpoties == null) {
+                if (properties == null) {
                     initPrpo();
                 }
                 returnCode = EXECUTOR_SERVICE.submit(() -> function.apply(obeject))

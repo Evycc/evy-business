@@ -5,7 +5,6 @@ import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.linlin.command.constant.ServiceCodeConstant;
 import com.evy.linlin.trace.domain.repository.QryTraceInfoRepository;
 import com.evy.linlin.trace.domain.tunnel.QryTraceAssembler;
-import com.evy.linlin.trace.domain.tunnel.model.SearchDumpDO;
 import com.evy.linlin.trace.domain.tunnel.model.SearchDumpOutDO;
 import com.evy.linlin.trace.dto.QryDumpInfoDTO;
 import com.evy.linlin.trace.dto.QryDumpInfoOutDTO;
