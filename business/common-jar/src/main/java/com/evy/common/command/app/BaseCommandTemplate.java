@@ -3,6 +3,7 @@ package com.evy.common.command.app;
 import com.evy.common.command.app.inceptor.BaseCommandInceptor;
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.domain.factory.ErrorFactory;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
@@ -17,7 +18,6 @@ import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -41,21 +41,18 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     /**
      * AnnoCommandInceptor Command拦截器列表
      */
-    @SuppressWarnings("unchecked")
-    private static final Map<Class<?>, List<? extends BaseCommandInceptor>> COMMAND_INTERCEPTORS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, List<? extends BaseCommandInceptor<?>>> COMMAND_INTERCEPTORS = new ConcurrentHashMap<>();
     /**
      * 实例对应的拦截器列表
      */
-    private List<? extends BaseCommandInceptor> tempInterceptor;
+    private List<? extends BaseCommandInceptor<?>> tempInterceptor;
     /**
      * 记录日志流水topic
      */
-    @Value("${evy.traceLog.topic:}")
     public String traceLogTopic;
     /**
      * 记录日志流水tag
      */
-    @Value("${evy.traceLog.tag:}")
     public String traceLogTag;
     @Autowired
     @Qualifier(BeanNameConstant.RABBIT_MQ_SENDER)
@@ -66,6 +63,14 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     private final Map<String, Object> commandContent = new HashMap<>();
     @Autowired
     private ErrorFactory errorFactory;
+    @Autowired
+    private BusinessProperties properties;
+
+    {
+        BusinessProperties.traceLog traceLog = properties.getTraceLog();
+        traceLogTopic = traceLog.getTopic();
+        traceLogTag = traceLog.getTag();
+    }
 
     /**
      * 初始化
@@ -88,7 +93,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * @param cls       拦截器拦截的类
      * @param inceptors 拦截器列表
      */
-    public static void addAllInceptor(Class<?> cls, List<? extends BaseCommandInceptor> inceptors) {
+    public static void addAllInceptor(Class<?> cls, List<? extends BaseCommandInceptor<?>> inceptors) {
         if (CollectionUtils.isEmpty(COMMAND_INTERCEPTORS)) {
             COMMAND_INTERCEPTORS.put(cls, inceptors);
         } else {
@@ -277,7 +282,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
      * @return 排序后的拦截器列表
      */
     @SuppressWarnings("unchecked")
-    private List<BaseCommandInceptor> orderCommandInceptor(List<? extends BaseCommandInceptor> list) {
+    private List<BaseCommandInceptor<?>> orderCommandInceptor(List<? extends BaseCommandInceptor<?>> list) {
         return list.stream()
                 .sorted(Comparator.comparingInt(BaseCommandInceptor::getOrder))
                 .collect(Collectors.toList());

@@ -3,7 +3,9 @@ package com.evy.common.trace;
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.evy.common.trace.service.*;
+import com.evy.common.utils.AppContextUtils;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +21,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class TraceUtils {
     private static final ScheduledThreadPoolExecutor EXECUTOR = CreateFactory.returnScheduledExecutorService("TraceUtils", 8);
+    private static int traceServiceTiming = 60;
+    private static int traceRedisTiming = 60;
+    private static int traceThreadInfoTiming = 60;
+    private static int traceMemoryTiming = 60;
 
     public static void init(){
         //定时监控队列，存在数据则进行处理后入库
@@ -26,16 +32,27 @@ public class TraceUtils {
         long initialDelay = 60000L;
         //间隔1分钟轮询
         long delay = 60000L;
+        //固定刷新时间
         EXECUTOR.scheduleWithFixedDelay(() -> {
             TraceMqInfo.executeMq();
             TraceHttpInfo.executeHttp();
             TraceSlowSql.executeSlowSql();
-            TraceRedisInfo.executeRedisInfo();
-            TraceThreadInfo.executeThreadInfo();
-            TraceAppMemoryInfo.executeMemoryInfo();
-            TraceService.executeService();
             TraceTracking.execute();
         }, initialDelay, delay, TimeUnit.MILLISECONDS);
+
+        //通过配置控制刷新时间
+        AppContextUtils.getSyncProp(businessProperties -> {
+            if (Objects.nonNull(businessProperties)) {
+                traceMemoryTiming = businessProperties.getTrace().getMemory().getTiming();
+                traceServiceTiming = businessProperties.getTrace().getService().getTiming();
+                traceThreadInfoTiming = businessProperties.getTrace().getThread().getTiming();
+                traceRedisTiming = businessProperties.getTrace().getRedis().getTiming();
+            }
+            EXECUTOR.scheduleWithFixedDelay(TraceRedisInfo::executeRedisInfo, traceRedisTiming, traceRedisTiming, TimeUnit.SECONDS);
+            EXECUTOR.scheduleWithFixedDelay(TraceThreadInfo::executeThreadInfo, traceThreadInfoTiming, traceThreadInfoTiming, TimeUnit.SECONDS);
+            EXECUTOR.scheduleWithFixedDelay(TraceAppMemoryInfo::executeMemoryInfo, traceMemoryTiming, traceMemoryTiming, TimeUnit.SECONDS);
+            EXECUTOR.scheduleWithFixedDelay(TraceService::executeService, traceServiceTiming, traceServiceTiming, TimeUnit.SECONDS);
+        });
     }
 
     /**

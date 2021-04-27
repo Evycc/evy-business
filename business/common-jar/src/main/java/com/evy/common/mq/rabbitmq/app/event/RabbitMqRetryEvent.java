@@ -1,6 +1,5 @@
 package com.evy.common.mq.rabbitmq.app.event;
 
-import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.domain.factory.MqFactory;
@@ -35,9 +34,11 @@ public class RabbitMqRetryEvent {
      */
     private static void init() {
         rabbitMqSender = AppContextUtils.getBean(RabbitMqSender.class);
-        BusinessProperties prpoties = AppContextUtils.getPrpo();
-        RETRY_TIME = Duration.ofSeconds(prpoties.getMq().getRabbitmq().getConsumerRetryTime());
-        RETRY_COUNT = prpoties.getMq().getRabbitmq().getConsumerRetryCount();
+        AppContextUtils.getSyncProp(businessProperties -> {
+            CommandLog.info("初始化MQ重试次数及重试间隔");
+            RETRY_TIME = Duration.ofSeconds(businessProperties.getMq().getRabbitmq().getConsumerRetryTime());
+            RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConsumerRetryCount();
+        });
     }
 
     /**

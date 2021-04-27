@@ -38,7 +38,8 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
 
     /**
      * 添加mq consumer
-     * @param bean
+     * @param bean 添加了 @AnnoMqConsumer 注解的MQ消费类
+     * @see AnnoMqConsumer
      */
     private void addMqConsumer(Object bean){
         AnnoMqConsumer mc = bean.getClass().getAnnotation(AnnoMqConsumer.class);
@@ -46,7 +47,7 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
             if (mc != null){
                 AnnoMqConsumerModel[] anncs = mc.listen();
                 //com.evy.common.mq.BasicMqConsumer实现类
-                Class cls = mc.target();
+                Class<?> cls = mc.target();
                 List<MqConsumerModel> list = new ArrayList<>();
                 for (AnnoMqConsumerModel annc : anncs) {
                     list.add(new MqConsumerModel(annc.queue(), annc.tag()));
@@ -68,13 +69,13 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
         AnnoCommandInceptor aci = bean.getClass().getAnnotation(AnnoCommandInceptor.class);
         try {
             if (aci != null){
-                Class<? extends BaseCommandInceptor>[] ins = aci.proxyClass();
+                Class<? extends BaseCommandInceptor<?>>[] ins = aci.proxyClass();
                 CommandLog.info("添加[{}]拦截器{}",bean.getClass().getName(), ins);
 
-                List<BaseCommandInceptor> inceptors = new ArrayList<>();
+                List<BaseCommandInceptor<?>> inceptors = new ArrayList<>();
                 //添加@AnnoCommandInceptor指定的拦截器对象
-                for (Class<? extends BaseCommandInceptor> aClass : ins) {
-                    BaseCommandInceptor object = aClass.getDeclaredConstructor().newInstance();
+                for (Class<? extends BaseCommandInceptor<?>> aClass : ins) {
+                    BaseCommandInceptor<?> object = aClass.getDeclaredConstructor().newInstance();
                     inceptors.add(object);
                 }
                 BaseCommandTemplate.addAllInceptor(bean.getClass(), inceptors);

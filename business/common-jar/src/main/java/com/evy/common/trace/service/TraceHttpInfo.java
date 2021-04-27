@@ -10,7 +10,6 @@ import com.evy.common.utils.AppContextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -24,10 +23,14 @@ public class TraceHttpInfo {
     /**
      * 配置常量
      **/
-    private static final String HTTP_PRPO = "evy.trace.http.flag";
+    private static boolean HTTP_PRPO = false;
     private static final ConcurrentLinkedQueue<TraceHttpModel> HTTP_MODELS = new ConcurrentLinkedQueue<>();
     private static final String HTTP_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.traceHttpInsert";
     private static final String HTTP_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.traceHttpListInsert";
+
+    static {
+        AppContextUtils.getSyncProp(businessProperties -> HTTP_PRPO =businessProperties.getTrace().getHttp().isFlag());
+    }
 
     /**
      * 记录http请求耗时
@@ -40,12 +43,9 @@ public class TraceHttpInfo {
      */
     public static void addTraceHttp(String url, long takeUpTimesatmp, boolean result, String inputParam, String respResult) {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(HTTP_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            HTTP_MODELS.offer(TraceHttpModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, url, result, inputParam, respResult));
-                        }
-                    });
+            if (HTTP_PRPO) {
+                HTTP_MODELS.offer(TraceHttpModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, url, result, inputParam, respResult));
+            }
         } catch (Exception e) {
             CommandLog.errorThrow("addTraceHttp Error!", e);
         }

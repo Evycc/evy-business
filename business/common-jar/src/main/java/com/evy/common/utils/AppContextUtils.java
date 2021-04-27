@@ -1,5 +1,6 @@
 package com.evy.common.utils;
 
+import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -34,6 +37,7 @@ public class AppContextUtils implements ApplicationContextAware {
     private static Environment ENVIRONMENT;
     private static BusinessProperties BUSINESS_PRPOTIES;
     private static final Map<String, String> PRPO_TEMP_MAP = new HashMap<>(16);
+    private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("AppContextUtils-SyncGetProp");
 
     public AppContextUtils(final BusinessProperties businessProperties) {
         BUSINESS_PRPOTIES = businessProperties;
@@ -77,8 +81,22 @@ public class AppContextUtils implements ApplicationContextAware {
         return result;
     }
 
-    public static BusinessProperties getPrpo() {
+    public static BusinessProperties getProp() {
         return BUSINESS_PRPOTIES;
+    }
+
+    /**
+     * 开启线程阻塞获取直到容器初始化成功
+     */
+    public static void getSyncProp(Consumer<BusinessProperties> consumer) {
+        EXECUTOR_SERVICE.submit(() -> {
+            long cur = System.currentTimeMillis();
+            long maxWaitTime = 600000;
+            //最多等待十分钟
+            while (Objects.isNull(BUSINESS_PRPOTIES) && System.currentTimeMillis() - cur < maxWaitTime) {
+            }
+            consumer.accept(BUSINESS_PRPOTIES);
+        });
     }
 
     /**
@@ -98,7 +116,7 @@ public class AppContextUtils implements ApplicationContextAware {
                 Properties properties = new Properties();
                 Yaml yaml = new Yaml();
                 lists.forEach(url -> {
-                    try (FileInputStream fileInputStream = new FileInputStream(new File(url))) {
+                    try (FileInputStream fileInputStream = new FileInputStream(url)) {
                         if (url.contains(postProperties)) {
                             properties.load(fileInputStream);
                             properties.forEach((key, value) -> PRPO_TEMP_MAP.put(String.valueOf(key), String.valueOf(value)));

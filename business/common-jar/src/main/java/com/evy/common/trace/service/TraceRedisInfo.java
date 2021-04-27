@@ -35,8 +35,8 @@ public class TraceRedisInfo {
      * 分隔符:||<br/>
      * password支持enc加密
      */
-    private static final String TRACE_REDIS_LIST = "evy.trace.redis.list";
-    private static final String REDIS_PRPO = "evy.trace.redis.flag";
+    private static String TRACE_REDIS_LIST = "";
+    private static boolean REDIS_FLAG = false;
     private static final String TEACE_REDIS_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.redisInfoInsert";
     private static final String SENTINEL_LISTEREN = "__sentinel__:hello";
     private static final String BIND_IP = "bind";
@@ -80,7 +80,13 @@ public class TraceRedisInfo {
     private static HashMap<String, String> REDIS_HOST_PASS;
 
     static {
-        initRedisClientList();
+        AppContextUtils.getSyncProp(businessProperties -> {
+            if (Objects.nonNull(businessProperties)) {
+                REDIS_FLAG = businessProperties.getTrace().getRedis().isFlag();
+                TRACE_REDIS_LIST = businessProperties.getTrace().getRedis().getList();
+            }
+            initRedisClientList();
+        });
         shutdownConn();
     }
 
@@ -149,90 +155,87 @@ public class TraceRedisInfo {
      */
     public static void executeRedisInfo() {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(REDIS_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            REDIS_CONN_MAP.forEach((k, v) -> {
-                                Optional.ofNullable(v)
-                                        .ifPresent(redisConnection -> {
-                                            if (redisConnection instanceof LettuceConnection && !redisConnection.isClosed()) {
-                                                try {
-                                                    String all = "ALL";
-                                                    String master = "master";
-                                                    Properties properties = redisConnection.serverCommands().info(all);
+            if (REDIS_FLAG) {
+                REDIS_CONN_MAP.forEach((k, v) -> {
+                    Optional.ofNullable(v)
+                            .ifPresent(redisConnection -> {
+                                if (redisConnection instanceof LettuceConnection && !redisConnection.isClosed()) {
+                                    try {
+                                        String all = "ALL";
+                                        String master = "master";
+                                        Properties properties = redisConnection.serverCommands().info(all);
 
-                                                    //获取服务器及从服务器IP信息
-                                                    int port = Integer.parseInt(properties.getProperty(TCP_PORT));
-                                                    String trhRedisIp = redisConnection.getConfig(BIND_IP).getProperty(BIND_IP);
-                                                    if (StringUtils.isEmpty(trhRedisIp)) {
-                                                        trhRedisIp = k.substring(0, k.indexOf(BusinessConstant.COLON_STR));
-                                                    }
-                                                    String trhRedisFlag = properties.getProperty(ROLE);
-                                                    String trhSlaveIp = BusinessConstant.EMPTY_STR;
-                                                    if (master.equals(trhRedisFlag)) {
-                                                        //如果服务器为master,则获取其名下slave
-                                                        trhSlaveIp = getSlavesForPrpo(properties);
-                                                    }
-                                                    String trhLogPath = redisConnection.getConfig(LOG_PATH).getProperty(LOG_PATH);
-                                                    String trhConfigPath = properties.getProperty(CONFIG_PATH);
+                                        //获取服务器及从服务器IP信息
+                                        int port = Integer.parseInt(properties.getProperty(TCP_PORT));
+                                        String trhRedisIp = redisConnection.getConfig(BIND_IP).getProperty(BIND_IP);
+                                        if (StringUtils.isEmpty(trhRedisIp)) {
+                                            trhRedisIp = k.substring(0, k.indexOf(BusinessConstant.COLON_STR));
+                                        }
+                                        String trhRedisFlag = properties.getProperty(ROLE);
+                                        String trhSlaveIp = BusinessConstant.EMPTY_STR;
+                                        if (master.equals(trhRedisFlag)) {
+                                            //如果服务器为master,则获取其名下slave
+                                            trhSlaveIp = getSlavesForPrpo(properties);
+                                        }
+                                        String trhLogPath = redisConnection.getConfig(LOG_PATH).getProperty(LOG_PATH);
+                                        String trhConfigPath = properties.getProperty(CONFIG_PATH);
 
-                                                    //redis连接信息
-                                                    String trhConnTotalCount = redisConnection.getConfig(CONN_MAX).getProperty(CONN_MAX);
-                                                    String trhConnCount = properties.getProperty(CONN_CLIENTS);
-                                                    String trhConnBlockCount = properties.getProperty(BLOCKED_CLIENTS);
+                                        //redis连接信息
+                                        String trhConnTotalCount = redisConnection.getConfig(CONN_MAX).getProperty(CONN_MAX);
+                                        String trhConnCount = properties.getProperty(CONN_CLIENTS);
+                                        String trhConnBlockCount = properties.getProperty(BLOCKED_CLIENTS);
 
-                                                    //获取持久化标志
-                                                    String trhRdbSaveType = redisConnection.getConfig(RDB_SAVE_TYPE).getProperty(RDB_SAVE_TYPE);
-                                                    String trhRdbFile = redisConnection.getConfig(RDB_FILE).getProperty(RDB_FILE);
-                                                    boolean trhRdbOpen = !StringUtils.isEmpty(trhRdbSaveType);
-                                                    String trhLastRdbStatus = properties.getProperty(RDB_LAST_SAVE_STATUS);
-                                                    boolean trhAofOpen = Integer.parseInt(properties.getProperty(AOF_ENABLE, BusinessConstant.ZERO)) != BusinessConstant.ZERO_NUM;
-                                                    boolean trhAofRdbOpen = redisConnection.getConfig(AOF_RDB_ENABLE).getProperty(AOF_RDB_ENABLE, BusinessConstant.NO).equals(BusinessConstant.YES);
-                                                    String trhAofFile = redisConnection.getConfig(AOF_FILE).getProperty(AOF_FILE);
-                                                    String trhAofSaveType = trhAofOpen ? redisConnection.getConfig(AOF_SAVE_TYPE).getProperty(AOF_SAVE_TYPE) : null;
-                                                    String trhLastAofStatus = properties.getProperty(AOF_LAST_SAVE_STATUS);
-                                                    String trhLastForkUsec = properties.getProperty(FORK_LAST_USEC);
+                                        //获取持久化标志
+                                        String trhRdbSaveType = redisConnection.getConfig(RDB_SAVE_TYPE).getProperty(RDB_SAVE_TYPE);
+                                        String trhRdbFile = redisConnection.getConfig(RDB_FILE).getProperty(RDB_FILE);
+                                        boolean trhRdbOpen = !StringUtils.isEmpty(trhRdbSaveType);
+                                        String trhLastRdbStatus = properties.getProperty(RDB_LAST_SAVE_STATUS);
+                                        boolean trhAofOpen = Integer.parseInt(properties.getProperty(AOF_ENABLE, BusinessConstant.ZERO)) != BusinessConstant.ZERO_NUM;
+                                        boolean trhAofRdbOpen = redisConnection.getConfig(AOF_RDB_ENABLE).getProperty(AOF_RDB_ENABLE, BusinessConstant.NO).equals(BusinessConstant.YES);
+                                        String trhAofFile = redisConnection.getConfig(AOF_FILE).getProperty(AOF_FILE);
+                                        String trhAofSaveType = trhAofOpen ? redisConnection.getConfig(AOF_SAVE_TYPE).getProperty(AOF_SAVE_TYPE) : null;
+                                        String trhLastAofStatus = properties.getProperty(AOF_LAST_SAVE_STATUS);
+                                        String trhLastForkUsec = properties.getProperty(FORK_LAST_USEC);
 
-                                                    //获取内存信息
-                                                    String trhMemoryCount = properties.getProperty(SYS_MEMORY);
-                                                    String trhMemoryAvailableCount = properties.getProperty(USED_MEMORY);
-                                                    String trhMemoryPeak = properties.getProperty(MEMORY_PEAK);
-                                                    String trhMemoryFragmentationRatio = properties.getProperty(MEM_FRAGMENTATION_RATIO);
+                                        //获取内存信息
+                                        String trhMemoryCount = properties.getProperty(SYS_MEMORY);
+                                        String trhMemoryAvailableCount = properties.getProperty(USED_MEMORY);
+                                        String trhMemoryPeak = properties.getProperty(MEMORY_PEAK);
+                                        String trhMemoryFragmentationRatio = properties.getProperty(MEM_FRAGMENTATION_RATIO);
 
-                                                    //KEYS
-                                                    String trhKeysCount = getKeysCount(properties);
-                                                    //(keyspace_hits+keyspace_misses)/keyspace_hits
-                                                    int keyspaceHits = Integer.parseInt(properties.getProperty(KEYS_HITS, BusinessConstant.ZERO));
-                                                    int keyspaceMisss = Integer.parseInt(properties.getProperty(KEYS_MISS, BusinessConstant.ZERO));
-                                                    int keyspaceCount = keyspaceHits + keyspaceMisss;
-                                                    String trhKeyspaceRatio = keyspaceCount == BusinessConstant.ZERO_NUM ?
-                                                            BusinessConstant.ONE : String.valueOf((keyspaceHits + keyspaceMisss) / keyspaceHits);
+                                        //KEYS
+                                        String trhKeysCount = getKeysCount(properties);
+                                        //(keyspace_hits+keyspace_misses)/keyspace_hits
+                                        int keyspaceHits = Integer.parseInt(properties.getProperty(KEYS_HITS, BusinessConstant.ZERO));
+                                        int keyspaceMisss = Integer.parseInt(properties.getProperty(KEYS_MISS, BusinessConstant.ZERO));
+                                        int keyspaceCount = keyspaceHits + keyspaceMisss;
+                                        String trhKeyspaceRatio = keyspaceCount == BusinessConstant.ZERO_NUM ?
+                                                BusinessConstant.ONE : String.valueOf((keyspaceHits + keyspaceMisss) / keyspaceHits);
 
-                                                    //集群
-                                                    String[] var = returnSentinelMonitor(trhRedisIp, port);
-                                                    String trhSentinelMonitor = var[0];
-                                                    String trhSentinelConfigPath = var[1];
-                                                    String trhClusterType = BusinessConstant.ONE.equals(properties.getProperty(CLUSTER_ENABLE, BusinessConstant.ONE)) ?
-                                                            "cluster" : !StringUtils.isEmpty(trhSentinelMonitor) ? "sentinel" :
-                                                            master.equals(trhRedisFlag) && !StringUtils.isEmpty(trhSlaveIp) ? "replication" : "redis";
+                                        //集群
+                                        String[] var = returnSentinelMonitor(trhRedisIp, port);
+                                        String trhSentinelMonitor = var[0];
+                                        String trhSentinelConfigPath = var[1];
+                                        String trhClusterType = BusinessConstant.ONE.equals(properties.getProperty(CLUSTER_ENABLE, BusinessConstant.ONE)) ?
+                                                "cluster" : !StringUtils.isEmpty(trhSentinelMonitor) ? "sentinel" :
+                                                master.equals(trhRedisFlag) && !StringUtils.isEmpty(trhSlaveIp) ? "replication" : "redis";
 
-                                                    TraceRedisPO traceRedisPo = TraceRedisPO.createRedis(buildRedisMapKey(trhRedisIp, String.valueOf(port)), trhRedisFlag, trhSlaveIp, trhClusterType, trhRdbOpen, trhAofOpen,
-                                                            trhAofRdbOpen, trhRdbFile, trhRdbSaveType, trhAofFile, trhAofSaveType, trhMemoryCount,
-                                                            trhMemoryAvailableCount, trhMemoryPeak, trhMemoryFragmentationRatio, trhKeyspaceRatio,
-                                                            trhKeysCount, trhLastRdbStatus, trhLastAofStatus, trhLastForkUsec, trhConnTotalCount,
-                                                            trhConnCount, trhConnBlockCount, trhLogPath, trhConfigPath, trhSentinelMonitor, trhSentinelConfigPath);
+                                        TraceRedisPO traceRedisPo = TraceRedisPO.createRedis(buildRedisMapKey(trhRedisIp, String.valueOf(port)), trhRedisFlag, trhSlaveIp, trhClusterType, trhRdbOpen, trhAofOpen,
+                                                trhAofRdbOpen, trhRdbFile, trhRdbSaveType, trhAofFile, trhAofSaveType, trhMemoryCount,
+                                                trhMemoryAvailableCount, trhMemoryPeak, trhMemoryFragmentationRatio, trhKeyspaceRatio,
+                                                trhKeysCount, trhLastRdbStatus, trhLastAofStatus, trhLastForkUsec, trhConnTotalCount,
+                                                trhConnCount, trhConnBlockCount, trhLogPath, trhConfigPath, trhSentinelMonitor, trhSentinelConfigPath);
 
-                                                    DBUtils.insert(TEACE_REDIS_INSERT, traceRedisPo);
-                                                } catch (Exception e) {
-                                                    CommandLog.error("executeRedisInfo异常", e);
-                                                }
-                                            }
-                                        });
+                                        DBUtils.insert(TEACE_REDIS_INSERT, traceRedisPo);
+                                    } catch (Exception e) {
+                                        CommandLog.error("executeRedisInfo异常", e);
+                                    }
+                                }
                             });
-                            //通过界面sentinel连接对应IP ?
-                            //通过界面修改redis配置 ? 如何连接其他IP ?
-                        }
-                    });
+                });
+                //通过界面sentinel连接对应IP ?
+                //通过界面修改redis配置 ? 如何连接其他IP ?
+            }
         } catch (Exception e) {
             CommandLog.errorThrow("executeRedisInfo Error!", e);
         }

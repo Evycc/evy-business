@@ -3,7 +3,6 @@ package com.evy.common.utils;
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
-import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
@@ -13,11 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * 通用工具类
@@ -28,71 +22,14 @@ import java.util.function.Function;
 public class CommandUtils {
     private static final StandardPBEStringEncryptor STANDARD_PBE_STRING_ENCRYPTOR = new StandardPBEStringEncryptor();
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService(CommandUtils.class.getSimpleName());
-    private static long EXECUTE_TIME_OUT = 30000;
-    private static final String TIMEOUT_ERRORCODE = "TIMEOUT_ERR";
-    private static final String TIMEOUT_ERRMSG = "接口调用超时";
     private static BusinessProperties properties;
 
     static {
         CommandLog.info("初始化CommandUtils");
-        initPrpo();
         //密钥
         STANDARD_PBE_STRING_ENCRYPTOR.setPassword("evy-key");
         //默认加密算法
         STANDARD_PBE_STRING_ENCRYPTOR.setAlgorithm("PBEWithMD5AndDES");
-    }
-
-    private static void initPrpo() {
-        try {
-            properties = AppContextUtils.getPrpo();
-        } catch (Exception e) {
-            CommandLog.errorThrow("CommandUtils#execute初始化异常", e);
-        } finally {
-            if (properties != null) {
-                EXECUTE_TIME_OUT = properties.getExecuteTimeout();
-            }
-            CommandLog.info("CommandUtils#execute默认超时时间{}ms", EXECUTE_TIME_OUT);
-        }
-    }
-
-    /**
-     * 执行方法
-     *
-     * @param obeject           执行对象
-     * @param function          执行逻辑
-     * @param exceptionConsumer 异常处理
-     * @param timeout           超时时间，单位ms
-     * @param <T>               对象类型
-     * @return 0成功，1失败
-     */
-    public static <T> int execute(T obeject, Function<T, Integer> function, Consumer<BasicException> exceptionConsumer, int timeout) {
-        CommandLog.info("Start Service");
-        int returnCode;
-        long s = System.currentTimeMillis();
-        ScheduledExecutorService executor = CreateFactory.returnScheduledExecutorService("CommandUtils#execute", 1);
-
-        try {
-            if (timeout > BusinessConstant.ZERO_NUM) {
-                returnCode = executor.submit(() -> function.apply(obeject))
-                        .get(timeout, TimeUnit.MILLISECONDS);
-            }
-            else {
-                if (properties == null) {
-                    initPrpo();
-                }
-                returnCode = EXECUTOR_SERVICE.submit(() -> function.apply(obeject))
-                        .get(EXECUTE_TIME_OUT, TimeUnit.MILLISECONDS);
-            }
-        } catch (TimeoutException e) {
-            exceptionConsumer.accept(new BasicException(TIMEOUT_ERRORCODE, TIMEOUT_ERRMSG, e));
-            returnCode = BusinessConstant.FAILED;
-        } catch (Exception e) {
-            exceptionConsumer.accept(new BasicException(e));
-            returnCode = BusinessConstant.FAILED;
-        }
-        CommandLog.info("End Service({}ms)", System.currentTimeMillis() - s);
-        executor = null;
-        return returnCode;
     }
 
     /**

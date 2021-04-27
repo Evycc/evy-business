@@ -54,7 +54,7 @@ public class RabbitMqRedisRetryEvent {
         ReactiveRedisConnectionFactory factory = AppContextUtils.getBean(ReactiveRedisConnectionFactory.class);
         template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
         rabbitMqSender = AppContextUtils.getBean(RabbitMqSender.class);
-        BusinessProperties properties = AppContextUtils.getPrpo();
+        BusinessProperties properties = AppContextUtils.getProp();
         RETRY_TIME = Duration.ofSeconds(properties.getMq().getRabbitmq().getConsumerRetryTime());
         RETRY_COUNT = properties.getMq().getRabbitmq().getConsumerRetryCount();
     }

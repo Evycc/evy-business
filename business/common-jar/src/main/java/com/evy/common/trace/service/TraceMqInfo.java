@@ -12,7 +12,6 @@ import com.evy.common.utils.AppContextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class TraceMqInfo {
     /**
      * 配置常量
      **/
-    private static final String MQ_PRPO = "evy.trace.mq.flag";
+    private static boolean MQ_PRPO = false;
     private static final ConcurrentLinkedQueue<TraceMqModel> MQ_MODELS = new ConcurrentLinkedQueue<>();
     /**
      * SQL常量
@@ -36,6 +35,10 @@ public class TraceMqInfo {
     private static final String MQ_SEND_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.mqSendListInsert";
     private static final String MQ_CONSUMER_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.mqConsumerListInsert";
 
+    static {
+        AppContextUtils.getSyncProp(businessProperties -> MQ_PRPO = businessProperties.getTrace().getMq().isFlag());
+    }
+
     /**
      * 记录mq生产者信息
      *
@@ -43,20 +46,17 @@ public class TraceMqInfo {
      */
     public static void addTraceMqSend(MqSendMessage mqSendMessage) {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(MQ_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            String topic = mqSendMessage.getTopic();
-                            String tag = mqSendMessage.getTag();
-                            if (mqSendMessage.getTopic().equals(MqFactory.DLX_EXCHANGE)) {
-                                topic = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_EXCHANGE, BusinessConstant.EMPTY_STR);
-                                tag = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_ROUTING_KEY, BusinessConstant.EMPTY_STR);
-                            }
-                            MQ_MODELS.offer(TraceMqModel.create(BusinessConstant.VM_HOST, topic,
-                                    tag, mqSendMessage.getMessageId(), String.valueOf(mqSendMessage.getMessage())));
+            if (MQ_PRPO) {
+                String topic = mqSendMessage.getTopic();
+                String tag = mqSendMessage.getTag();
+                if (mqSendMessage.getTopic().equals(MqFactory.DLX_EXCHANGE)) {
+                    topic = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_EXCHANGE, BusinessConstant.EMPTY_STR);
+                    tag = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_ROUTING_KEY, BusinessConstant.EMPTY_STR);
+                }
+                MQ_MODELS.offer(TraceMqModel.create(BusinessConstant.VM_HOST, topic,
+                        tag, mqSendMessage.getMessageId(), String.valueOf(mqSendMessage.getMessage())));
 
-                        }
-                    });
+            }
         } catch (Exception e) {
             CommandLog.errorThrow("addTraceHttp Error!", e);
         }
@@ -70,12 +70,9 @@ public class TraceMqInfo {
      */
     public static void addTraceMqEnd(String msgId, long takeUpTimestamp) {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(MQ_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            MQ_MODELS.offer(TraceMqModel.create(BusinessConstant.VM_HOST, takeUpTimestamp, msgId));
-                        }
-                    });
+            if (MQ_PRPO) {
+                MQ_MODELS.offer(TraceMqModel.create(BusinessConstant.VM_HOST, takeUpTimestamp, msgId));
+            }
         } catch (Exception e) {
             CommandLog.errorThrow("addTraceHttp Error!", e);
         }

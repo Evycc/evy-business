@@ -58,7 +58,8 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             CommandLog.info("Start Consumer Service\tTopic:{}\tConsumerID:{}\t", envelope.getExchange(), properties.getCorrelationId());
             MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
             assert sendMessage != null;
-            MqSendMessage tmp = MqSendMessage.builder().dlxQueue(sendMessage.getDlxQueue()).build();
+            MqSendMessage tmp = MqSendMessage.create();
+            tmp.setDlxQueue(sendMessage.getDlxQueue());
             String messageJson = String.valueOf(sendMessage.getMessage());
             CommandLog.info("param:{}", messageJson);
 

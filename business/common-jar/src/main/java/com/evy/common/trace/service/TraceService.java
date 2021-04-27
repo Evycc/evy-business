@@ -28,16 +28,12 @@ import java.util.stream.Collectors;
  * @Date: 2020/7/8 20:32
  */
 public class TraceService {
-    private static final String SERVICE_TIMING_PRPO = "evy.trace.service.timing.flag";
+    private static boolean SERVICE_TIMING_PRPO = false;
     private static final ConcurrentLinkedQueue<TraceServiceModel> SERVICES_INFO_LIST = new ConcurrentLinkedQueue<>();
     /**
      * bean与消费者map对象 k:beanName v:consumer
      */
     private static final Map<String, String> SERVICES_BEAN_NAME_CONSUMER_MAP = new HashMap<>(16);
-    /**
-     * bean与消费者map临时对象 k:beanName v:consumer
-     */
-    private static Map<String, String> SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = new HashMap<>(16);
     /**
      * 查找服务bean名称及对应服务者名称
      */
@@ -62,6 +58,7 @@ public class TraceService {
     private static final String APP_NAME = getAppName();
 
     static {
+        AppContextUtils.getSyncProp(businessProperties -> SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag());
         cleanServiceInfo();
     }
 
@@ -85,17 +82,15 @@ public class TraceService {
      * 更新应用服务发布者、服务消费者信息
      */
     public static void executeService() {
-        Optional.ofNullable(AppContextUtils.getForEnv(SERVICE_TIMING_PRPO))
-                .ifPresent(flag -> {
-                    if (BusinessConstant.ZERO.equals(flag)) {
-                        SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = initConsumersMap();
-                        if (!CollectionUtils.isEmpty(SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP)) {
-                            SERVICES_BEAN_NAME_CONSUMER_MAP.clear();
-                            SERVICES_BEAN_NAME_CONSUMER_MAP.putAll(SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP);
-                            SERVICES_BEAN_NAME_CONSUMER_TEMP_MAP = null;
-                        }
-                    }
-                });
+        if (SERVICE_TIMING_PRPO) {
+            //bean与消费者map临时对象 k:beanName v:consumer
+            Map<String, String> tempMap = initConsumersMap();
+            if (!CollectionUtils.isEmpty(tempMap)) {
+                SERVICES_BEAN_NAME_CONSUMER_MAP.clear();
+                SERVICES_BEAN_NAME_CONSUMER_MAP.putAll(tempMap);
+                tempMap = null;
+            }
+        }
 
         List<TraceServiceUpdatePO> poList = new ArrayList<>(8);
         List<TraceServiceUpdatePO> cList = new ArrayList<>(8);

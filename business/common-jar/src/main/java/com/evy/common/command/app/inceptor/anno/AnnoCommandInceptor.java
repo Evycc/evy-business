@@ -15,7 +15,6 @@ import java.lang.annotation.*;
 public @interface AnnoCommandInceptor {
     /**
      * 拦截器实现类
-     * @return
      */
-    Class<? extends BaseCommandInceptor>[] proxyClass();
+    Class<? extends BaseCommandInceptor<?>>[] proxyClass();
 }

@@ -1,6 +1,5 @@
 package com.evy.common.trace.service;
 
-import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
@@ -11,7 +10,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -22,28 +20,17 @@ import java.util.stream.Collectors;
  * @Date: 2020/7/5 10:17
  */
 public class TraceThreadInfo {
-    private static final String THREAD_PRPO = "evy.trace.thread.flag";
+    private static boolean THREAD_FLAG = false;
     private static final ThreadMXBean THREAD_MX_BEAN = (ThreadMXBean) ManagementFactory.getThreadMXBean();
     private static final String THREAD_INFO_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.threadInfoInsert";
 
     static {
+        AppContextUtils.getSyncProp(businessProperties -> THREAD_FLAG = businessProperties.getTrace().getThread().isFlag());
         //监控死锁情况
         THREAD_MX_BEAN.setThreadContentionMonitoringEnabled(true);
         //监控死锁时间
         THREAD_MX_BEAN.setThreadCpuTimeEnabled(true);
         THREAD_MX_BEAN.setThreadAllocatedMemoryEnabled(true);
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        List<String> arr = new ArrayList<>();
-        for (int i=0; i < 1000000; i++) {
-            arr.add("a");
-        }
-        ThreadInfo[] threadInfos = THREAD_MX_BEAN.dumpAllThreads(true, true);
-        for (ThreadInfo threadInfo : threadInfos) {
-            System.out.println("threadName:" + threadInfo.getThreadName() + " size:" + THREAD_MX_BEAN.getThreadAllocatedBytes(threadInfo.getThreadId()));
-        }
-        Thread.sleep(1000000);
     }
 
     /**
@@ -87,58 +74,55 @@ public class TraceThreadInfo {
      */
     public static void executeThreadInfo() {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(THREAD_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            ThreadInfo[] threadInfos = dumpThread(true, true);
-                            //获取死锁状态的线程ID
+            if (THREAD_FLAG) {
+                ThreadInfo[] threadInfos = dumpThread(true, true);
+                //获取死锁状态的线程ID
 //                            long[] deadlockedThreads = THREAD_MX_BEAN.findDeadlockedThreads();
-                            //等待死锁的线程ID
+                //等待死锁的线程ID
 //                            long[] monitorDeadlockedThreadsId= THREAD_MX_BEAN.findMonitorDeadlockedThreads();
 
-                            List<TraceThreadInfoPO> list = new ArrayList<>(threadInfos.length);
-                            int tatiThreadId;
-                            String tatiThreadName;
-                            String tatiThreadStatus;
-                            String tatiThreadAvailByte;
-                            String tatiThreadStartMtime;
-                            String tatiThreadBlockedMtime;
-                            String tatiThreadBlockedName;
-                            int tatiThreadBlockedId;
-                            int tatiThreadBlockedCount;
-                            int tatiThreadWaitedCount;
-                            String tatiThreadWaitedMtime;
-                            int tatiThreadMaxCount = THREAD_MX_BEAN.getThreadCount();
-                            String tatiThreadStack;
+                List<TraceThreadInfoPO> list = new ArrayList<>(threadInfos.length);
+                int tatiThreadId;
+                String tatiThreadName;
+                String tatiThreadStatus;
+                String tatiThreadAvailByte;
+                String tatiThreadStartMtime;
+                String tatiThreadBlockedMtime;
+                String tatiThreadBlockedName;
+                int tatiThreadBlockedId;
+                int tatiThreadBlockedCount;
+                int tatiThreadWaitedCount;
+                String tatiThreadWaitedMtime;
+                int tatiThreadMaxCount = THREAD_MX_BEAN.getThreadCount();
+                String tatiThreadStack;
 
-                            for (ThreadInfo threadInfo : threadInfos) {
-                                tatiThreadStartMtime =  String.valueOf(THREAD_MX_BEAN.getThreadCpuTime(threadInfo.getThreadId()) / 1000000L);
-                                tatiThreadId = Math.toIntExact(threadInfo.getThreadId());
-                                tatiThreadName = threadInfo.getThreadName();
-                                Thread.State state = threadInfo.getThreadState();
-                                tatiThreadAvailByte = String.valueOf(getThreadAllocatedBytes(threadInfo.getThreadId()));
-                                tatiThreadStatus = state.name();
-                                tatiThreadStack = threadInfo.toString();
+                for (ThreadInfo threadInfo : threadInfos) {
+                    tatiThreadStartMtime =  String.valueOf(THREAD_MX_BEAN.getThreadCpuTime(threadInfo.getThreadId()) / 1000000L);
+                    tatiThreadId = Math.toIntExact(threadInfo.getThreadId());
+                    tatiThreadName = threadInfo.getThreadName();
+                    Thread.State state = threadInfo.getThreadState();
+                    tatiThreadAvailByte = String.valueOf(getThreadAllocatedBytes(threadInfo.getThreadId()));
+                    tatiThreadStatus = state.name();
+                    tatiThreadStack = threadInfo.toString();
 
-                                tatiThreadBlockedCount = Math.toIntExact(threadInfo.getBlockedCount());
-                                //纳秒
-                                tatiThreadBlockedMtime = String.valueOf(threadInfo.getBlockedTime());
-                                tatiThreadBlockedName = threadInfo.getLockName();
-                                tatiThreadBlockedId = Math.toIntExact(threadInfo.getLockOwnerId());
-                                tatiThreadWaitedCount = Math.toIntExact(threadInfo.getWaitedCount());
-                                tatiThreadWaitedMtime = String.valueOf(threadInfo.getWaitedTime());
+                    tatiThreadBlockedCount = Math.toIntExact(threadInfo.getBlockedCount());
+                    //纳秒
+                    tatiThreadBlockedMtime = String.valueOf(threadInfo.getBlockedTime());
+                    tatiThreadBlockedName = threadInfo.getLockName();
+                    tatiThreadBlockedId = Math.toIntExact(threadInfo.getLockOwnerId());
+                    tatiThreadWaitedCount = Math.toIntExact(threadInfo.getWaitedCount());
+                    tatiThreadWaitedMtime = String.valueOf(threadInfo.getWaitedTime());
 
-                                TraceThreadInfoPO threadInfoPo = TraceThreadInfoPO.create(tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadAvailByte, tatiThreadStartMtime, tatiThreadBlockedCount,
-                                        tatiThreadBlockedMtime, tatiThreadBlockedName, tatiThreadBlockedId, tatiThreadWaitedCount, tatiThreadWaitedMtime, tatiThreadMaxCount, tatiThreadStack);
-                                list.add(threadInfoPo);
-                            }
+                    TraceThreadInfoPO threadInfoPo = TraceThreadInfoPO.create(tatiThreadId, tatiThreadName, tatiThreadStatus, tatiThreadAvailByte, tatiThreadStartMtime, tatiThreadBlockedCount,
+                            tatiThreadBlockedMtime, tatiThreadBlockedName, tatiThreadBlockedId, tatiThreadWaitedCount, tatiThreadWaitedMtime, tatiThreadMaxCount, tatiThreadStack);
+                    list.add(threadInfoPo);
+                }
 
-                            DBUtils.batchAny(list.stream()
-                                    .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
-                                    .collect(Collectors.toList()));
-                            list = null;
-                        }
-                    });
+                DBUtils.batchAny(list.stream()
+                        .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
+                        .collect(Collectors.toList()));
+                list = null;
+            }
         } catch (Exception exception) {
             CommandLog.errorThrow("executeThreadInfo Error!", exception);
         }

@@ -126,24 +126,22 @@ public class RabbitMqSender implements MqSender {
 
     @Override
     public void sendOneWay(String topic, String tag, String consumerTag, Object msg) {
-        MqSendMessage mqSendMessage = MqSendMessage.builder()
-                .topic(topic)
-                .tag(tag)
-                .consumerTag(consumerTag)
-                .message(msg)
-                .build();
+        MqSendMessage mqSendMessage = MqSendMessage.create();
+        mqSendMessage.setTopic(topic);
+        mqSendMessage.setTag(tag);
+        mqSendMessage.setConsumerTag(consumerTag);
+        mqSendMessage.setMessage(msg);
 
         sendAndConfirm(mqSendMessage, false, initChannelGeneral());
     }
 
     @Override
     public int sendAndConfirm(String topic, String tag, String consumerTag, Object msg) {
-        MqSendMessage mqSendMessage = MqSendMessage.builder()
-                .topic(topic)
-                .tag(tag)
-                .consumerTag(consumerTag)
-                .message(msg)
-                .build();
+        MqSendMessage mqSendMessage = MqSendMessage.create();
+        mqSendMessage.setTopic(topic);
+        mqSendMessage.setTag(tag);
+        mqSendMessage.setConsumerTag(consumerTag);
+        mqSendMessage.setMessage(msg);
 
         return sendAndConfirm(mqSendMessage, true, initChannelConfirm());
     }
@@ -254,15 +252,14 @@ public class RabbitMqSender implements MqSender {
             Map<String, String> map1 = new HashMap<>(2);
             map1.put(MqFactory.X_DEAD_LETTER_EXCHANGE, topic);
             map1.put(MqFactory.X_DEAD_LETTER_ROUTING_KEY, tag);
-            MqSendMessage mqSendMessage = MqSendMessage.builder()
-                    .topic(MqFactory.DLX_EXCHANGE)
-                    .tag(MqFactory.DLX_ROUTING_KEY)
-                    .consumerTag(consumerTag)
-                    .message(msg)
-                    .delayTime(delayTime)
-                    .dlxQueue(dlxqueue)
-                    .prpoMap(map1)
-                    .build();
+            MqSendMessage mqSendMessage = MqSendMessage.create();
+            mqSendMessage.setTopic(MqFactory.DLX_EXCHANGE);
+            mqSendMessage.setTag(MqFactory.DLX_ROUTING_KEY);
+            mqSendMessage.setConsumerTag(consumerTag);
+            mqSendMessage.setMessage(msg);
+            mqSendMessage.setDelayTime(delayTime);
+            mqSendMessage.setDlxQueue(dlxqueue);
+            mqSendMessage.setPrpoMap(map1);
 
             return sendAndConfirm(mqSendMessage, true, channel);
         } catch (IOException e) {

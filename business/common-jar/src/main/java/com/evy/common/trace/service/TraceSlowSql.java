@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class TraceSlowSql {
     /**
      * 配置常量
      **/
-    private static final String DB_PRPO = "evy.trace.db.flag";
+    private static boolean DB_PRPO = false;
     private static final ConcurrentLinkedQueue<TraceDBModel> DB_MODELS = new ConcurrentLinkedQueue<>();
     private static final String SLOW_SQL_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.slowSqlInsert";
     private static final String EXPLAIN_SQL = "EXPLAIN ";
@@ -43,6 +42,10 @@ public class TraceSlowSql {
     private static final String EXPLAIN_FILTERED = "filtered";
     private static final String EXPLAIN_EXTRA = "Extra";
 
+    static {
+        AppContextUtils.getSyncProp(businessProperties -> DB_PRPO = businessProperties.getTrace().getDatabase().isFlag());
+    }
+
     /**
      * 记录慢sql
      *
@@ -51,12 +54,9 @@ public class TraceSlowSql {
      */
     public static void addTraceSql(String slowSql, long takeUpTimesatmp) {
         try {
-            Optional.ofNullable(AppContextUtils.getForEnv(DB_PRPO))
-                    .ifPresent(flag -> {
-                        if (BusinessConstant.ZERO.equals(flag)) {
-                            DB_MODELS.offer(TraceDBModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, slowSql));
-                        }
-                    });
+            if (DB_PRPO) {
+                DB_MODELS.offer(TraceDBModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, slowSql));
+            }
         } catch (Exception e) {
             CommandLog.errorThrow("addTraceHttp Error!", e);
         }

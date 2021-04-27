@@ -13,7 +13,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * 记录应用内存信息<br/>
@@ -24,9 +24,7 @@ import java.util.Optional;
  * @Date: 2020/7/5 14:59
  */
 public class TraceAppMemoryInfo {
-    private static final String MEMORY_PRPO = "evy.trace.memory.flag";
-    private static final String MEMORY_LIMIT_PRPO = "evy.trace.memory.limit";
-    private static final int DEFAULT_LIMIT = 10;
+    private static boolean MEMORY_PRPO = false;
     private static final MemoryMXBean MEMORY_MX_BEAN = ManagementFactory.getMemoryMXBean();
     private static final OperatingSystemMXBean SYSTEM_MX_BEAN = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     private static final String MEMORY_INFO_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.insertAppMermoryInfo";
@@ -34,20 +32,25 @@ public class TraceAppMemoryInfo {
     private static final String MEMORY_INFO_DELETE_LAST_ONE = "com.evy.common.trace.repository.mapper.TraceMapper.deleteMermoryInfoByLastOne";
     private static final String MEMORY_INFO_QUERY_LAST_ONE = "com.evy.common.trace.repository.mapper.TraceMapper.queryLastId";
 
+    static {
+        AppContextUtils.getSyncProp(businessProperties -> {
+            if (Objects.nonNull(businessProperties)) {
+                MEMORY_PRPO = businessProperties.getTrace().getMemory().isFlag();
+            }
+        });
+    }
+
     /**
      * evy.trace.memory.flag 为0，则采集内存信息
      */
     public static void executeMemoryInfo() {
-        Optional.ofNullable(AppContextUtils.getForEnv(MEMORY_PRPO))
-                .ifPresent(flag -> {
-                    if (BusinessConstant.ZERO.equals(flag)) {
-                        try {
-                            execute();
-                        } catch (Exception exception) {
-                            CommandLog.errorThrow("executeThreadInfo执行异常", exception);
-                        }
-                    }
-                });
+        if (MEMORY_PRPO) {
+            try {
+                execute();
+            } catch (Exception exception) {
+                CommandLog.errorThrow("executeThreadInfo执行异常", exception);
+            }
+        }
     }
 
     /**
@@ -84,9 +87,8 @@ public class TraceAppMemoryInfo {
         TraceMemoryInfoPO traceMemoryInfoPo = TraceMemoryInfoPO.create(tamiCpuLoad, tamiSysMemory, tamiSysAvailMemory, tamiAppUseMemory, tamiAppHeapMaxMemory,
                 tamiAppHeapMinMemory, tamiAppHeapUseMemory, tamiAppNonHeapMaxMemory, tamiAppNonHeapMinMemory, tamiAppNonHeapUseMemory);
 
-        String limit = Optional.ofNullable(AppContextUtils.getForEnv(MEMORY_LIMIT_PRPO))
-                .orElse(String.valueOf(DEFAULT_LIMIT));
-        int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create(Integer.parseInt(limit)));
+        int limit = AppContextUtils.getProp().getTrace().getMemory().getLimit();
+        int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create(limit));
         if (count == BusinessConstant.ONE_NUM) {
             DBUtils.delete(MEMORY_INFO_DELETE_LAST_ONE, TraceMemoryQueryPO.create(DBUtils.selectOne(MEMORY_INFO_QUERY_LAST_ONE)));
         }

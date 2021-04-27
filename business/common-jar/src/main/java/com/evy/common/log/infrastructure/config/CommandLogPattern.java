@@ -27,7 +27,6 @@ public class CommandLogPattern extends NamedConverter {
      */
     private final static String EVY_PACKAGE = "com.evy";
     private final static String STACK_JOIN_STR = "=>";
-    private final static String FILTER_MSG_LENGTH_KEY = "evy.log.msg.length";
     private static int FILTER_MSG_LENGTH = -1;
     private final static String LOG_VAR = "...";
     /**
@@ -39,11 +38,11 @@ public class CommandLogPattern extends NamedConverter {
     ).collect(Collectors.toList());
 
     static {
-        try {
-            FILTER_MSG_LENGTH = Integer.parseInt(AppContextUtils.getForEnv(FILTER_MSG_LENGTH_KEY));
-        } catch (NumberFormatException ignore) {
-        }
-        CommandLog.info("log消息内容最大长度为: {}", FILTER_MSG_LENGTH);
+        //获取sftp连接超时时间
+        AppContextUtils.getSyncProp(properties -> {
+            FILTER_MSG_LENGTH = properties.getLog().getMessage().getLength();
+            CommandLog.info("log消息内容最大长度为: {}", FILTER_MSG_LENGTH);
+        });
     }
 
     @Override
@@ -167,6 +166,7 @@ public class CommandLogPattern extends NamedConverter {
 
     /**
      * 限制Log输出日志内容长度
+     *
      * @param iLoggingEvent ch.qos.logback.classic.spi.ILoggingEvent
      */
     private void subLogMsgLength(ILoggingEvent iLoggingEvent) {

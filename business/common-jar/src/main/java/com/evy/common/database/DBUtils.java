@@ -1,6 +1,5 @@
 package com.evy.common.database;
 
-import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
@@ -45,13 +44,14 @@ public class DBUtils {
     }
 
     private static void init(){
-        CommandLog.info("初始化DBUtils");
-        BusinessProperties properties = AppContextUtils.getPrpo();
-        MYBATIS_CONF_XML = properties.getDatabase().getMybatisXmlPath();
-        BATCH_INSERT_COUNT = properties.getDatabase().getBatchInsertCount();
-        initDataSource();
-        initMybatis();
-        JDBC_TRANSACTION_FACTORY = new JdbcTransactionFactory();
+        AppContextUtils.getSyncProp(properties -> {
+            CommandLog.info("初始化DBUtils");
+            MYBATIS_CONF_XML = properties.getDatabase().getMybatisXmlPath();
+            BATCH_INSERT_COUNT = properties.getDatabase().getBatchInsertCount();
+            initDataSource();
+            initMybatis();
+            JDBC_TRANSACTION_FACTORY = new JdbcTransactionFactory();
+        });
     }
 
     /**

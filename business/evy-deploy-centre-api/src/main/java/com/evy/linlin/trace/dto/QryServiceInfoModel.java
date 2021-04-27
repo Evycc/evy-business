@@ -47,6 +47,19 @@ public class QryServiceInfoModel extends CommandModel {
     public QryServiceInfoModel() {
     }
 
+    public QryServiceInfoModel(String serviceBeanName, String serviceName, String servicePath, String providerName, List<String> consumerName, List<String> providerList, List<String> consumerList, String gmtModify, Integer limitQps, String limitFallback) {
+        this.serviceBeanName = serviceBeanName;
+        this.serviceName = serviceName;
+        this.servicePath = servicePath;
+        this.providerName = providerName;
+        this.consumerName = consumerName;
+        this.providerList = providerList;
+        this.consumerList = consumerList;
+        this.gmtModify = gmtModify;
+        this.limitQps = limitQps;
+        this.limitFallback = limitFallback;
+    }
+
     @Override
     public String toString() {
         return "QryServiceInfoModel{" +

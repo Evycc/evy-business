@@ -22,7 +22,10 @@ import java.util.function.Consumer;
  */
 public class FtpUtils {
     private static Session SFTP_SESSION;
-    private static int SFTP_TIMEOUT;
+    /**
+     * 默认3s连接超时时间
+     */
+    private static int SFTP_TIMEOUT = 3000;
 
     static {
         init();
@@ -30,8 +33,7 @@ public class FtpUtils {
 
     private static void init(){
         //获取sftp连接超时时间
-        BusinessProperties prpoties = AppContextUtils.getPrpo();
-        SFTP_TIMEOUT = prpoties.getFtp().getLoginTimeout();
+        AppContextUtils.getSyncProp(properties -> SFTP_TIMEOUT = properties.getFtp().getLoginTimeout());
     }
 
     /**
@@ -40,13 +42,13 @@ public class FtpUtils {
      * @throws Exception 连接sftp异常
      */
     private static void initSftpSession() throws Exception {
-        BusinessProperties prpoties = AppContextUtils.getPrpo();
-        String username = prpoties.getFtp().getUsername();
-        String password = prpoties.getFtp().getPassword();
-        String passphrase = prpoties.getFtp().getPassphrase();
-        String privatekey = prpoties.getFtp().getPrivateKey().replaceAll("@@@", "\n");
-        String host = prpoties.getFtp().getHost();
-        int port = prpoties.getFtp().getPort();
+        BusinessProperties properties = AppContextUtils.getProp();
+        String username = properties.getFtp().getUsername();
+        String password = properties.getFtp().getPassword();
+        String passphrase = properties.getFtp().getPassphrase();
+        String privatekey = properties.getFtp().getPrivateKey().replaceAll("@@@", "\n");
+        String host = properties.getFtp().getHost();
+        int port = properties.getFtp().getPort();
 
         SFTP_SESSION = returnSftpSession(username, password, privatekey, passphrase, host, port);
     }

@@ -13,13 +13,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(
-        prefix = "evy.command"
+        prefix = "evy.base"
 )
 public class BusinessProperties {
-    /**
-     * 执行com.evy.common.infrastructure.common.command.CommandUtils#execute方法超时时间，默认30s
-     */
-    private int executeTimeout = 30000;
 
     /**
      * MQ消息中心
@@ -28,7 +24,7 @@ public class BusinessProperties {
     /**
      * 数据库配置
      */
-    private database database;
+    private BusinessProperties.database database;
     /**
      * 文服工具
      */
@@ -41,19 +37,389 @@ public class BusinessProperties {
      * udp配置
      */
     private BusinessProperties.udp udp;
+    /**
+     * 记录公共日志流水配置
+     */
+    private BusinessProperties.traceLog traceLog;
+    /**
+     * 日志信息配置
+     */
+    private BusinessProperties.log log;
+    /**
+     * 健康信息收集配置
+     */
+    private BusinessProperties.trace trace;
 
     /**
      * 构造参数
      */
     public BusinessProperties() {
         this.mq = new BusinessProperties.mq();
-        this.database = new database();
+        this.database = new BusinessProperties.database();
         this.ftp = new BusinessProperties.ftp();
         this.http = new BusinessProperties.http();
+        this.traceLog = new BusinessProperties.traceLog();
+        this.log = new BusinessProperties.log();
+        this.trace = new BusinessProperties.trace();
+    }
+
+    /**
+     * 健康信息收集配置类
+     */
+    public static class trace {
+        private BusinessProperties.trace.service service;
+        private BusinessProperties.trace.database database;
+        private BusinessProperties.trace.http http;
+        private BusinessProperties.trace.redis redis;
+        private BusinessProperties.trace.mq mq;
+        private BusinessProperties.trace.thread thread;
+        private BusinessProperties.trace.memory memory;
+
+        public trace(){
+            this.service = new BusinessProperties.trace.service();
+            this.database = new BusinessProperties.trace.database();
+            this.http = new BusinessProperties.trace.http();
+            this.redis = new BusinessProperties.trace.redis();
+            this.mq = new BusinessProperties.trace.mq();
+            this.thread = new BusinessProperties.trace.thread();
+            this.memory = new BusinessProperties.trace.memory();
+        }
+
+        /**
+         * 收集应用内存信息配置
+         */
+        public static class memory {
+            public memory() {}
+            /**
+             * 收集应用内存信息,默认关闭
+             */
+            private boolean flag = false;
+            /**
+             * 定时收集时间,默认1分钟,单位:秒
+             */
+            private int timing = 60;
+            /**
+             * 应用内存信息最多保留记录数,单位:分钟,默认保存一天 60 * 24
+             */
+            private int limit = timing * 24;
+
+            public int getLimit() {
+                return limit;
+            }
+
+            public void setLimit(int limit) {
+                this.limit = limit;
+            }
+
+            public int getTiming() {
+                return timing;
+            }
+
+            public void setTiming(int timing) {
+                this.timing = timing;
+            }
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * 服务器线程信息收集配置
+         */
+        public static class thread {
+            public thread() {}
+            /**
+             * 收集应用线程信息,默认关闭
+             */
+            private boolean flag = false;
+            /**
+             * 定时收集时间,默认1分钟,单位:秒
+             */
+            private int timing = 60;
+
+            public int getTiming() {
+                return timing;
+            }
+
+            public void setTiming(int timing) {
+                this.timing = timing;
+            }
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * mq链路收集配置
+         */
+        public static class mq {
+            public mq(){}
+            /**
+             * 统计mq请求信息,默认关闭
+             */
+            private boolean flag = false;
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * redis健康信息收集配置
+         */
+        public static class redis {
+            public redis(){}
+            /**
+             * redis健康信息收集,默认关闭
+             */
+            private boolean flag = false;
+            /**
+             * 需要监听的redis列表,格式host:port:password,分隔符:||,password支持enc加密
+             */
+            private String list;
+            /**
+             * 定时收集时间,默认1分钟,单位:秒
+             */
+            private int timing = 60;
+
+            public int getTiming() {
+                return timing;
+            }
+
+            public void setTiming(int timing) {
+                this.timing = timing;
+            }
+
+            public String getList() {
+                return list;
+            }
+
+            public void setList(String list) {
+                this.list = list;
+            }
+
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * http请求统计
+         */
+        public static class http {
+            public http() {}
+            /**
+             * 统计http请求总数,默认关闭
+             */
+            private boolean flag = false;
+
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * 慢SQL
+         */
+        public static class database {
+            public database(){}
+            /**
+             * 统计慢SQL,默认关闭,与common-agent-jar搭配使用<br/>
+             * 在common-agent-jar通过jvm参数配置慢SQL记录时间,SLOW_SQL=1000,默认1s
+             */
+            private boolean flag = false;
+
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        /**
+         * 扫描服务列表
+         */
+        public static class service {
+            public service(){}
+            /**
+             * 刷新服务列表间隔,默认1分钟,单位:秒
+             */
+            private int timing = 60;
+            /**
+             * 开启定时刷新服务列表,默认关闭
+             */
+            private boolean flag = false;
+
+            public int getTiming() {
+                return timing;
+            }
+
+            public void setTiming(int timing) {
+                this.timing = timing;
+            }
+
+            public boolean isFlag() {
+                return flag;
+            }
+
+            public void setFlag(boolean flag) {
+                this.flag = flag;
+            }
+        }
+
+        public BusinessProperties.trace.service getService() {
+            return service;
+        }
+
+        public void setService(BusinessProperties.trace.service service) {
+            this.service = service;
+        }
+
+        public BusinessProperties.trace.database getDatabase() {
+            return database;
+        }
+
+        public void setDatabase(BusinessProperties.trace.database database) {
+            this.database = database;
+        }
+
+        public BusinessProperties.trace.http getHttp() {
+            return http;
+        }
+
+        public void setHttp(BusinessProperties.trace.http http) {
+            this.http = http;
+        }
+
+        public BusinessProperties.trace.redis getRedis() {
+            return redis;
+        }
+
+        public void setRedis(BusinessProperties.trace.redis redis) {
+            this.redis = redis;
+        }
+
+        public BusinessProperties.trace.mq getMq() {
+            return mq;
+        }
+
+        public void setMq(BusinessProperties.trace.mq mq) {
+            this.mq = mq;
+        }
+
+        public BusinessProperties.trace.thread getThread() {
+            return thread;
+        }
+
+        public void setThread(BusinessProperties.trace.thread thread) {
+            this.thread = thread;
+        }
+
+        public BusinessProperties.trace.memory getMemory() {
+            return memory;
+        }
+
+        public void setMemory(BusinessProperties.trace.memory memory) {
+            this.memory = memory;
+        }
+    }
+
+    /**
+     * 日志配置
+     */
+    public static class log {
+        private BusinessProperties.log.message message;
+
+        public log(){
+            this.message = new BusinessProperties.log.message();
+        }
+
+        /**
+         * 日志消息配置
+         */
+        public static class message {
+            public message(){}
+
+            /**
+             * 可打印的最大日志长度,默认1024,-1则不做限制
+             */
+            private int length = 1024;
+
+            public int getLength() {
+                return length;
+            }
+
+            public void setLength(int length) {
+                this.length = length;
+            }
+        }
+
+        public BusinessProperties.log.message getMessage() {
+            return message;
+        }
+
+        public void setMessage(BusinessProperties.log.message message) {
+            this.message = message;
+        }
+    }
+
+    /**
+     * traceLog 异步记录日志,默认使用rabbitmq
+     */
+    public static class traceLog {
+        public traceLog(){}
+
+        /**
+         * topic
+         */
+        private String topic;
+        /**
+         * tag
+         */
+        private String tag;
+
+        public String getTopic() {
+            return topic;
+        }
+
+        public void setTopic(String topic) {
+            this.topic = topic;
+        }
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
+        }
     }
 
     public static class udp {
-        public udp(){}
+        public udp() {
+        }
+
         /**
          * udp server连接超时时间，单位ms，默认1s
          */
@@ -408,14 +774,6 @@ public class BusinessProperties {
         }
     }
 
-    public int getExecuteTimeout() {
-        return executeTimeout;
-    }
-
-    public void setExecuteTimeout(int executeTimeout) {
-        this.executeTimeout = executeTimeout;
-    }
-
     public BusinessProperties.mq getMq() {
         return mq;
     }
@@ -454,5 +812,29 @@ public class BusinessProperties {
 
     public void setUdp(BusinessProperties.udp udp) {
         this.udp = udp;
+    }
+
+    public BusinessProperties.traceLog getTraceLog() {
+        return traceLog;
+    }
+
+    public void setTraceLog(BusinessProperties.traceLog traceLog) {
+        this.traceLog = traceLog;
+    }
+
+    public BusinessProperties.log getLog() {
+        return log;
+    }
+
+    public void setLog(BusinessProperties.log log) {
+        this.log = log;
+    }
+
+    public BusinessProperties.trace getTrace() {
+        return trace;
+    }
+
+    public void setTrace(BusinessProperties.trace trace) {
+        this.trace = trace;
     }
 }

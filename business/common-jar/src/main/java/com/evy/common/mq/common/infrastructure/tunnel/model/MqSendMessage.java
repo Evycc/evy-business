@@ -1,8 +1,5 @@
 package com.evy.common.mq.common.infrastructure.tunnel.model;
 
-import lombok.Builder;
-import lombok.ToString;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +9,6 @@ import java.util.Map;
  * @Author: EvyLiuu
  * @Date: 2019/11/5 22:28
  */
-@Builder
-@ToString
 public class MqSendMessage implements Serializable {
     private static final String serialVersionUID = "qwertyuiopasdfghjklzxcvbnm1234567890";
     /**
@@ -60,6 +55,13 @@ public class MqSendMessage implements Serializable {
      * 死信队列
      */
     private String dlxQueue;
+
+    private MqSendMessage() {
+    }
+
+    public static MqSendMessage create(){
+        return new MqSendMessage();
+    }
 
     public String getTopic() {
         return topic;
@@ -151,5 +153,22 @@ public class MqSendMessage implements Serializable {
 
     public void setDlxQueue(String dlxQueue) {
         this.dlxQueue = dlxQueue;
+    }
+
+    @Override
+    public String toString() {
+        return "MqSendMessage{" +
+                "topic='" + topic + '\'' +
+                ", tag='" + tag + '\'' +
+                ", consumerTag='" + consumerTag + '\'' +
+                ", sendTime='" + sendTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", messageId='" + messageId + '\'' +
+                ", rbDeliveryTag='" + rbDeliveryTag + '\'' +
+                ", message=" + message +
+                ", delayTime=" + delayTime +
+                ", prpoMap=" + prpoMap +
+                ", dlxQueue='" + dlxQueue + '\'' +
+                '}';
     }
 }
