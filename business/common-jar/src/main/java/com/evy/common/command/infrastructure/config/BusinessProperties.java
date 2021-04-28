@@ -20,76 +20,110 @@ public class BusinessProperties {
     /**
      * MQ消息中心
      */
-    private BusinessProperties.mq mq;
+    private BusinessProperties.Mq mq;
     /**
      * 数据库配置
      */
-    private BusinessProperties.database database;
+    private BusinessProperties.Database database;
     /**
      * 文服工具
      */
-    private BusinessProperties.ftp ftp;
+    private BusinessProperties.Ftp ftp;
     /**
      * HttpClient配置
      */
-    private BusinessProperties.http http;
+    private BusinessProperties.Http http;
     /**
      * udp配置
      */
-    private BusinessProperties.udp udp;
+    private BusinessProperties.Udp udp;
     /**
      * 记录公共日志流水配置
      */
-    private BusinessProperties.traceLog traceLog;
+    private BusinessProperties.TraceLog traceLog;
     /**
      * 日志信息配置
      */
-    private BusinessProperties.log log;
+    private BusinessProperties.Log log;
     /**
      * 健康信息收集配置
      */
-    private BusinessProperties.trace trace;
+    private BusinessProperties.Trace trace;
 
     /**
      * 构造参数
      */
     public BusinessProperties() {
-        this.mq = new BusinessProperties.mq();
-        this.database = new BusinessProperties.database();
-        this.ftp = new BusinessProperties.ftp();
-        this.http = new BusinessProperties.http();
-        this.traceLog = new BusinessProperties.traceLog();
-        this.log = new BusinessProperties.log();
-        this.trace = new BusinessProperties.trace();
+        this.mq = new BusinessProperties.Mq();
+        this.database = new BusinessProperties.Database();
+        this.ftp = new BusinessProperties.Ftp();
+        this.http = new BusinessProperties.Http();
+        this.traceLog = new BusinessProperties.TraceLog();
+        this.log = new BusinessProperties.Log();
+        this.trace = new BusinessProperties.Trace();
     }
 
     /**
      * 健康信息收集配置类
      */
-    public static class trace {
-        private BusinessProperties.trace.service service;
-        private BusinessProperties.trace.database database;
-        private BusinessProperties.trace.http http;
-        private BusinessProperties.trace.redis redis;
-        private BusinessProperties.trace.mq mq;
-        private BusinessProperties.trace.thread thread;
-        private BusinessProperties.trace.memory memory;
+    public static class Trace {
+        private BusinessProperties.Trace.Service service;
+        private BusinessProperties.Trace.Database database;
+        private BusinessProperties.Trace.Http http;
+        private BusinessProperties.Trace.Redis redis;
+        private BusinessProperties.Trace.Mq mq;
+        private BusinessProperties.Trace.Thread thread;
+        private BusinessProperties.Trace.Memory memory;
+        private BusinessProperties.Trace.Healthy healthy;
 
-        public trace(){
-            this.service = new BusinessProperties.trace.service();
-            this.database = new BusinessProperties.trace.database();
-            this.http = new BusinessProperties.trace.http();
-            this.redis = new BusinessProperties.trace.redis();
-            this.mq = new BusinessProperties.trace.mq();
-            this.thread = new BusinessProperties.trace.thread();
-            this.memory = new BusinessProperties.trace.memory();
+        public Trace() {
+            this.service = new BusinessProperties.Trace.Service();
+            this.database = new BusinessProperties.Trace.Database();
+            this.http = new BusinessProperties.Trace.Http();
+            this.redis = new BusinessProperties.Trace.Redis();
+            this.mq = new BusinessProperties.Trace.Mq();
+            this.thread = new BusinessProperties.Trace.Thread();
+            this.memory = new BusinessProperties.Trace.Memory();
+            this.healthy = new BusinessProperties.Trace.Healthy();
+        }
+
+        public static class Healthy {
+            public Healthy() {
+            }
+
+            /**
+             * 用于将健康信息发送到监控服务器
+             */
+            private String sendHost;
+            /**
+             * 监控服务器监听端口,默认5464
+             */
+            private int port = 5464;
+
+            public String getSendHost() {
+                return sendHost;
+            }
+
+            public void setSendHost(String sendHost) {
+                this.sendHost = sendHost;
+            }
+
+            public int getPort() {
+                return port;
+            }
+
+            public void setPort(int port) {
+                this.port = port;
+            }
         }
 
         /**
          * 收集应用内存信息配置
          */
-        public static class memory {
-            public memory() {}
+        public static class Memory {
+            public Memory() {
+            }
+
             /**
              * 收集应用内存信息,默认关闭
              */
@@ -118,6 +152,7 @@ public class BusinessProperties {
             public void setTiming(int timing) {
                 this.timing = timing;
             }
+
             public boolean isFlag() {
                 return flag;
             }
@@ -130,8 +165,10 @@ public class BusinessProperties {
         /**
          * 服务器线程信息收集配置
          */
-        public static class thread {
-            public thread() {}
+        public static class Thread {
+            public Thread() {
+            }
+
             /**
              * 收集应用线程信息,默认关闭
              */
@@ -148,6 +185,7 @@ public class BusinessProperties {
             public void setTiming(int timing) {
                 this.timing = timing;
             }
+
             public boolean isFlag() {
                 return flag;
             }
@@ -160,12 +198,15 @@ public class BusinessProperties {
         /**
          * mq链路收集配置
          */
-        public static class mq {
-            public mq(){}
+        public static class Mq {
+            public Mq() {
+            }
+
             /**
              * 统计mq请求信息,默认关闭
              */
             private boolean flag = false;
+
             public boolean isFlag() {
                 return flag;
             }
@@ -178,8 +219,10 @@ public class BusinessProperties {
         /**
          * redis健康信息收集配置
          */
-        public static class redis {
-            public redis(){}
+        public static class Redis {
+            public Redis() {
+            }
+
             /**
              * redis健康信息收集,默认关闭
              */
@@ -221,8 +264,10 @@ public class BusinessProperties {
         /**
          * http请求统计
          */
-        public static class http {
-            public http() {}
+        public static class Http {
+            public Http() {
+            }
+
             /**
              * 统计http请求总数,默认关闭
              */
@@ -240,8 +285,10 @@ public class BusinessProperties {
         /**
          * 慢SQL
          */
-        public static class database {
-            public database(){}
+        public static class Database {
+            public Database() {
+            }
+
             /**
              * 统计慢SQL,默认关闭,与common-agent-jar搭配使用<br/>
              * 在common-agent-jar通过jvm参数配置慢SQL记录时间,SLOW_SQL=1000,默认1s
@@ -260,8 +307,10 @@ public class BusinessProperties {
         /**
          * 扫描服务列表
          */
-        public static class service {
-            public service(){}
+        public static class Service {
+            public Service() {
+            }
+
             /**
              * 刷新服务列表间隔,默认1分钟,单位:秒
              */
@@ -288,59 +337,67 @@ public class BusinessProperties {
             }
         }
 
-        public BusinessProperties.trace.service getService() {
+        public Healthy getHealthy() {
+            return healthy;
+        }
+
+        public void setHealthy(Healthy healthy) {
+            this.healthy = healthy;
+        }
+
+        public BusinessProperties.Trace.Service getService() {
             return service;
         }
 
-        public void setService(BusinessProperties.trace.service service) {
+        public void setService(BusinessProperties.Trace.Service service) {
             this.service = service;
         }
 
-        public BusinessProperties.trace.database getDatabase() {
+        public BusinessProperties.Trace.Database getDatabase() {
             return database;
         }
 
-        public void setDatabase(BusinessProperties.trace.database database) {
+        public void setDatabase(BusinessProperties.Trace.Database database) {
             this.database = database;
         }
 
-        public BusinessProperties.trace.http getHttp() {
+        public BusinessProperties.Trace.Http getHttp() {
             return http;
         }
 
-        public void setHttp(BusinessProperties.trace.http http) {
+        public void setHttp(BusinessProperties.Trace.Http http) {
             this.http = http;
         }
 
-        public BusinessProperties.trace.redis getRedis() {
+        public BusinessProperties.Trace.Redis getRedis() {
             return redis;
         }
 
-        public void setRedis(BusinessProperties.trace.redis redis) {
+        public void setRedis(BusinessProperties.Trace.Redis redis) {
             this.redis = redis;
         }
 
-        public BusinessProperties.trace.mq getMq() {
+        public BusinessProperties.Trace.Mq getMq() {
             return mq;
         }
 
-        public void setMq(BusinessProperties.trace.mq mq) {
+        public void setMq(BusinessProperties.Trace.Mq mq) {
             this.mq = mq;
         }
 
-        public BusinessProperties.trace.thread getThread() {
+        public BusinessProperties.Trace.Thread getThread() {
             return thread;
         }
 
-        public void setThread(BusinessProperties.trace.thread thread) {
+        public void setThread(BusinessProperties.Trace.Thread thread) {
             this.thread = thread;
         }
 
-        public BusinessProperties.trace.memory getMemory() {
+        public BusinessProperties.Trace.Memory getMemory() {
             return memory;
         }
 
-        public void setMemory(BusinessProperties.trace.memory memory) {
+        public void setMemory(BusinessProperties.Trace.Memory memory) {
             this.memory = memory;
         }
     }
@@ -348,18 +405,19 @@ public class BusinessProperties {
     /**
      * 日志配置
      */
-    public static class log {
-        private BusinessProperties.log.message message;
+    public static class Log {
+        private BusinessProperties.Log.Message message;
 
-        public log(){
-            this.message = new BusinessProperties.log.message();
+        public Log() {
+            this.message = new BusinessProperties.Log.Message();
         }
 
         /**
          * 日志消息配置
          */
-        public static class message {
-            public message(){}
+        public static class Message {
+            public Message() {
+            }
 
             /**
              * 可打印的最大日志长度,默认1024,-1则不做限制
@@ -375,11 +433,11 @@ public class BusinessProperties {
             }
         }
 
-        public BusinessProperties.log.message getMessage() {
+        public BusinessProperties.Log.Message getMessage() {
             return message;
         }
 
-        public void setMessage(BusinessProperties.log.message message) {
+        public void setMessage(BusinessProperties.Log.Message message) {
             this.message = message;
         }
     }
@@ -387,8 +445,9 @@ public class BusinessProperties {
     /**
      * traceLog 异步记录日志,默认使用rabbitmq
      */
-    public static class traceLog {
-        public traceLog(){}
+    public static class TraceLog {
+        public TraceLog() {
+        }
 
         /**
          * topic
@@ -416,8 +475,8 @@ public class BusinessProperties {
         }
     }
 
-    public static class udp {
-        public udp() {
+    public static class Udp {
+        public Udp() {
         }
 
         /**
@@ -449,8 +508,8 @@ public class BusinessProperties {
     /**
      * HttpClient配置
      */
-    public static class http {
-        public http() {
+    public static class Http {
+        public Http() {
         }
 
         /**
@@ -482,8 +541,8 @@ public class BusinessProperties {
     /**
      * 文服工具配置
      */
-    public static class ftp {
-        public ftp() {
+    public static class Ftp {
+        public Ftp() {
         }
 
         /**
@@ -575,8 +634,8 @@ public class BusinessProperties {
     /**
      * 数据库配置
      */
-    public static class database {
-        public database() {
+    public static class Database {
+        public Database() {
         }
 
         /**
@@ -608,15 +667,15 @@ public class BusinessProperties {
     /**
      * 消息中心配置
      */
-    public static class mq {
-        private rabbitmq rabbitmq;
+    public static class Mq {
+        private Rabbitmq rabbitmq;
 
-        public mq() {
-            this.rabbitmq = new rabbitmq();
+        public Mq() {
+            this.rabbitmq = new Rabbitmq();
         }
 
-        public static class rabbitmq {
-            public rabbitmq() {
+        public static class Rabbitmq {
+            public Rabbitmq() {
             }
 
             /**
@@ -765,76 +824,76 @@ public class BusinessProperties {
             }
         }
 
-        public BusinessProperties.mq.rabbitmq getRabbitmq() {
+        public BusinessProperties.Mq.Rabbitmq getRabbitmq() {
             return rabbitmq;
         }
 
-        public void setRabbitmq(BusinessProperties.mq.rabbitmq rabbitmq) {
+        public void setRabbitmq(BusinessProperties.Mq.Rabbitmq rabbitmq) {
             this.rabbitmq = rabbitmq;
         }
     }
 
-    public BusinessProperties.mq getMq() {
+    public BusinessProperties.Mq getMq() {
         return mq;
     }
 
-    public void setMq(BusinessProperties.mq mq) {
+    public void setMq(BusinessProperties.Mq mq) {
         this.mq = mq;
     }
 
-    public BusinessProperties.database getDatabase() {
+    public BusinessProperties.Database getDatabase() {
         return database;
     }
 
-    public void setDatabase(BusinessProperties.database database) {
+    public void setDatabase(BusinessProperties.Database database) {
         this.database = database;
     }
 
-    public BusinessProperties.ftp getFtp() {
+    public BusinessProperties.Ftp getFtp() {
         return ftp;
     }
 
-    public void setFtp(BusinessProperties.ftp ftp) {
+    public void setFtp(BusinessProperties.Ftp ftp) {
         this.ftp = ftp;
     }
 
-    public BusinessProperties.http getHttp() {
+    public BusinessProperties.Http getHttp() {
         return http;
     }
 
-    public void setHttp(BusinessProperties.http http) {
+    public void setHttp(BusinessProperties.Http http) {
         this.http = http;
     }
 
-    public BusinessProperties.udp getUdp() {
+    public BusinessProperties.Udp getUdp() {
         return udp;
     }
 
-    public void setUdp(BusinessProperties.udp udp) {
+    public void setUdp(BusinessProperties.Udp udp) {
         this.udp = udp;
     }
 
-    public BusinessProperties.traceLog getTraceLog() {
+    public BusinessProperties.TraceLog getTraceLog() {
         return traceLog;
     }
 
-    public void setTraceLog(BusinessProperties.traceLog traceLog) {
+    public void setTraceLog(BusinessProperties.TraceLog traceLog) {
         this.traceLog = traceLog;
     }
 
-    public BusinessProperties.log getLog() {
+    public BusinessProperties.Log getLog() {
         return log;
     }
 
-    public void setLog(BusinessProperties.log log) {
+    public void setLog(BusinessProperties.Log log) {
         this.log = log;
     }
 
-    public BusinessProperties.trace getTrace() {
+    public BusinessProperties.Trace getTrace() {
         return trace;
     }
 
-    public void setTrace(BusinessProperties.trace trace) {
+    public void setTrace(BusinessProperties.Trace trace) {
         this.trace = trace;
     }
 }

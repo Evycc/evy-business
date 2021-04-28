@@ -221,7 +221,7 @@ public class CreateFactory {
      */
     @Bean(BeanNameConstant.EVY_HTTP_CLIENT)
     public HttpClient httpClient() {
-        BusinessProperties.http http = businessProperties.getHttp();
+        BusinessProperties.Http http = businessProperties.getHttp();
         int connTimeout = http.getConnTimeOut();
         int reqTimeout = http.getReqTimeOut();
 

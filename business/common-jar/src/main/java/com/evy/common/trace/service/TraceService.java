@@ -177,7 +177,7 @@ public class TraceService {
      * @return k : bean name v : 消费者应用名
      */
     private static Map<String, String> initConsumersMap() {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>(8);
         List<TraceServiceBeanAndConsumerPO> beanAndConsumerPos = DBUtils.selectList(QUERY_CONSUMERS);
          boolean hasAppConsumerService = !CollectionUtils.isEmpty(beanAndConsumerPos) &&
                  beanAndConsumerPos.stream().anyMatch(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME));
@@ -276,14 +276,14 @@ public class TraceService {
             }
         }
         if (Objects.nonNull(beanClass.getGenericSuperclass()) && beanClass.getGenericSuperclass() instanceof Class) {
-            classes = ((Class) beanClass.getGenericSuperclass()).getClasses();
+            classes = ((Class<?>) beanClass.getGenericSuperclass()).getClasses();
             if (classes.length != 0) {
                 var = buildClassesPath(var, getClassesReqPath(classes));
                 for (Class<?> aClass : classes) {
                     var = buildClassesPath(var, getReqMappingStr(aClass));
                 }
             }
-            classes = ((Class) beanClass.getGenericSuperclass()).getInterfaces();
+            classes = ((Class<?>) beanClass.getGenericSuperclass()).getInterfaces();
             if (classes.length != 0) {
                 var = buildClassesPath(var, getClassesReqPath(classes));
                 for (Class<?> aClass : classes) {

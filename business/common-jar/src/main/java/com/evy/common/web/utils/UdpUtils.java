@@ -2,6 +2,7 @@ package com.evy.common.web.utils;
 
 import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.log.CommandLog;
+import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.JsonUtils;
 
 import java.io.IOException;
@@ -57,6 +58,12 @@ public class UdpUtils {
     private static final Map<String, DatagramSocketSender> SOCKET_SEND_MAP = new HashMap<>(8);
 
     static {
+        AppContextUtils.getSyncProp(businessProperties -> {
+            if (Objects.nonNull(businessProperties)) {
+                CONN_TIME_OUT = businessProperties.getUdp().getConnTimeOut();
+                MESSAGE_LENGTH = businessProperties.getUdp().getMessageLength();
+            }
+        });
         //1分钟后执行
         long initialDelay = 60000L;
         //间隔1分钟轮询

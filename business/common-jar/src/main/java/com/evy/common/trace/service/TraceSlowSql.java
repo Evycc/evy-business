@@ -50,12 +50,12 @@ public class TraceSlowSql {
      * 记录慢sql
      *
      * @param slowSql         慢sql
-     * @param takeUpTimesatmp 耗时
+     * @param takeUpTimestamp 耗时
      */
-    public static void addTraceSql(String slowSql, long takeUpTimesatmp) {
+    public static void addTraceSql(String slowSql, long takeUpTimestamp) {
         try {
             if (DB_PRPO) {
-                DB_MODELS.offer(TraceDBModel.create(BusinessConstant.VM_HOST, takeUpTimesatmp, slowSql));
+                DB_MODELS.offer(TraceDBModel.create(BusinessConstant.VM_HOST, takeUpTimestamp, slowSql));
             }
         } catch (Exception e) {
             CommandLog.errorThrow("addTraceHttp Error!", e);
@@ -158,9 +158,9 @@ public class TraceSlowSql {
 
             if (tn.contains(BusinessConstant.TMP_TABLE_NAME)) {
                 //临时表处理
-                stringBuilder.append(String.format(tmpExtra, tn, stringBuilder1.toString()));
+                stringBuilder.append(String.format(tmpExtra, tn, stringBuilder1));
             } else {
-                stringBuilder.append(String.format(extra, tn, stringBuilder1.toString()));
+                stringBuilder.append(String.format(extra, tn, stringBuilder1));
             }
             stringBuilder1.delete(0, stringBuilder1.length());
             stringBuilder.append(BusinessConstant.LINE_FEED_STR);

@@ -67,7 +67,7 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     private BusinessProperties properties;
 
     {
-        BusinessProperties.traceLog traceLog = properties.getTraceLog();
+        BusinessProperties.TraceLog traceLog = properties.getTraceLog();
         traceLogTopic = traceLog.getTopic();
         traceLogTag = traceLog.getTag();
     }

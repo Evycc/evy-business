@@ -88,12 +88,12 @@ public class TraceUtils {
      * 记录http请求耗时
      *
      * @param url             http url
-     * @param takeUpTimesatmp http响应耗时
+     * @param takeUpTimestamp http响应耗时
      * @param result          http请求结果，true成功，false失败
      * @param inputParam      http请求参数字符串
      * @param respResult      http响应字符串
      */
-    public static void addTraceHttp(String url, long takeUpTimesatmp, boolean result, String inputParam, String respResult) {
-        TraceHttpInfo.addTraceHttp(url, takeUpTimesatmp, result, inputParam, respResult);
+    public static void addTraceHttp(String url, long takeUpTimestamp, boolean result, String inputParam, String respResult) {
+        TraceHttpInfo.addTraceHttp(url, takeUpTimestamp, result, inputParam, respResult);
     }
 }
