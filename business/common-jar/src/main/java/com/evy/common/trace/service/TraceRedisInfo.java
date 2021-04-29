@@ -4,9 +4,11 @@ import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
+import com.evy.common.web.utils.UdpUtils;
 import io.lettuce.core.resource.ClientResources;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisPassword;
@@ -80,7 +82,7 @@ public class TraceRedisInfo {
     private static HashMap<String, String> REDIS_HOST_PASS;
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> {
+        AppContextUtils.getAsyncProp(businessProperties -> {
             if (Objects.nonNull(businessProperties)) {
                 REDIS_FLAG = businessProperties.getTrace().getRedis().isFlag();
                 TRACE_REDIS_LIST = businessProperties.getTrace().getRedis().getList();
@@ -119,35 +121,34 @@ public class TraceRedisInfo {
      * 初始化配置好的redis连接集合
      */
     private static void initRedisClientList() {
-        Optional.ofNullable(AppContextUtils.getForEnv(TRACE_REDIS_LIST))
-                .ifPresent(rl -> {
-                    String[] list = rl.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
-                    REDIS_CONN_MAP = new HashMap<>(list.length);
-                    REDIS_HOST_PASS = new HashMap<>(list.length);
-                    for (String rs : list) {
-                        String[] temp = rs.split(BusinessConstant.COLON_STR, -1);
-                        String host;
-                        String port;
-                        String password = BusinessConstant.EMPTY_STR;
-                        if (temp.length == 2) {
-                            //无密码
-                            host = temp[0];
-                            port = temp[1];
-                        } else if (temp.length == 3) {
-                            //存在密码
-                            host = temp[0];
-                            port = temp[1];
-                            password = temp[1];
-                        } else {
-                            continue;
-                        }
-                        RedisConnection redisConnection = CreateFactory.returnRedisConn(host, Integer.parseInt(port), password);
-                        if (Objects.nonNull(redisConnection) && !redisConnection.isClosed()) {
-                            REDIS_CONN_MAP.put(buildRedisMapKey(host, port), redisConnection);
-                            REDIS_HOST_PASS.put(buildRedisMapKey(host, port), password);
-                        }
-                    }
-                });
+        if (!StringUtils.isEmpty(TRACE_REDIS_LIST)) {
+            String[] list = TRACE_REDIS_LIST.split(BusinessConstant.SPLIT_DOUBLE_LINE, -1);
+            REDIS_CONN_MAP = new HashMap<>(list.length);
+            REDIS_HOST_PASS = new HashMap<>(list.length);
+            for (String rs : list) {
+                String[] temp = rs.split(BusinessConstant.COLON_STR, -1);
+                String host;
+                String port;
+                String password = BusinessConstant.EMPTY_STR;
+                if (temp.length == 2) {
+                    //无密码
+                    host = temp[0];
+                    port = temp[1];
+                } else if (temp.length == 3) {
+                    //存在密码
+                    host = temp[0];
+                    port = temp[1];
+                    password = temp[1];
+                } else {
+                    continue;
+                }
+                RedisConnection redisConnection = CreateFactory.returnRedisConn(host, Integer.parseInt(port), password);
+                if (Objects.nonNull(redisConnection) && !redisConnection.isClosed()) {
+                    REDIS_CONN_MAP.put(buildRedisMapKey(host, port), redisConnection);
+                    REDIS_HOST_PASS.put(buildRedisMapKey(host, port), password);
+                }
+            }
+        }
     }
 
     /**
@@ -226,7 +227,11 @@ public class TraceRedisInfo {
                                                 trhKeysCount, trhLastRdbStatus, trhLastAofStatus, trhLastForkUsec, trhConnTotalCount,
                                                 trhConnCount, trhConnBlockCount, trhLogPath, trhConfigPath, trhSentinelMonitor, trhSentinelConfigPath);
 
-                                        DBUtils.insert(TEACE_REDIS_INSERT, traceRedisPo);
+                                        if (HealthyInfoService.isIsHealthyService()) {
+                                            UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(traceRedisPo));
+                                        } else {
+                                            addRedisInfo(traceRedisPo);
+                                        }
                                     } catch (Exception e) {
                                         CommandLog.error("executeRedisInfo异常", e);
                                     }
@@ -238,6 +243,18 @@ public class TraceRedisInfo {
             }
         } catch (Exception e) {
             CommandLog.errorThrow("executeRedisInfo Error!", e);
+        }
+    }
+
+    /**
+     * 更新redis服务器监控信息
+     * @param traceRedisPo com.evy.common.trace.infrastructure.tunnel.po.TraceRedisPO
+     */
+    public static void addRedisInfo(TraceRedisPO traceRedisPo) {
+        try {
+            DBUtils.insert(TEACE_REDIS_INSERT, traceRedisPo);
+        } catch (Exception e) {
+            CommandLog.error("addRedisInfo异常", e);
         }
     }
 

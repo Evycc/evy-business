@@ -1,8 +1,11 @@
 package com.evy.common.utils;
 
+import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * JSON工具类
@@ -22,5 +25,9 @@ public class JsonUtils {
 
     public static <T> T convertToObject(String jsonStr, Class<T> cls) {
         return FINAL_GSON.fromJson(jsonStr, cls);
+    }
+
+    public static <T> T convertToObject(String jsonStr, Type type) {
+        return FINAL_GSON.fromJson(jsonStr, type);
     }
 }

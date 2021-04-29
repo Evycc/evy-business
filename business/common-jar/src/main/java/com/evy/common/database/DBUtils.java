@@ -44,13 +44,14 @@ public class DBUtils {
     }
 
     private static void init(){
-        AppContextUtils.getSyncProp(properties -> {
+        AppContextUtils.getAsyncProp(properties -> {
             CommandLog.info("初始化DBUtils");
             MYBATIS_CONF_XML = properties.getDatabase().getMybatisXmlPath();
             BATCH_INSERT_COUNT = properties.getDatabase().getBatchInsertCount();
             initDataSource();
             initMybatis();
             JDBC_TRANSACTION_FACTORY = new JdbcTransactionFactory();
+            CommandLog.info("初始化DBUtils成功");
         });
     }
 
@@ -58,6 +59,9 @@ public class DBUtils {
      * 初始化MyBatis，SqlSessionFactory 及 SqlSession
      */
     private static void initMybatis() {
+        if (Objects.nonNull(SQL_SESSION_FACTORY)) {
+            return;
+        }
         CommandLog.info("DBUtils初始化Mybatis配置");
         try {
             SQL_SESSION_FACTORY = AppContextUtils.getBean(SqlSessionFactory.class);
@@ -176,10 +180,7 @@ public class DBUtils {
      * @return org.apache.ibatis.session.SqlSession
      */
     public static SqlSession getSqlSession() {
-        SqlSession sqlSession = SQL_SESSION_FACTORY.openSession();
-        proxyDataSource(sqlSession.getConfiguration().getEnvironment().getDataSource());
-
-        return sqlSession;
+        return getSqlSession(ExecutorType.SIMPLE);
     }
 
     /**
@@ -193,17 +194,21 @@ public class DBUtils {
      */
     public static SqlSession getSqlSession(ExecutorType type) {
         SqlSession sqlSession;
+        if (Objects.isNull(SQL_SESSION_FACTORY)) {
+            initMybatis();
+        }
 
         switch (type) {
             case BATCH:
             case REUSE:
-            case SIMPLE:
                 sqlSession = SQL_SESSION_FACTORY.openSession(type);
                 break;
             default:
                 sqlSession = SQL_SESSION_FACTORY.openSession();
                 break;
         }
+
+        proxyDataSource(sqlSession.getConfiguration().getEnvironment().getDataSource());
         return sqlSession;
     }
 

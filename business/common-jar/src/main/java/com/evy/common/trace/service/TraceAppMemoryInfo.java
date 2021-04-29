@@ -3,9 +3,11 @@ package com.evy.common.trace.service;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryInfoPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryQueryPO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 import com.sun.management.OperatingSystemMXBean;
 
 import java.lang.management.ManagementFactory;
@@ -33,7 +35,7 @@ public class TraceAppMemoryInfo {
     private static final String MEMORY_INFO_QUERY_LAST_ONE = "com.evy.common.trace.repository.mapper.TraceMapper.queryLastId";
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> {
+        AppContextUtils.getAsyncProp(businessProperties -> {
             if (Objects.nonNull(businessProperties)) {
                 MEMORY_PRPO = businessProperties.getTrace().getMemory().isFlag();
             }
@@ -87,6 +89,18 @@ public class TraceAppMemoryInfo {
         TraceMemoryInfoPO traceMemoryInfoPo = TraceMemoryInfoPO.create(tamiCpuLoad, tamiSysMemory, tamiSysAvailMemory, tamiAppUseMemory, tamiAppHeapMaxMemory,
                 tamiAppHeapMinMemory, tamiAppHeapUseMemory, tamiAppNonHeapMaxMemory, tamiAppNonHeapMinMemory, tamiAppNonHeapUseMemory);
 
+        if (HealthyInfoService.isIsHealthyService()) {
+            UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(traceMemoryInfoPo));
+        } else {
+            addMemoryInfo(traceMemoryInfoPo);
+        }
+    }
+
+    /**
+     * 更新服务器内存信息
+     * @param traceMemoryInfoPo com.evy.common.trace.infrastructure.tunnel.po.TraceMemoryInfoPO
+     */
+    public static void addMemoryInfo(TraceMemoryInfoPO traceMemoryInfoPo) {
         int limit = AppContextUtils.getProp().getTrace().getMemory().getLimit();
         int count = DBUtils.selectOne(MEMORY_INFO_QUERY_COUNT, TraceMemoryQueryPO.create(limit));
         if (count == BusinessConstant.ONE_NUM) {

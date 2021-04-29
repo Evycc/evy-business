@@ -61,6 +61,7 @@ public class BusinessProperties {
         this.traceLog = new BusinessProperties.TraceLog();
         this.log = new BusinessProperties.Log();
         this.trace = new BusinessProperties.Trace();
+        this.udp = new BusinessProperties.Udp();
     }
 
     /**
@@ -99,6 +100,18 @@ public class BusinessProperties {
              * 监控服务器监听端口,默认5464
              */
             private int port = 5464;
+            /**
+             * 将应用作为监控服务器,默认关闭
+             */
+            private boolean isService = false;
+
+            public boolean isService() {
+                return isService;
+            }
+
+            public void setService(boolean service) {
+                isService = service;
+            }
 
             public String getSendHost() {
                 return sendHost;
@@ -482,11 +495,7 @@ public class BusinessProperties {
         /**
          * udp server连接超时时间，单位ms，默认1s
          */
-        private int connTimeOut = 1000;
-        /**
-         * udp接收及发送报文长度,默认10240byte
-         */
-        private int messageLength = 10240;
+        private int connTimeOut = 3000;
 
         public int getConnTimeOut() {
             return connTimeOut;
@@ -494,14 +503,6 @@ public class BusinessProperties {
 
         public void setConnTimeOut(int connTimeOut) {
             this.connTimeOut = connTimeOut;
-        }
-
-        public int getMessageLength() {
-            return messageLength;
-        }
-
-        public void setMessageLength(int messageLength) {
-            this.messageLength = messageLength;
         }
     }
 

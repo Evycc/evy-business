@@ -33,7 +33,7 @@ public class FtpUtils {
 
     private static void init(){
         //获取sftp连接超时时间
-        AppContextUtils.getSyncProp(properties -> SFTP_TIMEOUT = properties.getFtp().getLoginTimeout());
+        AppContextUtils.getAsyncProp(properties -> SFTP_TIMEOUT = properties.getFtp().getLoginTimeout());
     }
 
     /**

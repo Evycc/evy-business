@@ -6,6 +6,7 @@ import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.model.*;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceSqlPO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 import org.springframework.util.StringUtils;
 
 import java.sql.SQLException;
@@ -43,7 +44,9 @@ public class TraceSlowSql {
     private static final String EXPLAIN_EXTRA = "Extra";
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> DB_PRPO = businessProperties.getTrace().getDatabase().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> {
+            DB_PRPO = businessProperties.getTrace().getDatabase().isFlag();
+        });
     }
 
     /**
@@ -87,7 +90,13 @@ public class TraceSlowSql {
                         tracesqlpo = TraceSqlPO.create(model.getReqIp(), model.getSlowSql(), String.valueOf(model.getTakeUpTimestamp()));
                     }
 
-                    DBUtils.insert(SLOW_SQL_INSERT, tracesqlpo);
+                    //发送到监控服务器
+                    if (HealthyInfoService.isIsHealthyService()) {
+                        UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(tracesqlpo));
+                    } else {
+                        addSlowSql(tracesqlpo);
+                    }
+
                 });
                 DB_MODELS.removeAll(dbModels);
                 dbModels = null;
@@ -96,6 +105,14 @@ public class TraceSlowSql {
             //捕捉记录trace的异常，不影响业务功能
             CommandLog.warn("记录executeSlowSql异常", e);
         }
+    }
+
+    /**
+     * 更新慢sql信息
+     * @param traceSqlPo com.evy.common.trace.infrastructure.tunnel.po.TraceSqlPO
+     */
+    public static void addSlowSql(TraceSqlPO traceSqlPo) {
+        DBUtils.insert(SLOW_SQL_INSERT, traceSqlPo);
     }
 
     /**

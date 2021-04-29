@@ -5,10 +5,12 @@ import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.domain.factory.MqFactory;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.TraceMqModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,9 @@ public class TraceMqInfo {
     private static final String MQ_CONSUMER_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.mqConsumerListInsert";
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> MQ_PRPO = businessProperties.getTrace().getMq().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> {
+            MQ_PRPO = businessProperties.getTrace().getMq().isFlag();
+        });
     }
 
     /**
@@ -86,8 +90,30 @@ public class TraceMqInfo {
         try {
             if (size > BusinessConstant.ONE_NUM) {
                 List<TraceMqModel> mqModels = new ArrayList<>(MQ_MODELS);
+                if (HealthyInfoService.isIsHealthyService()) {
+                    UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(TraceMqModel.class, mqModels));
+                } else {
+                    addMqTraceInfo(mqModels);
+                }
 
-                List<TraceMqPO> sendList = mqModels.stream()
+                MQ_MODELS.removeAll(mqModels);
+            }
+        } catch (Exception e) {
+            //捕捉记录trace的异常，不影响业务功能
+            CommandLog.warn("记录executeMq异常", e);
+        }
+    }
+
+    /**
+     * 更新MQ发布消息信息
+     * @param traceMqModels com.evy.common.trace.infrastructure.tunnel.model.TraceMqModel
+     */
+    public static void addMqTraceInfo(List<TraceMqModel> traceMqModels) {
+        int size = traceMqModels.size();
+        try {
+            if (size > BusinessConstant.ONE_NUM) {
+
+                List<TraceMqPO> sendList = traceMqModels.stream()
                         .filter(traceMqModel -> traceMqModel.getTopic() != null)
                         .map(TraceMqInfo::buildTraceMqSendPo)
                         .collect(Collectors.toList());
@@ -101,7 +127,7 @@ public class TraceMqInfo {
                 }
 
 
-                List<TraceMqPO> consumerList = mqModels.stream()
+                List<TraceMqPO> consumerList = traceMqModels.stream()
                         .filter(traceMqModel -> traceMqModel.getTopic() == null)
                         .map(TraceMqInfo::buildTraceMqConsumerPo)
                         .collect(Collectors.toList());
@@ -114,15 +140,13 @@ public class TraceMqInfo {
                     }
                 }
 
-                MQ_MODELS.removeAll(mqModels);
-
-                mqModels = null;
+                traceMqModels = null;
                 sendList = null;
                 consumerList = null;
             }
         } catch (Exception e) {
             //捕捉记录trace的异常，不影响业务功能
-            CommandLog.warn("记录executeMq异常", e);
+            CommandLog.warn("记录addMqTraceInfo异常", e);
         }
     }
 

@@ -2,8 +2,10 @@ package com.evy.common.trace.service;
 
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 import com.sun.management.ThreadMXBean;
 
 import java.lang.management.ManagementFactory;
@@ -25,7 +27,7 @@ public class TraceThreadInfo {
     private static final String THREAD_INFO_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.threadInfoInsert";
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> THREAD_FLAG = businessProperties.getTrace().getThread().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> THREAD_FLAG = businessProperties.getTrace().getThread().isFlag());
         //监控死锁情况
         THREAD_MX_BEAN.setThreadContentionMonitoringEnabled(true);
         //监控死锁时间
@@ -118,13 +120,46 @@ public class TraceThreadInfo {
                     list.add(threadInfoPo);
                 }
 
-                DBUtils.batchAny(list.stream()
-                        .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
-                        .collect(Collectors.toList()));
+                if (HealthyInfoService.isIsHealthyService()) {
+                    //分段发送
+                    int begin = 0;
+                    int end = 0;
+                    int size = list.size() / 20;
+                    int listSize = list.size();
+                    if (size > 1) {
+                        for (int i = 1; i <= size; i++) {
+                            end += 20;
+                            UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(),
+                                    HealthyInfoModel.create(TraceThreadInfoPO.class, list.subList(begin, Math.min(end, listSize))));
+                            begin = end +1;
+                        }
+                    } else {
+                        UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(),
+                                HealthyInfoModel.create(TraceThreadInfoPO.class, list));
+                    }
+
+                } else {
+                    addThreadInfos(list);
+                }
                 list = null;
             }
         } catch (Exception exception) {
             CommandLog.errorThrow("executeThreadInfo Error!", exception);
+        }
+    }
+
+    /**
+     * 更新服务器线程信息
+     * @param list com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO
+     */
+    public static void addThreadInfos(List<TraceThreadInfoPO> list) {
+        try {
+            DBUtils.batchAny(list.stream()
+                    .map(po -> DBUtils.BatchModel.create(THREAD_INFO_INSERT, po, DBUtils.BatchType.INSERT))
+                    .collect(Collectors.toList()));
+            list = null;
+        } catch (Exception e) {
+            CommandLog.errorThrow("addThreadInfos Error!", e);
         }
     }
 }

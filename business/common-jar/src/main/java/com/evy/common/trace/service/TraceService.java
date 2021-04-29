@@ -3,11 +3,13 @@ package com.evy.common.trace.service;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.TraceServiceModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceServiceBeanAndConsumerPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdateListPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,7 +60,7 @@ public class TraceService {
     private static final String APP_NAME = getAppName();
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag());
         cleanServiceInfo();
     }
 
@@ -69,9 +71,14 @@ public class TraceService {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 String ip = buildProviderName(APP_NAME);
-                //test
-                CommandLog.info("shutdown service info ip:{}", ip);
-                DBUtils.update(UPDATE_CLEAN_IP, TraceServiceUpdatePO.createCleanIp(ip, ip));
+                TraceServiceUpdatePO traceServiceUpdatePO = TraceServiceUpdatePO.createCleanIp(ip, ip);
+
+                //发送应用下线信息到监控服务器
+                if (HealthyInfoService.isIsHealthyService()) {
+                    UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(traceServiceUpdatePO));
+                } else {
+                    cleanServiceInfo(traceServiceUpdatePO);
+                }
             } catch (Exception e) {
                 CommandLog.errorThrow("cleanServiceInfo error", e);
             }
@@ -79,28 +86,59 @@ public class TraceService {
     }
 
     /**
+     * 更新应用下线信息
+     * @param traceServiceUpdatePo com.evy.common.trace.infrastructure.tunnel.po.TraceServiceUpdatePO
+     */
+    public static void cleanServiceInfo(TraceServiceUpdatePO traceServiceUpdatePo) {
+        try {
+            DBUtils.update(UPDATE_CLEAN_IP, traceServiceUpdatePo);
+        } catch (Exception e) {
+            CommandLog.errorThrow("cleanServiceInfo error", e);
+        }
+    }
+
+    /**
      * 更新应用服务发布者、服务消费者信息
      */
     public static void executeService() {
-        if (SERVICE_TIMING_PRPO) {
-            //bean与消费者map临时对象 k:beanName v:consumer
-            Map<String, String> tempMap = initConsumersMap();
-            if (!CollectionUtils.isEmpty(tempMap)) {
-                SERVICES_BEAN_NAME_CONSUMER_MAP.clear();
-                SERVICES_BEAN_NAME_CONSUMER_MAP.putAll(tempMap);
-                tempMap = null;
+        //更新发布者服务方信息
+        if (!CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
+            try {
+                List<TraceServiceModel> temp = new ArrayList<>(SERVICES_INFO_LIST);
+
+                //发送服务上线信息到监控服务器
+                if (HealthyInfoService.isIsHealthyService()) {
+                    UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(TraceServiceModel.class, temp, APP_NAME));
+                } else {
+                    addServiceInfo(temp, APP_NAME);
+                }
+
+                SERVICES_INFO_LIST.removeAll(temp);
+                temp = null;
+            } catch (Exception exception) {
+                CommandLog.errorThrow("executeService error!", exception);
             }
         }
+    }
+
+    /**
+     * 更新应用上线信息
+     * @param serviceModel 服务模型
+     * @param clientAppName 应用名
+     */
+    public static void addServiceInfo(List<TraceServiceModel> serviceModel, String clientAppName) {
+        //bean与消费者map临时对象 k:beanName v:consumer
+        Map<String, String> tempMap = initConsumersMap();
 
         List<TraceServiceUpdatePO> poList = new ArrayList<>(8);
         List<TraceServiceUpdatePO> cList = new ArrayList<>(8);
 
         //更新消费者服务方信息
-        String appName = buildProviderName(APP_NAME);
+        String appName = buildProviderName(clientAppName);
         //添加消费者信息
-        if (!CollectionUtils.isEmpty(SERVICES_BEAN_NAME_CONSUMER_MAP)) {
-            SERVICES_BEAN_NAME_CONSUMER_MAP.forEach((beanName, consumer) -> {
-                if (consumer.contains(APP_NAME)) {
+        if (!CollectionUtils.isEmpty(tempMap)) {
+            tempMap.forEach((beanName, consumer) -> {
+                if (consumer.contains(clientAppName)) {
                     cList.add(TraceServiceUpdatePO.createUpdateConsumer(beanName, appName, consumer));
                 }
             });
@@ -119,29 +157,26 @@ public class TraceService {
         }
 
         //更新发布者服务方信息
-        if (!CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
+        if (!CollectionUtils.isEmpty(serviceModel)) {
             try {
-                List<TraceServiceModel> temp = new ArrayList<>(SERVICES_INFO_LIST);
-
-                temp.stream()
+                serviceModel.stream()
                         //只筛选出trace_services_info表已配置服务码的记录进行更新
-                        .filter(traceServiceModel -> DBUtils.selectList(QRY_ALL_SERVICE_BEAN, TraceServiceUpdatePO.createTsiProvider(APP_NAME))
-                                                        .stream()
-                                                        .anyMatch(serviceName -> traceServiceModel.getBeanName().equals(serviceName)))
+                        .filter(traceServiceModel -> DBUtils.selectList(QRY_ALL_SERVICE_BEAN, TraceServiceUpdatePO.createTsiProvider(clientAppName))
+                                .stream()
+                                .anyMatch(serviceName -> traceServiceModel.getBeanName().equals(serviceName)))
                         .forEach(traceServiceModel -> {
                             //添加发布者信息
                             poList.add(TraceServiceUpdatePO.createUpdateProvider(traceServiceModel.getBeanName(),
-                                    appName, traceServiceModel.getSpcServiceName(), APP_NAME, traceServiceModel.getPostPath()));
+                                    appName, traceServiceModel.getSpcServiceName(), clientAppName, traceServiceModel.getPostPath()));
                         });
                 if (!CollectionUtils.isEmpty(poList)) {
                     //更新发布者机器信息
                     DBUtils.insert(INSERT_SERVICES_BEAN, TraceServiceUpdateListPO.create(poList));
                 }
 
-                SERVICES_INFO_LIST.removeAll(temp);
-                temp = null;
+                serviceModel = null;
             } catch (Exception exception) {
-                CommandLog.errorThrow("executeService error!", exception);
+                CommandLog.errorThrow("addServiceInfo error!", exception);
             }
         }
     }

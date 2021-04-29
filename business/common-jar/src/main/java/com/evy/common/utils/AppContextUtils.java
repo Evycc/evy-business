@@ -88,8 +88,8 @@ public class AppContextUtils implements ApplicationContextAware {
     /**
      * 开启线程阻塞获取直到容器初始化成功
      */
-    public static void getSyncProp(Consumer<BusinessProperties> consumer) {
-        EXECUTOR_SERVICE.submit(() -> {
+    public static void getAsyncProp(Consumer<BusinessProperties> consumer) {
+        EXECUTOR_SERVICE.execute(() -> {
             long cur = System.currentTimeMillis();
             long maxWaitTime = 600000;
             //最多等待十分钟

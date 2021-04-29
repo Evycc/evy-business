@@ -3,10 +3,12 @@ package com.evy.common.trace.service;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.TraceHttpModel;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceHttpListPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceHttpPO;
 import com.evy.common.utils.AppContextUtils;
+import com.evy.common.web.utils.UdpUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,7 @@ public class TraceHttpInfo {
     private static final String HTTP_LIST_INSERT = "com.evy.common.trace.repository.mapper.TraceMapper.traceHttpListInsert";
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> HTTP_PRPO =businessProperties.getTrace().getHttp().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> HTTP_PRPO =businessProperties.getTrace().getHttp().isFlag());
     }
 
     /**
@@ -59,8 +61,31 @@ public class TraceHttpInfo {
         try {
             if (size > BusinessConstant.ONE_NUM) {
                 List<TraceHttpModel> httpModels = new ArrayList<>(HTTP_MODELS);
+                if (HealthyInfoService.isIsHealthyService()) {
+                    UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(TraceHttpModel.class, httpModels));
+                } else {
+                    addHttpTraceInfo(httpModels);
+                }
 
-                List<TraceHttpPO> httpPo = httpModels.stream()
+                HTTP_MODELS.removeAll(httpModels);
+
+                httpModels = null;
+            }
+        } catch (Exception e) {
+            //捕捉记录trace的异常，不影响业务功能
+            CommandLog.warn("记录executeHttp异常", e);
+        }
+    }
+
+    /**
+     * 更新http请求信息
+     * @param traceHttpModels com.evy.common.trace.infrastructure.tunnel.model.TraceHttpModel
+     */
+    public static void addHttpTraceInfo(List<TraceHttpModel> traceHttpModels) {
+        int size = traceHttpModels.size();
+        try {
+            if (size > BusinessConstant.ONE_NUM) {
+                List<TraceHttpPO> httpPo = traceHttpModels.stream()
                         .map(TraceHttpInfo::buildTraceHttpPo)
                         .collect(Collectors.toList());
 
@@ -70,14 +95,12 @@ public class TraceHttpInfo {
                     DBUtils.insert(HTTP_LIST_INSERT, TraceHttpListPO.create(httpPo));
                 }
 
-                HTTP_MODELS.removeAll(httpModels);
-
-                httpModels = null;
+                traceHttpModels = null;
                 httpPo = null;
             }
         } catch (Exception e) {
             //捕捉记录trace的异常，不影响业务功能
-            CommandLog.warn("记录executeHttp异常", e);
+            CommandLog.warn("记录addHttpTraceInfo异常", e);
         }
     }
 

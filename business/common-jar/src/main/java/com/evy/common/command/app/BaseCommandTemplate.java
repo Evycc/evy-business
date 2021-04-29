@@ -14,6 +14,7 @@ import com.evy.common.log.CommandLog;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.common.mq.common.app.basic.MqSender;
 import com.evy.common.trace.TraceLogUtils;
+import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.CommandUtils;
 import com.evy.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,13 +64,13 @@ public abstract class BaseCommandTemplate<T extends InputDTO & ValidatorDTO<T>, 
     private final Map<String, Object> commandContent = new HashMap<>();
     @Autowired
     private ErrorFactory errorFactory;
-    @Autowired
-    private BusinessProperties properties;
 
     {
-        BusinessProperties.TraceLog traceLog = properties.getTraceLog();
-        traceLogTopic = traceLog.getTopic();
-        traceLogTag = traceLog.getTag();
+        AppContextUtils.getAsyncProp(properties -> {
+            BusinessProperties.TraceLog traceLog = properties.getTraceLog();
+            traceLogTopic = traceLog.getTopic();
+            traceLogTag = traceLog.getTag();
+        });
     }
 
     /**

@@ -16,6 +16,10 @@ public class HealthyInfoModel {
      * 健康信息JSON串
      */
     private String traceInfoJson;
+    /**
+     * 应用名
+     */
+    private String appName = "default";
 
     private HealthyInfoModel() {
     }
@@ -33,15 +37,50 @@ public class HealthyInfoModel {
     }
 
     /**
-     * 创建HealthyInfoModel JSON
+     * 创建HealthyInfoModel
+     * @param traceInfoModel 健康信息模型,如com.evy.common.trace.infrastructure.tunnel.model.TraceDBModel
+     * @param appName 应用名
+     * @return com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel
+     */
+    public static HealthyInfoModel create(Object traceInfoModel, String appName) {
+        HealthyInfoModel healthyInfoModel = HealthyInfoModel.create(traceInfoModel);
+        healthyInfoModel.setAppName(appName);
+        return healthyInfoModel;
+    }
+
+    /**
+     * 创建HealthyInfoModel
+     * @param clsCodeName 类名
      * @param traceInfoModel 健康信息模型,如com.evy.common.trace.infrastructure.tunnel.model.TraceDBModel
      * @return com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel
      */
-    public static String createJson(Object traceInfoModel) {
+    public static HealthyInfoModel create(Class<?> clsCodeName, Object traceInfoModel) {
         HealthyInfoModel healthyInfoModel = new HealthyInfoModel();
-        healthyInfoModel.setClassCodeName(traceInfoModel.getClass().getName());
+        healthyInfoModel.setClassCodeName(clsCodeName.getSimpleName());
         healthyInfoModel.setTraceInfoJson(JsonUtils.convertToJson(traceInfoModel));
-        return JsonUtils.convertToJson(healthyInfoModel);
+
+        return healthyInfoModel;
+    }
+
+    /**
+     * 创建HealthyInfoModel
+     * @param clsCodeName 类名
+     * @param traceInfoModel 健康信息模型,如com.evy.common.trace.infrastructure.tunnel.model.TraceDBModel
+     * @param appName 应用名
+     * @return com.evy.common.trace.infrastructure.tunnel.model.HealthyInfoModel
+     */
+    public static HealthyInfoModel create(Class<?> clsCodeName, Object traceInfoModel, String appName) {
+        HealthyInfoModel healthyInfoModel = HealthyInfoModel.create(clsCodeName, traceInfoModel);
+        healthyInfoModel.setAppName(appName);
+        return healthyInfoModel;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String getClassCodeName() {

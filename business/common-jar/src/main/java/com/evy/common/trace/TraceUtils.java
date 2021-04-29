@@ -41,7 +41,7 @@ public class TraceUtils {
         }, initialDelay, delay, TimeUnit.MILLISECONDS);
 
         //通过配置控制刷新时间
-        AppContextUtils.getSyncProp(businessProperties -> {
+        AppContextUtils.getAsyncProp(businessProperties -> {
             if (Objects.nonNull(businessProperties)) {
                 traceMemoryTiming = businessProperties.getTrace().getMemory().getTiming();
                 traceServiceTiming = businessProperties.getTrace().getService().getTiming();

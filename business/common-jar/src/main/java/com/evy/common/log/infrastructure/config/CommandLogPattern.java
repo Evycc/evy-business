@@ -39,7 +39,7 @@ public class CommandLogPattern extends NamedConverter {
 
     static {
         //获取sftp连接超时时间
-        AppContextUtils.getSyncProp(properties -> {
+        AppContextUtils.getAsyncProp(properties -> {
             FILTER_MSG_LENGTH = properties.getLog().getMessage().getLength();
             CommandLog.info("log消息内容最大长度为: {}", FILTER_MSG_LENGTH);
         });

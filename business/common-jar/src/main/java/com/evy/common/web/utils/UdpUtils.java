@@ -33,7 +33,7 @@ public class UdpUtils {
     /**
      * UDP 报文发送及接收的长度
      */
-    private static int MESSAGE_LENGTH = 10240;
+    private static final int MESSAGE_LENGTH = 65507;
     /**
      * UDP SERVER端线程池,接收消息用
      */
@@ -58,10 +58,9 @@ public class UdpUtils {
     private static final Map<String, DatagramSocketSender> SOCKET_SEND_MAP = new HashMap<>(8);
 
     static {
-        AppContextUtils.getSyncProp(businessProperties -> {
+        AppContextUtils.getAsyncProp(businessProperties -> {
             if (Objects.nonNull(businessProperties)) {
                 CONN_TIME_OUT = businessProperties.getUdp().getConnTimeOut();
-                MESSAGE_LENGTH = businessProperties.getUdp().getMessageLength();
             }
         });
         //1分钟后执行
@@ -105,8 +104,8 @@ public class UdpUtils {
             DatagramSocket datagramSocket;
             try {
                 datagramSocket = new DatagramSocket(port);
-                datagramSocket.setSoTimeout(CONN_TIME_OUT);
                 SOCKET_SERVER_MAP.put(port, datagramSocket);
+                CommandLog.info("创建UDP SERVER PORT:{}", port);
 
                 EXECUTOR_SERVICE_PRODUCER.execute(() -> {
                     DatagramSocket socket = SOCKET_SERVER_MAP.get(port);
@@ -158,6 +157,16 @@ public class UdpUtils {
         return sever(port, consumer, true);
     }
 
+    /**
+     * UDP传输,最大字节65507<br/>
+     * udp报文头有2个byte用于记录包体长度. 2个byte可表示最大值为: 2^16-1=64K-1=65535<br/>
+     * udp报文头占8字节, ip报文头占20字节, 65535-28 = 65507
+     * @param hostName 目标ip
+     * @param port 目标端口
+     * @param body 报文
+     * @param <T> 报文类型
+     * @return true成功
+     */
     public static <T> boolean send(String hostName, int port, T body) {
         boolean result;
         String key = hostName + port;
@@ -169,7 +178,6 @@ public class UdpUtils {
         } else {
             datagramSocketSender = SOCKET_SEND_MAP.get(key);
         }
-        CommandLog.info("udp send ==> {}:{} body:{}", hostName, port, body);
         result = datagramSocketSender.send(body);
 
         return result;
@@ -179,6 +187,8 @@ public class UdpUtils {
      * DatagramSocket发送者包装类
      */
     static class DatagramSocketSender {
+        String hostName;
+        int port;
         DatagramSocket datagramSocket;
         DatagramPacket datagramPacket;
         /**
@@ -188,14 +198,16 @@ public class UdpUtils {
         Charset charset;
 
         DatagramSocketSender(String hostName, int port, Charset charset) {
+            this.hostName = hostName;
+            this.port = port;
             try {
                 datagramSocket = new DatagramSocket();
                 datagramSocket.setSoTimeout(CONN_TIME_OUT);
-                datagramPacket.setAddress(InetAddress.getByName(hostName));
-                datagramPacket.setPort(port);
                 this.charset = charset;
                 byte[] message = new byte[MESSAGE_LENGTH];
                 datagramPacket = new DatagramPacket(message, message.length);
+                datagramPacket.setAddress(InetAddress.getByName(hostName));
+                datagramPacket.setPort(port);
             } catch (IOException e) {
                 CommandLog.errorThrow("创建DatagramSocketSender异常", e);
             }
@@ -209,7 +221,9 @@ public class UdpUtils {
             boolean result = false;
             if (Objects.nonNull(datagramSocket)) {
                 try {
-                    datagramPacket.setData(JsonUtils.convertToJson(body).getBytes(charset));
+                    byte[] bytes = JsonUtils.convertToJson(body).getBytes(charset);
+                    CommandLog.info("Send UDP ==> Target[HostName:{} Port:{} BodyLength:{}byte]", hostName, port, bytes.length);
+                    datagramPacket.setData(bytes);
                     datagramSocket.send(datagramPacket);
                     //重置对象
                     datagramPacket.setData(new byte[MESSAGE_LENGTH]);
