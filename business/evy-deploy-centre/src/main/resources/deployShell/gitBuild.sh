@@ -43,14 +43,14 @@ readonly sucess='0'
 readonly failed='1'
 
 #根目录不存在,则创建
-if [[ ! -d $projectRootDir ]]
+if [[ ! -d "$projectRootDir" ]]
   then
     (mkdir -p $projectRootDir)
 fi
 
 #项目不存在根目录中,则创建并clone
 readonly dirPath=$projectRootDir$paramProjectName
-if [[ ! -d $dirPath ]]
+if [[ ! -d "$dirPath" ]]
 then
   #不存在git目录,创建目录并进行clone操作
   _exec1="$(mkdir -p "$dirPath")"
