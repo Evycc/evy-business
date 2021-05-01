@@ -38,7 +38,11 @@ readonly startLog='startLog'
 readonly pidLog='pidLog'
 
 #######################停止java进程#######################
-#(ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done || true)
+#第一次先执行kill等待程序停止
+(ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do kill $p; done || true)
+sleep 6s
+#若还是存在进程,则直接强行停止
+(ps -ef|grep java|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done || true)
 
 #######################启动jar#######################
 #后台启动 jar包方式启动
