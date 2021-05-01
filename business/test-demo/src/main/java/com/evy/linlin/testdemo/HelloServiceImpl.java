@@ -32,7 +32,7 @@ public class HelloServiceImpl extends BaseCommandTemplate<HelloDto,HelloOutDto> 
         OutDTO outDTO = start(helloDto);
         CommandLog.info(helloDto.getHelloId());
         HelloOutDto helloOutDto = new HelloOutDto();
-        HelloOutDto helloOutDto1 = convertDto(helloOutDto, outDTO);
+        HelloOutDto helloOutDto1 = new HelloOutDto();
         return  helloOutDto1;
     }
 }

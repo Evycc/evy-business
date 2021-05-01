@@ -3,7 +3,7 @@ package com.evy.linlin.testdemo;
 import com.evy.common.command.app.BaseCommandTemplate;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
-import com.evy.common.db.DBUtils;
+import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.log.infrastructure.tunnel.anno.TraceLog;
 import com.evy.linlin.HelloDto;
@@ -55,6 +55,6 @@ public class HelloService2Impl extends BaseCommandTemplate<HelloDto, HelloOutDto
         OutDTO outDTO = start(helloDto);
         CommandLog.info(helloDto.getHelloId());
         HelloOutDto helloOutDto = new HelloOutDto();
-        return convertDto(helloOutDto, outDTO);
+        return helloOutDto;
     }
 }
