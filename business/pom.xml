@@ -16,6 +16,9 @@
         <module>common-agent-jar</module>
         <module>evy-deploy-centre</module>
         <module>evy-deploy-centre-api</module>
+        <module>evy-gateway</module>
+        <module>evy-gateway-api</module>
+        <module>evy-registry-center</module>
     </modules>
 
     <parent>
@@ -34,7 +37,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rabbitmq.version>5.7.3</rabbitmq.version>
         <mybatis.version>3.5.3</mybatis.version>
-        <lombok.version>1.18.8</lombok.version>
         <javassist.version>3.25.0-GA</javassist.version>
         <mysql.version>8.0.17</mysql.version>
     </properties>
