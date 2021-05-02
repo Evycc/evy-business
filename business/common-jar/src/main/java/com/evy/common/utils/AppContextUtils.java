@@ -72,7 +72,8 @@ public class AppContextUtils implements ApplicationContextAware {
                 ENVIRONMENT = getBean(Environment.class);
             }
             result = ENVIRONMENT.getProperty(param);
-        } catch (Exception exception) {
+        } catch (Exception ignored) {
+        } finally {
             if (StringUtils.isEmpty(result)) {
                 result = getPrpoFromTempMap(param);
             }

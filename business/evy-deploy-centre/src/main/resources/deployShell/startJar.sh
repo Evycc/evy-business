@@ -11,7 +11,7 @@ set -o nounset    #遇到不存在的变量，终止
 #通过sftp上传编译好的jar包到指定服务器目录->在指定服务器启动jar包,获取PID,获取执行日志
 #使用方式 sh -x startJar.sh ${目标服务器ip} ${jar包路径} ${jvm参数}
 #返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
-#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m
+#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms512m
 #$1 127.0.0.1
 #$2 /cdadmin/gitProject/history/test-demo/2020-08-25
 #$3 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
@@ -45,7 +45,7 @@ for arg in "$@"; do
 done
 paramJvm=$paramJvm' -DAppLocalhost='$paramTargetIp' '
 
-readonly serverUser='root'
+readonly serverUser='cdadmin'
 readonly targetPath='/cdadmin/jar/'
 readonly shPath='/cdadmin/'
 readonly shFileName='targetStartJar.sh'
