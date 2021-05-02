@@ -115,6 +115,8 @@ public class DeployShellRepository {
                         //记录jarPath到数据库
                         deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildSuccess(buildJarOutDo.getMsg(),
                                 DeployStageEnum.BUILD_SUCCESS.convertToFlag(), buildSeq));
+                    } else {
+                        throw new BasicException(DeployErrorConstant.BUILD_ERROR_1, JsonUtils.convertToJson(buildJarOutDo));
                     }
                 } else {
                     throw new BasicException(DeployErrorConstant.BUILD_ERROR_1, JsonUtils.convertToJson(shellOutDo));

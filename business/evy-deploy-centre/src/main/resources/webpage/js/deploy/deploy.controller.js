@@ -1231,7 +1231,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.lastDeployForm.gitPath = lastArray.gitPath;
         self.lastDeployForm.targetHost = lastArray.targetHost;
         self.lastDeployForm.jvmParam = lastArray.jvmParam;
-        self.checkStageFlag(lastArray.stageFlag, lastArray.deploySeq);
+        self.checkStageFlag(lastArray.stageFlag, lastArray.buildSeq);
 
         if (lastArray.targetHost !== null && lastArray.targetHost !== '') {
             self.curSelectIp = lastArray.targetHost.split(',', -1);
@@ -1424,6 +1424,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             self.timerTaskStatus = true;
             let body = {};
             body.buildSeq = buildSeq;
+            self.timerTaskBuildSeq = buildSeq;
             self.timerTask = setInterval(function (){
                 DeployMainService.deployReview(body)
                     .then(function (response){
@@ -1432,7 +1433,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                             self.rmReviewDeployInfoTask();
                         } else {
                             //返回stageFlag,参考com.evy.linlin.deploy.dto.ReviewStatusOutDTO
-                            let result = self.checkStageFlag(response.stageFlag);
+                            let result = self.checkStageFlag(response.stageFlag, buildSeq);
                             if (result) {
                                 //状态明确，停止回查
                                 self.rmReviewDeployInfoTask();
