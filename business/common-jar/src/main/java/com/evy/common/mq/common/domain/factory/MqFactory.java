@@ -86,7 +86,7 @@ public class MqFactory {
         CONN_RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConnRetryCount();
         BASICEQOS = businessProperties.getMq().getRabbitmq().getBasicQos();
 
-        CommandLog.info("RabbitMQ Config[ip {}:{} user {} pass {}]", rabbitmqHost, rabbitmqPort, rabbitmqUser, rabbitmqPort);
+        CommandLog.info("RabbitMQ Config[ip {}:{} user {} pass {}]", rabbitmqHost, rabbitmqPort, rabbitmqUser, rabbitmqPassword);
     }
 
     /**
