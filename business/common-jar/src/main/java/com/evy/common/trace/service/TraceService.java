@@ -57,7 +57,7 @@ public class TraceService {
     /**
      * 应用名
      */
-    private static final String APP_NAME = getAppName();
+    private static String APP_NAME = getAppName();
 
     static {
         AppContextUtils.getAsyncProp(businessProperties -> SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag());
@@ -212,6 +212,9 @@ public class TraceService {
      * @return k : bean name v : 消费者应用名
      */
     private static Map<String, String> initConsumersMap() {
+        if (Objects.isNull(APP_NAME)) {
+            APP_NAME = getAppName();
+        }
         Map<String, String> result = new HashMap<>(8);
         List<TraceServiceBeanAndConsumerPO> beanAndConsumerPos = DBUtils.selectList(QUERY_CONSUMERS);
          boolean hasAppConsumerService = !CollectionUtils.isEmpty(beanAndConsumerPos) &&
