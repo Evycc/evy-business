@@ -70,6 +70,9 @@ public class TraceService {
     public static void cleanServiceInfo() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
+                if (Objects.isNull(APP_NAME)) {
+                    APP_NAME = getAppName();
+                }
                 String ip = buildProviderName(APP_NAME);
                 TraceServiceUpdatePO traceServiceUpdatePO = TraceServiceUpdatePO.createCleanIp(ip, ip);
 
@@ -103,6 +106,9 @@ public class TraceService {
     public static void executeService() {
         //更新发布者服务方信息
         if (!CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
+            if (Objects.isNull(APP_NAME)) {
+                APP_NAME = getAppName();
+            }
             try {
                 List<TraceServiceModel> temp = new ArrayList<>(SERVICES_INFO_LIST);
 
