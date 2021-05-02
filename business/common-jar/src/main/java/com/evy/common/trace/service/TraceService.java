@@ -214,8 +214,11 @@ public class TraceService {
     private static Map<String, String> initConsumersMap() {
         Map<String, String> result = new HashMap<>(8);
         List<TraceServiceBeanAndConsumerPO> beanAndConsumerPos = DBUtils.selectList(QUERY_CONSUMERS);
+        //TODO TEST
+        CommandLog.info("{} | {}", beanAndConsumerPos, APP_NAME);
          boolean hasAppConsumerService = !CollectionUtils.isEmpty(beanAndConsumerPos) &&
-                 beanAndConsumerPos.stream().anyMatch(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME));
+                 beanAndConsumerPos.stream()
+                         .anyMatch(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME));
         if (hasAppConsumerService) {
             result = beanAndConsumerPos
                     .stream()
@@ -366,7 +369,6 @@ public class TraceService {
      * @return 方法名#Path, 不存在POST方法返回空字符串
      */
     private static String buildMethodReqPath(Method method) {
-        CommandLog.info("buildMethodReqPath#method {}", method);
         String[] values;
         String reqPath = "/";
         if (Objects.nonNull(method.getAnnotation(RequestMapping.class))) {
