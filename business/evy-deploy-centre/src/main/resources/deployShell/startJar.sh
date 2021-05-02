@@ -58,7 +58,7 @@ readonly targetClassPath2='/cdadmin/jar/localClass/lib/'
 classpathParam='/cdadmin/jar/localClass/classes'
 readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify '
 readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
-readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG'
+readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG;SLOW_SQL=1000'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
 
 #######################将jar包解压到本地,拼接classpath#######################
