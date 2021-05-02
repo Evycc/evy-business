@@ -214,8 +214,6 @@ public class TraceService {
     private static Map<String, String> initConsumersMap() {
         Map<String, String> result = new HashMap<>(8);
         List<TraceServiceBeanAndConsumerPO> beanAndConsumerPos = DBUtils.selectList(QUERY_CONSUMERS);
-        //TODO TEST
-        CommandLog.info("{} | {}", beanAndConsumerPos, APP_NAME);
          boolean hasAppConsumerService = !CollectionUtils.isEmpty(beanAndConsumerPos) &&
                  beanAndConsumerPos.stream()
                          .anyMatch(po -> !StringUtils.isEmpty(po.getTsiConsumer()) && po.getTsiConsumer().contains(APP_NAME));
