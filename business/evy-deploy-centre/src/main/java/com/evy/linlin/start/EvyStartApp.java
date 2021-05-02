@@ -21,12 +21,18 @@ public class EvyStartApp implements CommandLineRunner
 
     public static void main( String[] args )
     {
+        boolean result =false;
         try {
             SpringApplication.run(EvyStartApp.class, args);
+            result = true;
         } catch (Exception e) {
-            CommandLog.error("应用启动异常 IP:{} 端口:{} 应用名:{}", BusinessConstant.VM_HOST, AppContextUtils.getForEnv("server.port"), AppContextUtils.getForEnv("spring.application.name"));
             e.printStackTrace();
         }
+        CommandLog.error("应用启动{} IP:{} 端口:{} 应用名:{}",
+                result ? "成功" : "失败",
+                BusinessConstant.VM_HOST,
+                AppContextUtils.getForEnv("server.port"),
+                AppContextUtils.getForEnv("spring.application.name"));
     }
 
     @Override
