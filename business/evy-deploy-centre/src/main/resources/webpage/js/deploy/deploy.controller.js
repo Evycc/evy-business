@@ -351,10 +351,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
     /**
      * 获取分支列表属性
-     * @param $event 传入的a标签对象
+     * @param event 传入的a标签对象
      */
-    self.setBranchName = function ($event) {
-        self.deployForm.brchanName = $event.target.innerText;
+    self.setBranchName = function (event) {
+        self.deployForm.brchanName = event.target.innerText;
 
     }
     self.showClose = function () {
@@ -1371,8 +1371,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                     self.showTips('部署异常 ' + response.errorMsg);
                 } else {
                     //新建定时回查任务
-                    self.showTips('发起部署任务成功,部署ID' + buildSeq);
-                    self.newReviewDeployInfoTask(buildSeq);
+                    self.newReviewDeployInfoTask(self.cur.buildSeq);
                 }
                 self.cur.deployStatus = true;
             }, function (err){

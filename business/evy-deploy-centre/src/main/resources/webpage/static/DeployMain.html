@@ -273,7 +273,7 @@
                     </div>
                     <div>
                         <input type="submit" class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
-                               value="选取分支"
+                               value="{{main.cur.deploySeq == branchModel.deploySeq ? '当前分支' : '选取分支'}}"
                                ng-click="main.selectBranchSubmit(branchModel.deploySeq)">
                     </div>
                 </div>
