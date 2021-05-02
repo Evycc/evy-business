@@ -85,6 +85,8 @@ public class MqFactory {
         AUTO_RECOVERY = businessProperties.getMq().getRabbitmq().isAutoRecovery();
         CONN_RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConnRetryCount();
         BASICEQOS = businessProperties.getMq().getRabbitmq().getBasicQos();
+
+        CommandLog.info("RabbitMQ Config[ip {}:{} user {} pass {}]", rabbitmqHost, rabbitmqPort, rabbitmqUser, rabbitmqPort);
     }
 
     /**
