@@ -5,7 +5,6 @@ import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
-import com.evy.common.trace.infrastructure.tunnel.model.TraceHttpModel;
 import com.evy.common.utils.DateUtils;
 import com.evy.common.utils.JsonUtils;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;

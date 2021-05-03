@@ -1094,7 +1094,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
      * @param userSeq
      */
     self.qryDeployInfoReq = function (userSeq) {
-        //TODO 检查用户名下最新部署记录,用于展示"自动化部署"界面,不存在记录则展示"新增部署应用"
         self.qryDeployInfo.userSeq = userSeq;
         DeployMainService.qryDeployInfo(self.qryDeployInfo)
             .then(function (response){
@@ -1108,6 +1107,9 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                         let lastArray = response.dtoList[response.dtoList.length -1];
                         self.initBranch(response);
                         self.initLastDeployForm(lastArray);
+                        self.showDeployMainView('自动化部署');
+                    } else {
+                        self.showDeployCreateView('新增部署应用');
                     }
                 }
             }, function (err){
@@ -1972,9 +1974,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         chart.plotOptions.series.pointStart = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
         // chart.plotOptions.series.pointInterval = (24 * 60 * 60 * 1000) / len;
     }
-
-    // self.showDeployMainView('自动化部署');
-    // self.initMemoryViewJs();
 }]);
 
 

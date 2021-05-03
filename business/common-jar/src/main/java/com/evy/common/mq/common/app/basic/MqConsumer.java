@@ -1,6 +1,7 @@
 package com.evy.common.mq.common.app.basic;
 
 import com.evy.common.command.domain.factory.CreateFactory;
+import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.domain.factory.MqFactory;
@@ -10,7 +11,6 @@ import com.evy.common.mq.rabbitmq.app.event.TraceLogEvent;
 import com.evy.common.utils.AppContextUtils;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -49,16 +49,16 @@ public class MqConsumer {
     /**
      * 记录日志流水topic
      */
-    @Value("${evy.traceLog.topic:}")
     public String traceLogTopic;
     /**
      * 记录日志流水tag
      */
-    @Value("${evy.traceLog.tag:}")
     public String traceLogTag;
 
-    public MqConsumer(MqFactory mqFactory) {
+    public MqConsumer(MqFactory mqFactory, BusinessProperties properties) {
         this.mqFactory = mqFactory;
+        traceLogTopic = properties.getTraceLog().getTopic();
+        traceLogTag = properties.getTraceLog().getTag();
     }
 
     /**
