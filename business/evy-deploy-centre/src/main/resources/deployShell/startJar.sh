@@ -57,9 +57,13 @@ readonly targetClassPath1='/cdadmin/jar/localClass/classes/'
 readonly targetClassPath2='/cdadmin/jar/localClass/lib/'
 classpathParam='/cdadmin/jar/localClass/classes'
 readonly DEFAULT_JVM_PARAM='-XX:TieredStopAtLevel=1 -noverify '
+#jvm参数 agent jar配置
 readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
-readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG;SLOW_SQL=1000'
+readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUG&SLOW_SQL=2000'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
+#jvm参数 dump文件保存地址,必须事先创建
+readonly DUMP_LOG_DIR='/applog/current/dump/'
+readonly DUMP_JVM_PARAM=' -XX:HeapDumpPath='$DUMP_LOG_DIR
 
 #######################将jar包解压到本地,拼接classpath#######################
 cd $paramJarPath && jar xf $jarPath
@@ -72,10 +76,10 @@ done
 classpathParam=' -classpath '$classpathParam
 
 #######################停止java进程#######################
-ssh $serverUser@"$paramTargetIp" "ps -ef|grep java|awk -F' ' '{print \$2}'|while read -r p; do kill -9 \$p; done || true"
+#ssh $serverUser@"$paramTargetIp" "ps -ef|grep java|awk -F' ' '{print \$2}'|while read -r p; do kill -9 \$p; done || true"
 
 #######################从远程服务器创建目录#######################
-#ssh cdadmin@"$paramTargetIp" "mkdir -r $targetPath"
+ssh $serverUser@"$paramTargetIp" "mkdir -p $DUMP_LOG_DIR"
 ssh $serverUser@"$paramTargetIp" "mkdir -p $targetPath && rm -rf $targetPath/*"
 
 #######################上传classpath文件到目标服务器############
@@ -94,7 +98,7 @@ scp "$jarPath" $serverUser@"$paramTargetIp":$targetPath
 #######################上传agent jar到目标服务器#######################
 if [[ -f $AGENT_LOCAL_PATH ]]; then
   scp "$AGENT_LOCAL_PATH" $serverUser@"$paramTargetIp":$targetPath
-  paramJvm=$paramJvm' '$AGENT_JVM_PARAM_DEBUG
+  paramJvm=$paramJvm' '$AGENT_JVM_PARAM_DEBUG$DUMP_JVM_PARAM
 fi
 
 #######################从目标服务器启动jar#######################

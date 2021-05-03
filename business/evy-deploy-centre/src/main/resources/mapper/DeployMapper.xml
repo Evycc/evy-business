@@ -109,6 +109,7 @@
         WHERE pdi_user_seq = #{userSeq}
           <if test="deploySeq != null and deploySeq != ''">
               and pdi_deploy_seq = #{deploySeq}
+              and pdi_seq is not null
           </if>
         order by pdi_id desc
     </select>

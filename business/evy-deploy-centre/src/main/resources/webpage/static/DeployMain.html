@@ -236,8 +236,8 @@
             <div class="form-table deploy-form-table left-div result-div" ng-show="main.viewShow.deployViewReqDiv">
                 <div class="list-group-item title-div">选择分支</div>
                 <div class="content-div">
-                    <div class="list-group-item" ng-repeat="list in main.deployViewReqList">
-                        <a href="javascript:void(0);" ng-click="main.setBranchName($event)">{{list.branchName}}</a>
+                    <div class="list-group-item" ng-repeat="branchName in main.deployViewReqList">
+                        <a href="javascript:void(0);" ng-click="main.setBranchName($event)">{{branchName}}</a>
                     </div>
                 </div>
             </div>

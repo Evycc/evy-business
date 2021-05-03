@@ -57,7 +57,7 @@ public class DeployShellRepository {
      * HeapDumpOnOutOfMemoryError : 内存溢出进行head dump
      * HeapDumpPath : dump文件保存地址,必须事先创建
      */
-    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpBeforeFullGC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/applog/current/dump/";
+    private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpBeforeFullGC -XX:+HeapDumpOnOutOfMemoryError";
     private final DeployDataRepository deployDataRepository;
 
     public DeployShellRepository(DeployDataRepository deployDataRepository) {
@@ -167,7 +167,7 @@ public class DeployShellRepository {
                         })
                         .collect(Collectors.toList());
 
-                boolean result = resultList.stream().anyMatch(deployStatusOutDO -> !deployStatusOutDO.isStart());
+                boolean result = resultList.stream().anyMatch(DeployStatusOutDO::isStart);
 
                 deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(JsonUtils.convertToJson(resultList),
                         result ? DeployStageEnum.CHECK_START_SUCCESS.convertToFlag() : DeployStageEnum.CHECK_START_FAILD.convertToFlag(),

@@ -64,6 +64,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.curHttpInfoView = [];
     self.curTraceListResult = [];
     self.deployHistoryInfoList = [];
+    self.deployViewReqList = [];
     /**
      * 定义展示页面ID
      */
@@ -1139,7 +1140,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.deployInfoStyle.buildInfo.buildFalidStatus = true;
         self.deployInfoStyle.buildInfo.buildCheckStatus = false;
         self.deployInfoStyle.buildInfo.buildSuccessStatus = false;
-        self.deployInfoStyle.deployInfo.show = false; //编译中,不显示部署状态
+        self.deployInfoStyle.deployInfo.show = false; //编译失败,不显示部署状态
         self.deployInfoStyle.checkInfo.show = false; //编译失败,不显示回查服务状态
         self.deployInfoStyle.buildInfo.title = self.deployInfoStyle.buildInfo.buildFalidTitle;
         self.SetNewClass(self.deployInfoStyle.buildInfo.id, 'title-span left-span span-faild');
@@ -1150,7 +1151,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.deployInfoStyle.deployInfo.show = true;
         self.deployInfoStyle.deployInfo.deploySuccessStatus = true;
         self.deployInfoStyle.deployInfo.deployCheckStatus = false;
-        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
+        self.deployInfoStyle.buildInfo.deployFalidStatus = false;
         self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deploySuccessTitle;
         self.SetNewClass(self.deployInfoStyle.deployInfo.id, 'title-span left-span span-success');
     }
@@ -1159,7 +1160,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.buildInfoSuccess();
         self.deployInfoStyle.deployInfo.show = true;
         self.deployInfoStyle.deployInfo.deployCheckStatus = true;
-        self.deployInfoStyle.buildInfo.buildFalidStatus = false;
+        self.deployInfoStyle.buildInfo.deployFalidStatus = false;
         self.deployInfoStyle.deployInfo.deploySuccessStatus = false;
         self.deployInfoStyle.checkInfo.show = false; //部署中,不显示回查服务状态
         self.deployInfoStyle.deployInfo.title = self.deployInfoStyle.deployInfo.deployCheckTitle;
@@ -1569,9 +1570,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.initGitBranchSelect = function (list) {
-        self.deployViewReqList = [];
         for (let i = 0; i < list.length; i++) {
-            self.deployViewReqList[i].branchName = list[i].branchName;
+            self.deployViewReqList[i] = list[i];
         }
     }
 
@@ -1754,35 +1754,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
             self.SetNewClass('srv-ms-span', rightRadiusClass);
             endFlag = false;
         }
-    }
-
-    /**
-     * TODO TEST
-     */
-    self.init = function (){
-        self.deployViewReqList = [
-            {
-                'branchName' : 'master'
-            },
-            {
-                'branchName' : 'master1'
-            },
-            {
-                'branchName' : 'master2'
-            },
-            {
-                'branchName' : 'master3'
-            },
-            {
-                'branchName' : 'YD_2020_11_23'
-            },
-            {
-                'branchName' : 'YD_2020_11_23'
-            },
-            {
-                'branchName' : 'YD_2020_11_23_222222222'
-            }
-        ]
     }
 
     /**
@@ -2002,10 +1973,6 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         // chart.plotOptions.series.pointInterval = (24 * 60 * 60 * 1000) / len;
     }
 
-    /**
-     * TODO TEST
-     */
-    self.init();
     // self.showDeployMainView('自动化部署');
     // self.initMemoryViewJs();
 }]);
