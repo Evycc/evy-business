@@ -6,6 +6,7 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
     const REQ_SRVCODE_MAP = {
         login : 'evy.login.app',
         autoDeploy : 'evy.deploy.auto.app',
+        checkStart : 'evy.deploy.checkStart.app',
         buildProject : 'evy.deploy.buildPjo.app',
         createDeployInfo : 'evy.deploy.create.app',
         getBranch : 'evy.deploy.getBranch.app',
@@ -50,8 +51,18 @@ app.factory('DeployMainService', ['$http', '$q', function ($http, $q) {
         qryTraceInfo : qryTraceInfo,
         heapDumpInfo : heapDumpInfo,
         threadInfo : threadInfo,
-        deadThreadList : deadThreadList
+        deadThreadList : deadThreadList,
+        checkStart : checkStart
     };
+
+    /**
+     * 发起启动状态回查
+     * @param body 参数,部署流水
+     * @return 无实体返回,请求成功即可
+     */
+    function checkStart(body) {
+        return sendPostReq(REQ_SRVCODE_MAP.checkStart, body);
+    }
 
     /**
      * 从指定服务器进行heap dump

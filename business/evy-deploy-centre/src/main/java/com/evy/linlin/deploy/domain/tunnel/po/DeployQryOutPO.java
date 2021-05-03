@@ -19,7 +19,12 @@ public class DeployQryOutPO {
     private String jvmParam;
     private String targetHost;
     private String remarks;
+    private String buildLog;
     private String createDateTime;
+
+    public String getBuildLog() {
+        return buildLog;
+    }
 
     public String getBuildSeq() {
         return buildSeq;

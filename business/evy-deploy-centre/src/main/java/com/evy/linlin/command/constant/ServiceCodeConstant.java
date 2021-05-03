@@ -82,4 +82,8 @@ public class ServiceCodeConstant {
      * com.evy.linlin.trace.app.QryDumpInfoAppService
      */
     public static final String QRY_DUMP_UTILS = "evy.trace.dump.app";
+    /**
+     * com.evy.linlin.deploy.app.CheckStartAppService
+     */
+    public static final String CHECK_START_CODE = "evy.deploy.checkStart.app";
 }

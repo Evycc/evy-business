@@ -5,6 +5,7 @@ import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.infrastructure.tunnel.model.TraceHttpModel;
 import com.evy.common.utils.DateUtils;
 import com.evy.common.utils.JsonUtils;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
@@ -13,6 +14,7 @@ import com.evy.linlin.deploy.domain.tunnel.constant.DeployStageEnum;
 import com.evy.linlin.deploy.domain.tunnel.model.*;
 import com.evy.linlin.deploy.domain.tunnel.po.DeployQryOutPO;
 import com.evy.linlin.deploy.domain.tunnel.po.DeployUpdatePO;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -44,6 +46,7 @@ public class DeployShellRepository {
     private static final String SHELL_BUILD_JAR = "/cdadmin/buildJar.sh";
     private static final String SHELL_START_JAR = "/cdadmin/startJar.sh";
     private static final String SHELL_GET_GIT_BRCHANS = "/cdadmin/getGitBrchans.sh";
+    private static final String SHELL_CHECK_START = "/cdadmin/checkService.sh";
     private static final String CHMOD_755 = "755";
     private static final String CMD_CHMOD = "/bin/chmod";
     private static final String SHELL_CMD = "/bin/bash";
@@ -138,6 +141,46 @@ public class DeployShellRepository {
     }
 
     /**
+     * 异步执行: 回查服务器启动状态
+     */
+    public void checkStart(AutoDeployDO autoDeployDO) {
+        EXECUTOR_SERVICE.submit(() -> {
+            String buildSeq = autoDeployDO.getBuildSeq();
+            try {
+                //先更新为回查中
+                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePo(DeployStageEnum.CHECK_START_ING.convertToFlag(), buildSeq));
+
+                //执行回查脚本
+                DeployQryOutPO deployQryOutPo = deployDataRepository.qryForSeq(DeployAssembler.createFromBuildSeq(buildSeq));
+                List<DeployStatusOutDO> deployStatusOutDoList = JsonUtils.convertToObject(
+                        deployQryOutPo.getBuildLog(),
+                        new TypeToken<List<DeployStatusOutDO>>() {
+                        }.getType());
+
+                List<DeployStatusOutDO> resultList = deployStatusOutDoList.stream()
+                        .filter(deployStatusOutDO -> !deployStatusOutDO.isStart())
+                        .peek(deployStatusOutDO -> {
+                            ShellOutDO shellOutDO = execShell(chmod755(SHELL_CHECK_START), deployStatusOutDO.getTargetHost(), deployStatusOutDO.getPid());
+                            if (BusinessConstant.ZERO.equals(shellOutDO.getErrorCode())) {
+                                deployStatusOutDO.setStart(true);
+                            }
+                        })
+                        .collect(Collectors.toList());
+
+                boolean result = resultList.stream().anyMatch(deployStatusOutDO -> !deployStatusOutDO.isStart());
+
+                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(JsonUtils.convertToJson(resultList),
+                        result ? DeployStageEnum.CHECK_START_SUCCESS.convertToFlag() : DeployStageEnum.CHECK_START_FAILD.convertToFlag(),
+                        buildSeq));
+            } catch (Exception exception) {
+                //标记为部署失败
+                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(exception.getMessage(), DeployStageEnum.CHECK_START_FAILD.convertToFlag(), buildSeq));
+                CommandLog.errorThrow("DeployShellRepository#checkStart检查启动异常", exception);
+            }
+        });
+    }
+
+    /**
      * 异步执行:自动署到对应服务器
      */
     public void autoDeploy(AutoDeployDO autoDeployDO) {
@@ -177,9 +220,7 @@ public class DeployShellRepository {
                             deployStatusOutDoList.add(deployStatusOutDo);
                             if (!checkGetStartJarShell(deployStatusOutDo)) {
                                 //PID为空则认为部署失败，直接返回
-                                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(host + ":部署异常",
-                                        DeployStageEnum.DEPLOY_FAILD.convertToFlag(), buildSeq));
-                                return;
+                                break;
                             }
                         }
                     }
@@ -188,17 +229,20 @@ public class DeployShellRepository {
                     deployStatusOutDoList.add(excelAndGetStartJarShell(targetHost, jarPath, jvmParam));
                 }
 
-                deployStatusOutDoList.forEach(deployStatusOutDo -> {
-                    if (!checkGetStartJarShell(deployStatusOutDo)) {
+                //部署成功标记
+                boolean result = true;
+                for (DeployStatusOutDO deployStatusOutDO : deployStatusOutDoList) {
+                    if (!checkGetStartJarShell(deployStatusOutDO)) {
                         //标记为部署失败
-                        deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(deployStatusOutDo.getTargetHost() + ":部署异常",
-                                DeployStageEnum.DEPLOY_FAILD.convertToFlag(), buildSeq));
-                        return;
+                        result = false;
+                        break;
                     }
-                });
+                }
 
-                //标记为部署成功
-                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePo(DeployStageEnum.DEPLOY_SUCCESS.convertToFlag(), buildSeq));
+                deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(JsonUtils.convertToJson(deployStatusOutDoList),
+                        result ? DeployStageEnum.DEPLOY_SUCCESS.convertToFlag() : DeployStageEnum.DEPLOY_FAILD.convertToFlag(),
+                        buildSeq));
+
             } catch (Exception exception) {
                 //标记为部署失败
                 deployDataRepository.updateStage(DeployAssembler.createDeployUpdatePoBuildLog(exception.getMessage(), DeployStageEnum.DEPLOY_FAILD.convertToFlag(), buildSeq));
@@ -230,11 +274,10 @@ public class DeployShellRepository {
         boolean result = false;
         try {
             result = !StringUtils.isEmpty(deployStatusOutDo.getPid()) && Integer.parseInt(deployStatusOutDo.getPid()) != -1;
-        } catch (NumberFormatException e) {
-            result = false;
+        } catch (NumberFormatException ignore) {
         }
 
-        return  result;
+        return result;
     }
 
     /**
@@ -373,8 +416,9 @@ public class DeployShellRepository {
 
     /**
      * 读取数据流并返回字符串
+     *
      * @param inputStream 数据流
-     * @return  异常则返回空串
+     * @return 异常则返回空串
      */
     private String readInputStream(InputStream inputStream) {
         ByteArrayOutputStream baos = null;

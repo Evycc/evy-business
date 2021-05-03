@@ -1248,6 +1248,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     self.checkStageFlag = function (stageFlag, deploySeq) {
         let flag = false;
         //jar部署阶段 0a:编译成功 0b:编译中 0c:编译失败 1a:部署成功 1b:部署中 1c:部署失败
+        //2a:服务启动成功 2b:服务启动中 2c:服务启动失败
         //顺序: 编译->部署->检查服务
         switch (stageFlag) {
             case '0a' :
@@ -1265,6 +1266,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 break;
             case '1a' :
                 self.deployInfoSuccess();
+                self.checkStartStatus();
                 flag = true;
                 break;
             case '1b' :
@@ -1273,6 +1275,18 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 break;
             case '1c' :
                 self.deployInfoFaild();
+                flag = true;
+                break;
+            case '2a' :
+                self.checkInfoSuccess();
+                flag = true;
+                break;
+            case '2b' :
+                self.checkInfoChecked();
+                self.newReviewDeployInfoTask(deploySeq);
+                break;
+            case '2c' :
+                self.checkInfoFaild();
                 flag = true;
                 break;
         }
@@ -1376,6 +1390,27 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 self.cur.deployStatus = true;
             }, function (err){
                 self.showTips('一键部署异常 ', err);
+                self.cur.deployStatus = true;
+            });
+    }
+
+    /**
+     * 服务启动回查
+     */
+    self.checkStartStatus = function () {
+        let body = {};
+        body.buildSeq = self.cur.buildSeq;
+        DeployMainService.checkStart(body)
+            .then(function (response){
+                if (response.errorCode !== '0') {
+                    self.showTips('回查服务启动状态异常 ' + response.errorMsg);
+                } else {
+                    //新建定时回查任务
+                    self.newReviewDeployInfoTask(self.cur.buildSeq);
+                }
+                self.cur.deployStatus = true;
+            }, function (err){
+                self.showTips('回查服务启动状态异常 ', err);
                 self.cur.deployStatus = true;
             });
     }

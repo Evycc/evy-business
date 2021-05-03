@@ -18,6 +18,7 @@
         <result column="pdi_jvm_param" property="jvmParam" jdbcType="VARCHAR"/>
         <result column="pdi_target_host" property="targetHost" jdbcType="VARCHAR"/>
         <result column="pdi_remarks" property="remarks" jdbcType="VARCHAR"/>
+        <result column="pdi_build_log" property="buildLog" jdbcType="VARCHAR"/>
         <result column="gmt_create" property="createDateTime" jdbcType="VARCHAR"/>
     </resultMap>
 
@@ -78,6 +79,7 @@
                pdi_jvm_param,
                pdi_target_host,
                pdi_remarks,
+               pdi_build_log,
                gmt_create
         FROM public_deploy_info
         WHERE pdi_seq = #{seq}
@@ -101,6 +103,7 @@
                pdi_jvm_param,
                pdi_target_host,
                pdi_remarks,
+               pdi_build_log,
                gmt_create
         FROM public_deploy_info
         WHERE pdi_user_seq = #{userSeq}

@@ -20,17 +20,29 @@ public enum DeployStageEnum {
      */
     BUILD_FAILD("0c", "编译失败"),
     /**
-     * 1a:部署成功
+     * 1a:部署中
      */
     DEPLOY_ING("1b", "部署中"),
     /**
-     * 1b:部署中
+     * 1a:部署成功
      */
     DEPLOY_SUCCESS("1a", "部署成功"),
     /**
      * 1c:部署失败
      */
-    DEPLOY_FAILD("1c", "部署失败");
+    DEPLOY_FAILD("1c", "部署失败"),
+    /**
+     * 2b:检查启动状态中
+     */
+    CHECK_START_ING("2b", "启动中"),
+    /**
+     * 2a:检查启动成功
+     */
+    CHECK_START_SUCCESS("2a", "启动成功"),
+    /**
+     * 2c:检查启动失败
+     */
+    CHECK_START_FAILD("2c", "启动失败");
 
     String stageFlag;
     String stageMsg;
