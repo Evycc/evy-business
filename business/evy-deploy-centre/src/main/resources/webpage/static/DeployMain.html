@@ -423,7 +423,7 @@
                         <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
                                 style="max-width: 90px !important; float: left; margin-right: 8px;"
                                 type="submit" aria-label="提交"
-                                ng-click="main.showThreadStack(t.threadStack)">
+                                ng-click="main.heapDumpSubmit()">
                             heap dump
                         </button>
                     </li>
@@ -1037,7 +1037,7 @@
     ng-show="main.viewShow.showAbsoluteDiv">
     <div ng-show="main.showAbsoluteDiv.showTextDiv">
         <span class="title-span">{{main.showAbsoluteDiv.showDivTitle}}</span>
-        <span class="text-span" style="word-wrap:break-word;">{{main.showAbsoluteDiv.showDivContent}}</span>
+        <span id="{{main.showAbsoluteDiv.showAbsoluteDivContentId}}" class="text-span" style="word-wrap:break-word;">{{main.showAbsoluteDiv.showDivContent}}</span>
     </div>
 <!--    线程信息查询div-->
     <div ng-show="main.showAbsoluteDiv.showThreadDiv">

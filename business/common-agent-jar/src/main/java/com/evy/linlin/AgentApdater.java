@@ -16,7 +16,7 @@ public class AgentApdater implements ClassFileTransformer {
     private static final String POINT = ".";
     private static final String SPLIT = "/";
     private String args;
-    private static final Pattern PATTERN = Pattern.compile("&SLOW_SQL=(\\d)+");
+    private static final Pattern PATTERN = Pattern.compile("SLOW_SQL=(\\d)+");
 
     public AgentApdater(String args) {
         this.args = args;
@@ -44,6 +44,7 @@ public class AgentApdater implements ClassFileTransformer {
                     String var = matcher.group(0);
                     try {
                         slowSqlTime = Integer.parseInt(var.substring(var.indexOf("=") +1));
+                        System.out.println("Agent DataBase. 慢SQL监控阈值(毫秒):" + slowSqlTime);
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }

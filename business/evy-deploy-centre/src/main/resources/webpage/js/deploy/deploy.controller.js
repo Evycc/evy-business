@@ -114,6 +114,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
 
     self.showAbsoluteDiv = {
         showDivTitle : '',
+        showAbsoluteDivContentId : 'show-AbsoluteDiv-Content-Id',
         showDivContent : '',
         showTextDiv : true,
         showThreadDiv : !this.showTextDiv,
@@ -536,14 +537,61 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         }
     }
 
-    self.showThreadStack = function (text) {
+    /**
+     * 居中显示的DIV文本信息
+     * @param title 标题
+     * @param text 内容,支持html语法
+     */
+    self.showMidDivText = function (title, text) {
         self.viewShow.showAbsoluteDiv = true;
-        self.showAbsoluteDiv.showDivTitle = '堆栈信息';
-        self.showAbsoluteDiv.showDivContent = text;
+        self.showAbsoluteDiv.showDivTitle = title;
+        //self.showAbsoluteDiv.showDivContent = text;
         self.showAbsoluteDiv.showTextDiv = true;
         self.showAbsoluteDiv.showThreadResultDiv = false;
         self.showAbsoluteDiv.showThreadDiv = false;
         self.showAbsoluteDiv.showDeployHistoryDiv = false;
+
+        angular.element('#' + self.showAbsoluteDiv.showAbsoluteDivContentId).html(text);
+    }
+
+    /**
+     * 显示线程堆栈信息文本
+     * @param text 堆栈信息
+     */
+    self.showThreadStack = function (text) {
+        self.showMidDivText('堆栈信息', text);
+    }
+
+    /**
+     * 对目标服务器进行heap dump操作
+     */
+    self.heapDumpSubmit = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        body.targetIp = self.curThreadIp;
+
+        DeployMainService.heapDumpInfo(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('ip : ' + body.targetIp + 'heap dump异常 ' + response.errorMsg);
+                } else {
+                    let resultText;
+                    if (response.heapDumpInfo != null) {
+                        self.showAbsoluteDiv.showThreadResult = '';
+                        if (response.heapDumpInfo.dumpResult === 1) {
+                            resultText += response.heapDumpInfo.dumpResultErrorText;
+                        } else {
+                            resultText += 'Heap Dump成功' + '<br/>';
+                            resultText += '目标服务器:' + body.targetIp + '<br/>';
+                            resultText += '目录:' + response.heapDumpInfo.dumpFilePath + '<br/>';
+                        }
+                        self.showMidDivText('Heap Dump',resultText);
+                    }
+                }
+            }, function (err){
+                self.showTips('ip : ' + body.targetIp + 'heap dump异常 ' + err)
+            });
     }
 
     self.showQryRealTimeThreadId = function () {

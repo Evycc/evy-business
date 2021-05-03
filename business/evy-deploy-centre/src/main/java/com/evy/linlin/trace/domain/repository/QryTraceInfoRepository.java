@@ -17,6 +17,7 @@ import com.evy.linlin.trace.domain.tunnel.constant.QryTraceErrorConstant;
 import com.evy.linlin.trace.domain.tunnel.model.*;
 import com.evy.linlin.trace.domain.tunnel.po.*;
 import com.evy.linlin.trace.dto.*;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -107,11 +108,11 @@ public class QryTraceInfoRepository {
 
         //归类
         targetIpList.forEach(targetIp -> {
-                    List<QryAppMermoryInfoModel> temp = result.stream()
-                            .filter(qryAppMermoryInfoModel -> qryAppMermoryInfoModel.getAppIp().equals(targetIp))
-                            .collect(Collectors.toList());
-                    resultMap.put(targetIp, temp);
-                });
+            List<QryAppMermoryInfoModel> temp = result.stream()
+                    .filter(qryAppMermoryInfoModel -> qryAppMermoryInfoModel.getAppIp().equals(targetIp))
+                    .collect(Collectors.toList());
+            resultMap.put(targetIp, temp);
+        });
 
         return resultMap;
     }
@@ -207,6 +208,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 查询服务对应限流信息
+     *
      * @param models com.evy.linlin.trace.dto.QryServiceInfoModel
      * @return com.evy.linlin.trace.dto.QryServiceInfoModel
      */
@@ -268,6 +270,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 新增服务码
+     *
      * @param infoDo com.evy.linlin.trace.domain.tunnel.model.CreateNewSrvInfoDo
      * @return true: 新增成功
      */
@@ -286,6 +289,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 更新服务码或限流信息
+     *
      * @param infoDo com.evy.linlin.trace.domain.tunnel.model.ModifySrvInfoDo
      * @return true: 更新成功
      */
@@ -318,6 +322,7 @@ public class QryTraceInfoRepository {
 
     /**
      * 查询traceId调用链路，按时间升序返回
+     *
      * @param infoDO traceId
      * @return 调用信息模型
      */
@@ -370,6 +375,8 @@ public class QryTraceInfoRepository {
             case HealthyControllerConstant.THREAD_DUMP_CODE:
                 result.setThreadInfo(threadDump(searchDumpDo.getTargetIp(), searchDumpDo.getThreadId(), isLocalReq));
                 break;
+            default:
+                break;
         }
         return result;
     }
@@ -415,7 +422,8 @@ public class QryTraceInfoRepository {
                     httpResponse -> {
                         List<ThreadDumpInfoModel> response = new ArrayList<>();
                         try {
-                            response = JsonUtils.convertToObject(EntityUtils.toString(httpResponse.getEntity()), List.class);
+                            response = JsonUtils.convertToObject(EntityUtils.toString(httpResponse.getEntity()), new TypeToken<List<ThreadDumpInfoModel>>() {
+                            }.getType());
                         } catch (IOException e) {
                             CommandLog.errorThrow("threadDump 返回异常", e);
                         }
