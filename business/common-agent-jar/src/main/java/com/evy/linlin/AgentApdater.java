@@ -16,7 +16,7 @@ public class AgentApdater implements ClassFileTransformer {
     private static final String POINT = ".";
     private static final String SPLIT = "/";
     private String args;
-    private static final Pattern PATTERN = Pattern.compile("SLOW_SQL=(\\d)+");
+    private static final Pattern PATTERN = Pattern.compile("&SLOW_SQL=(\\d)+");
 
     public AgentApdater(String args) {
         this.args = args;
