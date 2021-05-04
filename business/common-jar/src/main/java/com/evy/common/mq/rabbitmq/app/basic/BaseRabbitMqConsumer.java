@@ -55,6 +55,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
     public void doExecute(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
         long startTime = System.currentTimeMillis();
         try {
+            messageAck(envelope.getDeliveryTag());
             CommandLog.info("Start Consumer Service\tTopic:{}\tConsumerID:{}\t", envelope.getExchange(), properties.getCorrelationId());
             MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
             assert sendMessage != null;
@@ -66,7 +67,6 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             //执行具体消费逻辑
             int success = execute(consumerTag, envelope, properties, body);
             CommandLog.info("Consumer Result: {}", success);
-            messageAck(envelope.getDeliveryTag());
             switchMqResult(success, sendMessage);
 
             //清除死信队列
@@ -97,7 +97,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
      */
     private void messageAck(long deliveryTag) {
         try {
-            if (!MqFactory.AUTO_ACK) {
+            if (MqFactory.AUTO_ACK) {
                 Channel channel = getChannel();
                 if (channel != null && channel.isOpen()) {
                     CommandLog.info("执行消费确认ack:{}", deliveryTag);

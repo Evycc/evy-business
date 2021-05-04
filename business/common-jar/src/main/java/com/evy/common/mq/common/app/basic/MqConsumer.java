@@ -39,10 +39,6 @@ public class MqConsumer {
      */
     private final MqFactory mqFactory;
     /**
-     * 存储RabbitMQ消费者实例及对应topic，tag
-     */
-    private static final Map<DefaultConsumer, List<MqConsumerModel>> R_LIST = new ConcurrentHashMap<>();
-    /**
      * 存储MQ消费者实例集合
      */
     private static final List<BasicMqConsumer> MQ_CONSUMERS = Collections.synchronizedList(new ArrayList<>());
@@ -104,18 +100,6 @@ public class MqConsumer {
     }
 
     /**
-     * 添加rabbitmq 消费者
-     *
-     * @param consumer consumer
-     * @param models   queue，tag
-     * @deprecated com.evy.common.mq.rabbitmq.app.RabbitBaseMqConsumer 通过统一消息监听器进行监听
-     */
-    @Deprecated
-    public static void addRabbitMqConsumer(DefaultConsumer consumer, List<MqConsumerModel> models) {
-        R_LIST.put(consumer, models);
-    }
-
-    /**
      * 订阅[记录public_log_flow日志流水]
      */
     private void addTraceLogConsumer() {
@@ -139,31 +123,4 @@ public class MqConsumer {
             CommandLog.errorThrow("创建TraceLog消费队列异常", e);
         }
     }
-
-    /**
-     * 将消费者列表分发到线程监听
-     *
-     * @deprecated com.evy.common.mq.rabbitmq.app.RabbitBaseMqConsumer 通过统一消息监听器进行监听
-     */
-    @Deprecated
-    public void rabbitmqExecute() {
-        ExecutorService es = CreateFactory.returnExecutorService();
-        R_LIST.forEach((consumer, list) -> list.forEach(model -> {
-            String queue = model.getQueue();
-            String tag = model.getTag();
-            es.execute(() -> {
-                CommandLog.info("{} -> 启动监听", consumer);
-                try {
-                    if (StringUtils.isEmpty(tag)) {
-                        consumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, consumer);
-                    } else {
-                        consumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, tag, consumer);
-                    }
-                } catch (IOException e) {
-                    CommandLog.errorThrow("RabbitMQ 消费者IO异常", e);
-                }
-            });
-        }));
-    }
-
 }

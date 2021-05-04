@@ -164,6 +164,9 @@ public class MqFactory {
      */
     public static String dlxBind(Channel channel, String dlxExchange, String dlxRk, Map<String, Object> map) throws IOException {
         String dlxQueue = UUID.randomUUID().toString();
+        //boolean durable 持久化
+        //boolean exclusive 排他,不允许其他连接Channel消费
+        //boolean autoDelete 消费者断开连接时,自动删除
         channel.queueDeclare(dlxQueue, true, true, true, map);
         channel.queueBind(dlxQueue, dlxExchange, dlxRk);
 
@@ -181,6 +184,9 @@ public class MqFactory {
      */
     public static String queueBing(Channel channel, String exchange, String rk, Map<String, Object> map) throws IOException {
         String queue = UUID.randomUUID().toString();
+        //boolean durable 持久化
+        //boolean exclusive 排他,不允许其他连接Channel消费
+        //boolean autoDelete 消费者断开连接时,自动删除
         channel.queueDeclare(queue, true, true, false, map);
         channel.queueBind(queue, exchange, rk);
 
