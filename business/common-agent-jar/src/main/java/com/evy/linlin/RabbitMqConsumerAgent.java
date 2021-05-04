@@ -17,7 +17,7 @@ public class RabbitMqConsumerAgent {
     private static boolean IS_AGENT = false;
 
     /**
-     * com.evy.common.mq.basic.BaseRabbitMqConsumer#doExecute
+     * com.evy.common.mq.rabbitmq.app.basic.BaseRabbitMqConsumer#doExecute
      */
     public static byte[] agentExecute(String args) {
         try {
@@ -68,6 +68,6 @@ public class RabbitMqConsumerAgent {
     }
 
     public static boolean judge(String className) {
-        return MQ_CONSUMER_STR.equals(className) && IS_AGENT;
+        return MQ_CONSUMER_STR.equals(className) && !IS_AGENT;
     }
 }
