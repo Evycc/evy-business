@@ -39,7 +39,7 @@ public class MqFactory {
     /**
      * 消息确认
      */
-    public static boolean AUTO_ACK;
+    public static final boolean AUTO_ACK = true;
     /**
      * 自动重连
      */
@@ -81,7 +81,6 @@ public class MqFactory {
         rabbitmqPort = businessProperties.getMq().getRabbitmq().getPort();
         DELIVERY_MODE = businessProperties.getMq().getRabbitmq().getDeliveryMode();
         PRIORITY = businessProperties.getMq().getRabbitmq().getPriority();
-        AUTO_ACK = businessProperties.getMq().getRabbitmq().isAutoAck();
         AUTO_RECOVERY = businessProperties.getMq().getRabbitmq().isAutoRecovery();
         CONN_RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConnRetryCount();
         BASICEQOS = businessProperties.getMq().getRabbitmq().getBasicQos();
