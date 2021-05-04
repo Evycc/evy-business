@@ -1,5 +1,7 @@
 package com.evy.linlin.trace.domain.tunnel.po;
 
+import com.evy.common.utils.DateUtils;
+
 /**
  * @Author: EvyLiuu
  * @Date: 2020/10/17 14:33
@@ -19,6 +21,23 @@ public class QryAppThreadInfoListPO {
     private String tatiThreadMaxCount;
     private String tatiThreadStack;
     private String gmtModify;
+
+    public QryAppThreadInfoListPO(String tatiAppIp, String tatiThreadId, String tatiThreadName, String tatiThreadStatus, String tatiThreadStartMtime, String tatiThreadBlockedCount, String tatiThreadBlockedMtime, String tatiThreadBlockedName, String tatiThreadBlockedId, String tatiThreadWaitedCount, String tatiThreadWaitedMtime, String tatiThreadMaxCount, String tatiThreadStack) {
+        this.tatiAppIp = tatiAppIp;
+        this.tatiThreadId = tatiThreadId;
+        this.tatiThreadName = tatiThreadName;
+        this.tatiThreadStatus = tatiThreadStatus;
+        this.tatiThreadStartMtime = tatiThreadStartMtime;
+        this.tatiThreadBlockedCount = tatiThreadBlockedCount;
+        this.tatiThreadBlockedMtime = tatiThreadBlockedMtime;
+        this.tatiThreadBlockedName = tatiThreadBlockedName;
+        this.tatiThreadBlockedId = tatiThreadBlockedId;
+        this.tatiThreadWaitedCount = tatiThreadWaitedCount;
+        this.tatiThreadWaitedMtime = tatiThreadWaitedMtime;
+        this.tatiThreadMaxCount = tatiThreadMaxCount;
+        this.tatiThreadStack = tatiThreadStack;
+        this.gmtModify = DateUtils.nowStr1();
+    }
 
     public String getTatiAppIp() {
         return tatiAppIp;

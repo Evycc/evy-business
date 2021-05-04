@@ -105,6 +105,7 @@ fi
 ssh $serverUser@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $DUMP_JVM_PARAM$DEFAULT_JVM_PARAM$paramJvm $classpathParam"
 
 #######################从目标服务器传回jar启动日志及pid#######################
+sleep 3s
 scp $serverUser@"$paramTargetIp":$targetPath$startLog $paramJarPath
 scp $serverUser@"$paramTargetIp":$targetPath$pidLog $paramJarPath
 

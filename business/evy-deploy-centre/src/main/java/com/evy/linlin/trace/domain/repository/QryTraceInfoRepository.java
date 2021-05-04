@@ -5,7 +5,9 @@ import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
+import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
 import com.evy.common.trace.service.TraceJvmManagerUtils;
+import com.evy.common.trace.service.TraceThreadInfo;
 import com.evy.common.trace.service.TraceTracking;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.JsonUtils;
@@ -263,6 +265,21 @@ public class QryTraceInfoRepository {
                         return list1;
                     })
                     .ifPresent(result::addAll);
+        }
+        if (CollectionUtils.isEmpty(result)) {
+            List<TraceThreadInfoPO> list = TraceThreadInfo.findAllThreads();
+            List<QryAppThreadInfoListPO> list1 =
+                    list.stream()
+                            .map(traceThreadInfoPo -> new QryAppThreadInfoListPO(
+                                    traceThreadInfoPo.getTatiAppIp(), traceThreadInfoPo.getTatiThreadAvailByte(), traceThreadInfoPo.getTatiThreadName(),
+                                    traceThreadInfoPo.getTatiThreadStatus(), traceThreadInfoPo.getTatiThreadStartMtime(), traceThreadInfoPo.getTatiThreadBlockedMtime(),
+                                    traceThreadInfoPo.getTatiThreadBlockedMtime(), traceThreadInfoPo.getTatiThreadBlockedName(), traceThreadInfoPo.getTatiThreadBlockedMtime(),
+                                    traceThreadInfoPo.getTatiThreadWaitedMtime(), traceThreadInfoPo.getTatiThreadWaitedMtime(), traceThreadInfoPo.getTatiThreadAvailByte(),
+                                    traceThreadInfoPo.getTatiThreadStack()
+                            )).collect(Collectors.toList());
+            result = QryTraceAssembler.createQryThreadsInfoModel(list1);
+            list = null;
+            list1 = null;
         }
 
         return result;

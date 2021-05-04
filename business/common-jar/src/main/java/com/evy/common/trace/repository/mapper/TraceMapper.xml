@@ -129,6 +129,10 @@
                                 trh_sentinel_config_path=VALUES(trh_sentinel_config_path);
     </insert>
 
+    <delete id="deleteThreadInfoByIp" parameterType="java.lang.String">
+        DELETE FROM trace_app_thread_info WHERE tati_app_ip = #{};
+    </delete>
+
     <insert id="threadInfoInsert"
             parameterType="com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO">
         INSERT INTO trace_app_thread_info(tati_app_ip, tati_thread_id, tati_thread_name, tati_thread_status, tati_thread_avail_byte,

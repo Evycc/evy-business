@@ -96,6 +96,7 @@ public class HealthyInfoService {
                     case SWITCH5:
                         //更新服务器线程信息
                         List<TraceThreadInfoPO> traceThreadInfos = JsonUtils.convertToObject(traceInfoJson, new TypeToken<List<TraceThreadInfoPO>>(){}.getType());
+                        TraceThreadInfo.rmThreadInfo(traceThreadInfos);
                         TraceThreadInfo.addThreadInfos(traceThreadInfos);
                         break;
                     case SWITCH6:
