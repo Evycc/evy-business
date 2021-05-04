@@ -167,7 +167,7 @@ public class MqFactory {
         //boolean durable 持久化
         //boolean exclusive 排他,不允许其他连接Channel消费
         //boolean autoDelete 消费者断开连接时,自动删除
-        channel.queueDeclare(dlxQueue, true, false, false, map);
+        channel.queueDeclare(dlxQueue, true, false, true, map);
         channel.queueBind(dlxQueue, dlxExchange, dlxRk);
 
         return dlxQueue;

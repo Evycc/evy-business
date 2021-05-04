@@ -97,7 +97,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
      */
     private void messageAck(long deliveryTag) {
         try {
-            if (MqFactory.AUTO_ACK) {
+            if (!MqFactory.AUTO_ACK) {
                 Channel channel = getChannel();
                 if (channel != null && channel.isOpen()) {
                     CommandLog.info("执行消费确认ack:{}", deliveryTag);
