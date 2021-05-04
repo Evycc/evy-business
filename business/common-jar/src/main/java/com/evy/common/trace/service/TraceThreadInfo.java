@@ -12,6 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -180,6 +181,9 @@ public class TraceThreadInfo {
      * @param list  com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO
      */
     public static void rmThreadInfo(List<TraceThreadInfoPO> list) {
-        list.stream().findFirst().ifPresent(traceThreadInfoPo -> DBUtils.delete(DELETE_THREAD_INFO_BY_IP, traceThreadInfoPo.getTatiAppIp()));
+        TraceThreadInfoPO po = list.get(0);
+        if (Objects.nonNull(po)) {
+            DBUtils.delete(DELETE_THREAD_INFO_BY_IP, po.getTatiAppIp());
+        }
     }
 }
