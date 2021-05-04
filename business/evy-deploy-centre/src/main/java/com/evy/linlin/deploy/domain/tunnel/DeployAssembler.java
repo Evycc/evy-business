@@ -153,6 +153,10 @@ public class DeployAssembler {
      * 创建实例 : createDeployUpdatePo 用于更新部署失败记录
      */
     public static DeployUpdatePO createDeployUpdatePoBuildLog(String buildLog, String stage, String seq) {
+        int size = 4096;
+        if (buildLog.length() > size) {
+            buildLog = buildLog.substring(0, size);
+        }
         return new DeployUpdatePO(null, stage, seq, buildLog);
     }
 
