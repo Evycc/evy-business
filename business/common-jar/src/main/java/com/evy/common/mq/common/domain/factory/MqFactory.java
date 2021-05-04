@@ -39,7 +39,7 @@ public class MqFactory {
     /**
      * 消息确认
      */
-    public static final boolean AUTO_ACK = true;
+    public static boolean AUTO_ACK = true;
     /**
      * 自动重连
      */
@@ -84,6 +84,7 @@ public class MqFactory {
         AUTO_RECOVERY = businessProperties.getMq().getRabbitmq().isAutoRecovery();
         CONN_RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConnRetryCount();
         BASICEQOS = businessProperties.getMq().getRabbitmq().getBasicQos();
+        AUTO_ACK = businessProperties.getMq().getRabbitmq().isAutoAck();
     }
 
     /**
@@ -118,7 +119,12 @@ public class MqFactory {
             Connection connection = rabbitmqConnFactory.newConnection();
             if (connection.isOpen()) {
                 channel =  connection.createChannel();
-                channel.basicQos(1);
+                if (BASICEQOS > 0) {
+                    channel.basicQos(0, BASICEQOS, true);
+                } else {
+                    channel.basicQos(0, 30, true);
+                }
+
                 return channel;
             }
             throw new TimeoutException("RabbitMQ连接失败,或连接为Closed状态");
@@ -133,7 +139,11 @@ public class MqFactory {
                     TimeUnit.SECONDS.sleep(1);
                     Connection connection = rabbitmqConnFactory.newConnection();
                     channel =  connection.createChannel();
-                    channel.basicQos(1);
+                    if (BASICEQOS > 0) {
+                        channel.basicQos(0, BASICEQOS, true);
+                    } else {
+                        channel.basicQos(0, 30, true);
+                    }
                     if (channel.isOpen()) {
                         break;
                     }
