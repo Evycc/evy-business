@@ -21,11 +21,11 @@ public interface IQryDumpInfo {
     /**
      * 在线进行heap dump
      */
-    @PostMapping("/heapDump")
+    @PostMapping("/findDeadThreads")
     QryDumpInfoOutDTO findDeadThreads(@RequestBody QryDumpInfoDTO dto);
     /**
      * 查找是否存在死锁
      */
-    @PostMapping("/findDeadThreads")
+    @PostMapping("/heapDump")
     QryDumpInfoOutDTO heapDump(@RequestBody QryDumpInfoDTO dto);
 }
