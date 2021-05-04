@@ -35,9 +35,9 @@ public class RabbitMqRetryEvent {
     private static void init() {
         rabbitMqSender = AppContextUtils.getBean(RabbitMqSender.class);
         AppContextUtils.getAsyncProp(businessProperties -> {
-            CommandLog.info("初始化MQ重试次数及重试间隔");
             RETRY_TIME = Duration.ofSeconds(businessProperties.getMq().getRabbitmq().getConsumerRetryTime());
             RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConsumerRetryCount();
+            CommandLog.info("初始化MQ重试次数:{} 重试间隔:{}s", RETRY_COUNT, RETRY_TIME);
         });
     }
 
