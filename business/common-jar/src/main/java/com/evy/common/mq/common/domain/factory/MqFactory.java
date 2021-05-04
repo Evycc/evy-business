@@ -118,9 +118,7 @@ public class MqFactory {
             Connection connection = rabbitmqConnFactory.newConnection();
             if (connection.isOpen()) {
                 channel =  connection.createChannel();
-                if (BASICEQOS != 0) {
-                    channel.basicQos(BASICEQOS);
-                }
+                channel.basicQos(1);
                 return channel;
             }
             throw new TimeoutException("RabbitMQ连接失败,或连接为Closed状态");
@@ -135,10 +133,8 @@ public class MqFactory {
                     TimeUnit.SECONDS.sleep(1);
                     Connection connection = rabbitmqConnFactory.newConnection();
                     channel =  connection.createChannel();
-                    if (BASICEQOS != 0) {
-                        channel.basicQos(BASICEQOS);
-                    }
-                    if (channel != null && channel.isOpen()) {
+                    channel.basicQos(1);
+                    if (channel.isOpen()) {
                         break;
                     }
                 } catch (IOException | TimeoutException ex) {
