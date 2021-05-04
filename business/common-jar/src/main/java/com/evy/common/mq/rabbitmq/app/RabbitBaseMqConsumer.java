@@ -25,10 +25,10 @@ public class RabbitBaseMqConsumer extends BaseMqConsumerAdapter {
                         try {
                             //basicConsume 设置autoAck之后,如果再进行手动ack,会导致队列消失
                             if (StringUtils.isEmpty(tag)) {
-                                defaultConsumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, defaultConsumer);
+                                defaultConsumer.getChannel().basicConsume(queue, true, defaultConsumer);
                             }
                             else {
-                                defaultConsumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, tag, defaultConsumer);
+                                defaultConsumer.getChannel().basicConsume(queue, true, tag, defaultConsumer);
                             }
                         } catch (Exception e) {
                             CommandLog.errorThrow("RabbitMQ 消费者IO异常", e);
