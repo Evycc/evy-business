@@ -7,6 +7,7 @@ import com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.web.utils.UdpUtils;
 import com.sun.management.ThreadMXBean;
+import org.springframework.util.StringUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -182,7 +183,7 @@ public class TraceThreadInfo {
      */
     public static void rmThreadInfo(List<TraceThreadInfoPO> list) {
         TraceThreadInfoPO po = list.get(0);
-        if (Objects.nonNull(po)) {
+        if (Objects.nonNull(po) && !StringUtils.isEmpty(po.getTatiAppIp())) {
             DBUtils.delete(DELETE_THREAD_INFO_BY_IP, po.getTatiAppIp());
         }
     }
