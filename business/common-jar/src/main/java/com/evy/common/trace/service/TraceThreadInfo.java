@@ -30,7 +30,10 @@ public class TraceThreadInfo {
     private static final String DELETE_THREAD_INFO_BY_IP = "com.evy.common.trace.repository.mapper.TraceMapper.deleteThreadInfoByIp";
 
     static {
-        AppContextUtils.getAsyncProp(businessProperties -> THREAD_FLAG = businessProperties.getTrace().getThread().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> {
+            THREAD_FLAG = businessProperties.getTrace().getThread().isFlag();
+            CommandLog.info("开启线程信息收集: {}", THREAD_FLAG);
+        });
         //监控死锁情况
         THREAD_MX_BEAN.setThreadContentionMonitoringEnabled(true);
         //监控死锁时间

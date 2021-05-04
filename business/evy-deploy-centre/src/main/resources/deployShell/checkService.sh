@@ -47,11 +47,17 @@ function sshCheckPid() {
 #根据PID搜索目标端口
 #返回值 不存在端口返回空
 function sshSearchPort() {
-    port=$(ssh $serverUser@"$targetHost" "netstat -nap | grep $targetPid|grep LISTEN|awk -F' ' '{print \$4}'|awk -F':' '{print \$4}'");
-    if [[ -n "$port" ]]; then
-      echo "$port";
-      return 0;
-    fi
+    i=1;
+    while [[ i++ -lt 3 ]]; do
+      port=$(ssh $serverUser@"$targetHost" "netstat -nap | grep $targetPid|grep LISTEN|awk -F' ' '{print \$4}'|awk -F':' '{print \$4}'");
+      if [[ -n "$port" ]]; then
+        echo "$port";
+        return 0;
+      fi
+      #休眠后发起重试,最多重试3次
+      sleep 6s
+    done
+
     echo "";
     return 1;
 }
@@ -61,10 +67,11 @@ function sshSearchPort() {
 #返回值 0:服务器启动成功 1:服务器启动失败
 function sshCheckService() {
     result=$(ssh $serverUser@"$targetHost" "curl $targetHost':'$1");
-    if [[ $result =~ 'status' ]]; then
+      if [[ $result =~ 'status' ]]; then
         echo 0;
         return 0;
-    fi
+      fi
+
     echo 1;
     return 0;
 }
@@ -80,6 +87,7 @@ function echoReturnMsg(){
 }
 
 function main() {
+    sleep 3s
     checkPid=$(sshCheckPid);
     if [[ "$checkPid" -eq "$SUCCESS" ]]; then
         port=$(sshSearchPort);

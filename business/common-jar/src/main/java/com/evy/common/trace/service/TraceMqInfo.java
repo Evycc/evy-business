@@ -40,6 +40,7 @@ public class TraceMqInfo {
     static {
         AppContextUtils.getAsyncProp(businessProperties -> {
             MQ_PRPO = businessProperties.getTrace().getMq().isFlag();
+            CommandLog.info("开启记录MQ链路: {}", MQ_PRPO);
         });
     }
 
@@ -88,7 +89,7 @@ public class TraceMqInfo {
     public static void executeMq() {
         int size = MQ_MODELS.size();
         try {
-            if (size > BusinessConstant.ONE_NUM) {
+            if (size > BusinessConstant.ZERO_NUM) {
                 List<TraceMqModel> mqModels = new ArrayList<>(MQ_MODELS);
                 if (HealthyInfoService.isIsHealthyService()) {
                     UdpUtils.send(HealthyInfoService.getHostName(), HealthyInfoService.getPort(), HealthyInfoModel.create(TraceMqModel.class, mqModels));
@@ -111,7 +112,7 @@ public class TraceMqInfo {
     public static void addMqTraceInfo(List<TraceMqModel> traceMqModels) {
         int size = traceMqModels.size();
         try {
-            if (size > BusinessConstant.ONE_NUM) {
+            if (size > BusinessConstant.ZERO_NUM) {
 
                 List<TraceMqPO> sendList = traceMqModels.stream()
                         .filter(traceMqModel -> traceMqModel.getTopic() != null)

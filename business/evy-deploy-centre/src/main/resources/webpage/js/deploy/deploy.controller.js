@@ -576,9 +576,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 if (response.errorCode !== '0') {
                     self.showTips('ip : ' + body.targetIp + 'heap dump异常 ' + response.errorMsg);
                 } else {
-                    let resultText;
+                    let resultText ='';
                     if (response.heapDumpInfo != null) {
-                        self.showAbsoluteDiv.showThreadResult = '';
                         if (response.heapDumpInfo.dumpResult === 1) {
                             resultText += response.heapDumpInfo.dumpResultErrorText;
                         } else {
@@ -591,6 +590,43 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 }
             }, function (err){
                 self.showTips('ip : ' + body.targetIp + 'heap dump异常 ' + err)
+            });
+    }
+
+    self.findDeadThreads = function () {
+        let body = {};
+        body.buildSeq = self.cur.deploySeq;
+        body.userSeq = self.cur.userSeq;
+        body.targetIp = self.curThreadIp;
+
+        DeployMainService.deadThreadList(body)
+            .then(function (response) {
+                if (response.errorCode !== '0') {
+                    self.showTips('ip : ' + body.targetIp + '查询死锁异常 ' + response.errorMsg);
+                } else {
+                    let resultText ='';
+                    if (response.deadThreadList != null && response.deadThreadList.length > 0) {
+                        response.deadThreadList.forEach(threadInfo => {
+                            self.showAbsoluteDiv.showThreadResult += '线程名:' + threadInfo.threadName + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '线程状态:' + threadInfo.threadState + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '占用内存byte:' + threadInfo.threadAvailByte + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '线程锁:' + threadInfo.threadBlockedName + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '获取锁次数:' + threadInfo.threadBlockedCount + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '获取锁时长:' + threadInfo.threadBlockedTimeMs + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '等待锁ID:' + threadInfo.threadBlockedId + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控线程ID:' + threadInfo.waitFromThreadIds + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控锁名:' + threadInfo.lockedMonitors + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '监控等待时长:' + threadInfo.threadWaitedTimeMs + '<br/>';
+                            self.showAbsoluteDiv.showThreadResult += '堆栈信息:' + threadInfo.threadStack + '<br/><br/>';;
+                        });
+
+                        self.showMidDivText('死锁列表',resultText);
+                    } else {
+                        self.showMidDivText('死锁查询','不存在死锁');
+                    }
+                }
+            }, function (err){
+                self.showTips('ip : ' + body.targetIp + '查询死锁异常 ' + err)
             });
     }
 

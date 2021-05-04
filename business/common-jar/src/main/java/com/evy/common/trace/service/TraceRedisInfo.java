@@ -87,7 +87,10 @@ public class TraceRedisInfo {
                 REDIS_FLAG = businessProperties.getTrace().getRedis().isFlag();
                 TRACE_REDIS_LIST = businessProperties.getTrace().getRedis().getList();
             }
-            initRedisClientList();
+            if (REDIS_FLAG) {
+                initRedisClientList();
+            }
+            CommandLog.info("开启监控Redis健康信息: {}", REDIS_FLAG);
         });
         shutdownConn();
     }

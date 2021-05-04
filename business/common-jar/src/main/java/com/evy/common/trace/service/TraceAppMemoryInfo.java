@@ -39,6 +39,7 @@ public class TraceAppMemoryInfo {
             if (Objects.nonNull(businessProperties)) {
                 MEMORY_PRPO = businessProperties.getTrace().getMemory().isFlag();
             }
+            CommandLog.info("开启监控服务器内存信息: {}", MEMORY_PRPO);
         });
     }
 

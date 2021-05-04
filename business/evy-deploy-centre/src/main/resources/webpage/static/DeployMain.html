@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/main.full.css">
     <title>Evy持续集成中心</title>
 </head>
-<body class="ng-cloak main-style" ng-app="DeployApp" ng-controller="DeployMainController as main">
+<body class="ng-cloak main-style" ng-app="DeployApp" ng-controller="DeployMainController as main" ng-cloak>
 <!--顶部导航栏-->
 <header>
     <nav id="{{main.tips.id}}" class="fixed-nav" style="display: none;width:100%;z-index: 1001">{{main.tips.pre + main.tips.post}}</nav>
@@ -415,7 +415,7 @@
                         <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding small-service-btn"
                                 style="max-width: 90px !important; float: left; margin-right: 8px;"
                                 type="submit" aria-label="提交"
-                                ng-click="main.showQryRealTimeThreadId()">
+                                ng-click="main.findDeadThreads()">
                             死锁查询
                         </button>
                     </li>
@@ -1057,6 +1057,7 @@
         <ul class="ul-div-style bottom-border-solid xs-font-size">
             <li class="six_ul_style">应用名称</li>
             <li class="six_ul_style">部署分支</li>
+            <li class="six_ul_style">部署状态</li>
             <li class="six_ul_style">部署流水</li>
             <li class="six_ul_style">备注</li>
             <li class="six_ul_style">部署时间</li>
@@ -1065,6 +1066,9 @@
         <ul class="ul-div-style bottom-border-solid xs-font-size" ng-repeat="v in main.deployHistoryInfoList">
             <li class="six_ul_style">{{v.appName}}</li>
             <li class="six_ul_style">{{v.gitBrchan}}</li>
+            <li class="six_ul_style">{{v.stageFlag == '0a' ? '编译成功' : v.stageFlag == '0b' ? '编译中' : v.stageFlag == '0c' ? '编译失败'
+                : v.stageFlag == '1a' ? '部署成功' : v.stageFlag == '1b' ? '部署中' : v.stageFlag == '1c' ? '部署失败'
+                : v.stageFlag == '2a' ? '服务启动成功' : v.stageFlag == '2b' ? '服务启动中' : v.stageFlag == '2c' ? '服务启动失败' : '未部署'}}</li>
             <li class="six_ul_style">{{v.buildSeq}}</li>
             <li class="six_ul_style">{{v.remarks}}</li>
             <li class="six_ul_style">{{v.createDateTime}}</li>

@@ -39,7 +39,7 @@ public class EvyStartApp implements CommandLineRunner
     public void run(String... args) throws Exception {
         //开启应用信息健康
         TraceUtils.init();
-        //初始化服务,否注间隔1分钟后才能查到服务
+        //初始化服务,否则间隔1分钟后才能查到服务
         TraceService.executeService();
     }
 }

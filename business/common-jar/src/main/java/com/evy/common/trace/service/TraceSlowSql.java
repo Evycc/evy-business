@@ -46,6 +46,7 @@ public class TraceSlowSql {
     static {
         AppContextUtils.getAsyncProp(businessProperties -> {
             DB_PRPO = businessProperties.getTrace().getDatabase().isFlag();
+            CommandLog.info("开启慢SQL监控: {}", DB_PRPO);
         });
     }
 

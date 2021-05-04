@@ -60,7 +60,10 @@ public class TraceService {
     private static String APP_NAME = getAppName();
 
     static {
-        AppContextUtils.getAsyncProp(businessProperties -> SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag());
+        AppContextUtils.getAsyncProp(businessProperties -> {
+            SERVICE_TIMING_PRPO = businessProperties.getTrace().getService().isFlag();
+            CommandLog.info("开启服务发布: {}", SERVICE_TIMING_PRPO);
+        });
         cleanServiceInfo();
     }
 
@@ -105,7 +108,7 @@ public class TraceService {
      */
     public static void executeService() {
         //更新发布者服务方信息
-        if (!CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
+        if (SERVICE_TIMING_PRPO && !CollectionUtils.isEmpty(SERVICES_INFO_LIST)) {
             if (Objects.isNull(APP_NAME)) {
                 APP_NAME = getAppName();
             }
