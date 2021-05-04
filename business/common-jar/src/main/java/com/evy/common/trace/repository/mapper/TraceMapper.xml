@@ -130,7 +130,7 @@
     </insert>
 
     <delete id="deleteThreadInfoByIp" parameterType="java.lang.String">
-        DELETE FROM trace_app_thread_info WHERE tati_app_ip = #{};
+        DELETE FROM trace_app_thread_info WHERE tati_app_ip = #{tatiAppIp};
     </delete>
 
     <insert id="threadInfoInsert"

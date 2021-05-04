@@ -150,6 +150,7 @@ public class TraceThreadInfo {
                     }
 
                 } else {
+                    rmThreadInfo(list);
                     addThreadInfos(list);
                 }
                 list = null;
@@ -179,8 +180,6 @@ public class TraceThreadInfo {
      * @param list  com.evy.common.trace.infrastructure.tunnel.po.TraceThreadInfoPO
      */
     public static void rmThreadInfo(List<TraceThreadInfoPO> list) {
-        list.stream().findFirst().ifPresent(traceThreadInfoPO -> {
-            DBUtils.delete(DELETE_THREAD_INFO_BY_IP, traceThreadInfoPO.getTatiAppIp());
-        });
+        list.stream().findFirst().ifPresent(traceThreadInfoPo -> DBUtils.delete(DELETE_THREAD_INFO_BY_IP, traceThreadInfoPo.getTatiAppIp()));
     }
 }
