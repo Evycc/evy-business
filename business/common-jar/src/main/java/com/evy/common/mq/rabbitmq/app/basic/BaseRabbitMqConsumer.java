@@ -100,7 +100,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
             Channel channel = getChannel();
             if (channel != null && channel.isOpen()) {
                 CommandLog.info("执行消费确认ack:{}", deliveryTag);
-                getChannel().basicAck(deliveryTag, false);
+                getChannel().basicAck(deliveryTag, true);
             }
         } catch (IOException e) {
             CommandLog.errorThrow("获取rabbitmq channel异常 or ack异常", e);
