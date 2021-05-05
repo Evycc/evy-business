@@ -11,11 +11,11 @@ set -o nounset    #遇到不存在的变量，终止
 #通过sftp上传编译好的jar包到指定服务器目录->在指定服务器启动jar包,获取PID,获取执行日志
 #使用方式 sh -x startJar.sh ${目标服务器ip} ${jar包路径} ${jvm参数} ${dump目录}
 #返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
-#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms512m /cdadmin/applog/default/current/dump/
+#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 /cdadmin/applog/default/current/dump/ -Xms512m
 #$1 127.0.0.1
 #$2 /cdadmin/gitProject/history/test-demo/2020-08-25
-#$3 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
-#$4 /cdadmin/applog/default/current/dump/
+#$3 /cdadmin/applog/default/current/dump/
+#$4 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
 
 #######################函数声明#######################
 #$1 errorCode 0成功 1失败
@@ -42,9 +42,9 @@ for arg in "$@"; do
           ##参数2 jar包路径
           paramJarPath=${arg}'/'
             elif [[ i -eq 3 ]]; then
-              paramJvm=$paramJvm${arg}' '
+              DUMP_LOG_DIR=${arg}
               else
-                DUMP_LOG_DIR=${arg}
+                paramJvm=$paramJvm${arg}' '
     fi
     ((i=++i))
 done
