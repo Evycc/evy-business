@@ -9,7 +9,7 @@
     <!-- TracrLog用 -->
     <property name="TraceLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] [%X{traceId}] %evylogger - %msg%n"/>
     <!--日志存放目录-->
-    <property name="logDir" value="/cdadmin/applog/current"/>
+    <property name="logDir" value="/cdadmin/evy-gateway/applog/current"/>
     <!--历史日志存放目录-->
     <property name="historyLogDir" value="/cdadmin/evy-gateway/applog/history"/>
     <!--应用名称-->
