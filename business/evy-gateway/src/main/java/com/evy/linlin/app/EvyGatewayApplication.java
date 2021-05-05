@@ -82,22 +82,4 @@ public class EvyGatewayApplication implements CommandLineRunner {
                 )
                 .build();
     }
-
-    @RequestMapping(value = "/rpc", method = RequestMethod.POST)
-    public Flux<Object> serviceInvoke(@RequestBody Map<String, String> helloDto) throws Exception {
-        System.out.println("rpc");
-
-        //动态进行Feign调用
-        FeignClientBuilder.Builder<?> builder = new FeignClientBuilder(AppContextUtils.getApplicationContext())
-                .forType(Class.forName("com.evy.linlin.HelloServiceRpc"), "TEST-DEMO");
-        Object cobj = builder.build();
-
-        Object dto = Class.forName("com.evy.linlin.HelloDto").getDeclaredConstructor();
-
-        Method cm = cobj.getClass().getMethod("hello", InputDTO.class);
-        Object cr = cm.invoke(cobj, CommandUtils.conveterFromMap("com.evy.linlin.HelloDto", helloDto));
-        System.out.println(cr);
-
-        return Flux.just(cr);
-    }
 }
