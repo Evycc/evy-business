@@ -9,11 +9,11 @@
     <!-- TracrLog用 -->
     <property name="TraceLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] [%X{traceId}] %evylogger - %msg%n"/>
     <!--日志存放目录-->
-    <property name="logDir" value="/applog/current"/>
+    <property name="logDir" value="/cdadmin/applog/current"/>
     <!--历史日志存放目录-->
-    <property name="historyLogDir" value="/applog/history"/>
+    <property name="historyLogDir" value="/cdadmin/applog/history"/>
     <!--应用名称-->
-    <property name="appName" value="test-demo"/>
+    <property name="appName" value="evy-deploy-centre"/>
 
     <contextName>${appName}</contextName>
 
@@ -80,7 +80,7 @@
     <logger name="org.hibernate.validator" level="ERROR"/>
 
     <logger name="com" level="INFO" additivity="false">
-        <appender-ref ref="log_history_file"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 
     <root level="DEBUG">

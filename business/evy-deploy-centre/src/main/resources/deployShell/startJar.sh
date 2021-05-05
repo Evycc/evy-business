@@ -62,7 +62,7 @@ readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.
 readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUGSLOW_SQL=2000'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
 #jvm参数 dump文件保存地址,必须事先创建
-readonly DUMP_LOG_DIR='/applog/current/dump/'
+readonly DUMP_LOG_DIR='/cdadmin/applog/current/dump/'
 readonly DUMP_JVM_PARAM='-XX:HeapDumpPath='$DUMP_LOG_DIR
 
 #######################将jar包解压到本地,拼接classpath#######################

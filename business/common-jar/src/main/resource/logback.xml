@@ -9,9 +9,9 @@
     <!-- TracrLog用 -->
     <property name="TraceLogPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] [%X{traceId}] %evylogger - %msg%n"/>
     <!--日志存放目录-->
-    <property name="logDir" value="/applog/current"/>
+    <property name="logDir" value="/cdadmin/applog/current"/>
     <!--历史日志存放目录-->
-    <property name="historyLogDir" value="/applog/history"/>
+    <property name="historyLogDir" value="/cdadmin/applog/history"/>
     <!--应用名称-->
     <property name="appName" value="comman-jar"/>
 
