@@ -11,9 +11,9 @@
     <!--日志存放目录-->
     <property name="logDir" value="/cdadmin/applog/current"/>
     <!--历史日志存放目录-->
-    <property name="historyLogDir" value="/cdadmin/evy-deploy-centre/applog/history"/>
+    <property name="historyLogDir" value="/cdadmin/evy-gateway/applog/history"/>
     <!--应用名称-->
-    <property name="appName" value="evy-deploy-centre"/>
+    <property name="appName" value="evy-gateway"/>
 
     <contextName>${appName}</contextName>
 
