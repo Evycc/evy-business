@@ -11,17 +11,17 @@ import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.DateUtils;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConfirmListener;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.SerializationUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -35,11 +35,6 @@ import java.util.concurrent.TimeUnit;
 @DependsOn(BeanNameConstant.APP_CONTEXT_UTILS)
 public class RabbitMqSender implements MqSender {
     private static final ExecutorService EXECUTOR_SERVICE = CreateFactory.returnExecutorService("RabbitMqSender");
-    /**
-     * 存放需要异步confirm的消息标签MAP
-     * K: deliveryTag V: 消息体
-     */
-    private static final SortedMap<Long, MqSendMessage> ACK_MAP = Collections.synchronizedNavigableMap(new TreeMap<>());
     /**
      * 具有addConfirmListener的channel
      */
@@ -81,45 +76,6 @@ public class RabbitMqSender implements MqSender {
     private Channel initChannelConfirm() {
         if (channelConfirm == null || !channelConfirm.isOpen()) {
             channelConfirm = getChannel();
-            channelConfirm.addConfirmListener(new ConfirmListener() {
-                @Override
-                public void handleAck(long l, boolean b) {
-                    //b=true    表示ack了l之前所有的消息
-                    if (b) {
-                        ACK_MAP.headMap(l - 1).clear();
-                    }
-                    else {
-                        ACK_MAP.remove(l);
-                    }
-                }
-
-                @Override
-                public void handleNack(long l, boolean b) {
-                    //未收到ack
-                    CommandLog.warn("nack:{}:{} 重新发送消息", l, b);
-                    CommandLog.info("未收到ACK，重新发送MQ...");
-                    //b=true    表示nack了l之前所有的消息
-                    if (b) {
-                        SortedMap<Long, MqSendMessage> tempMap = ACK_MAP.headMap(l - 1);
-                        if (!CollectionUtils.isEmpty(tempMap)){
-                            tempMap.entrySet().forEach(key -> {
-                                Optional.ofNullable(tempMap.get(key))
-                                        .ifPresent(tempMsg -> sendAndConfirm(tempMsg, true, initChannelConfirm()));
-                            });
-                        } else {
-                            CommandLog.warn("MQ not found Nack deliveryTag: {}", l);
-                        }
-
-                        //循环发送MQ完毕，清除之前未ack的deliveryTag
-                        ACK_MAP.headMap(l - 1).clear();
-                    } else{
-                        MqSendMessage tempMsg = ACK_MAP.remove(l);
-                        if (tempMsg != null) {
-                            sendAndConfirm(tempMsg, true, initChannelConfirm());
-                        }
-                    }
-                }
-            });
         }
         return channelConfirm;
     }
@@ -190,7 +146,6 @@ public class RabbitMqSender implements MqSender {
                     .build();
 
             if (isConfirm){
-                ACK_MAP.put(Long.valueOf(deliveryTag), mqSendMessage);
                 //开启异步消息确认机制
                 channel.confirmSelect();
             }

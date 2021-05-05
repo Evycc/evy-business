@@ -55,6 +55,7 @@ public abstract class BaseRabbitMqConsumer extends DefaultConsumer {
     public void doExecute(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
         long startTime = System.currentTimeMillis();
         try {
+            CommandLog.info("envelope.isRedeliver() {}", envelope.isRedeliver());
             messageAck(envelope.getDeliveryTag());
             CommandLog.info("Start Consumer Service\tTopic:{}\tConsumerID:{}\t", envelope.getExchange(), properties.getCorrelationId());
             MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
