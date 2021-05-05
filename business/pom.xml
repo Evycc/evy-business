@@ -10,12 +10,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>test-demo-api</module>
         <module>evy-deploy-centre-api</module>
         <module>evy-gateway-api</module>
-        <module>evy-business</module>
         <module>common-jar</module>
-        <module>test-demo</module>
         <module>common-agent-jar</module>
         <module>evy-deploy-centre</module>
         <module>evy-gateway</module>
