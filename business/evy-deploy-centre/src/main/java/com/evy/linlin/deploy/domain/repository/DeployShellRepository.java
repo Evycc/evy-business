@@ -5,6 +5,7 @@ import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
 import com.evy.common.log.CommandLog;
+import com.evy.common.utils.AppContextUtils;
 import com.evy.common.utils.DateUtils;
 import com.evy.common.utils.JsonUtils;
 import com.evy.linlin.deploy.domain.tunnel.DeployAssembler;
@@ -57,10 +58,22 @@ public class DeployShellRepository {
      * HeapDumpPath : dump文件保存地址,必须事先创建
      */
     private static final String JVM_PARAM_DEFAULT = "-XX:+HeapDumpBeforeFullGC -XX:+HeapDumpOnOutOfMemoryError";
+    /**
+     * dump目录
+     */
+    private static String JVM_DUMP_DIR_PATH = "";
+    private static final String DEFAULT_JVM_DUMP_DIR_PATH = "/cdadmin/applog/default/current/dump/";
     private final DeployDataRepository deployDataRepository;
 
     public DeployShellRepository(DeployDataRepository deployDataRepository) {
         this.deployDataRepository = deployDataRepository;
+        if (StringUtils.isEmpty(JVM_DUMP_DIR_PATH)) {
+            String appName = AppContextUtils.getForEnv("spring.application.name");
+            if (!StringUtils.isEmpty(appName)) {
+                JVM_DUMP_DIR_PATH = appName;
+            }
+        }
+
     }
 
     /**
@@ -300,11 +313,11 @@ public class DeployShellRepository {
 
     /**
      * 启用startJar.sh<br/>
-     * sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m<br/>
+     * sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m /cdadmin/applog/default/current/dump/<br/>
      * 返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
      */
-    private ShellOutDO startJarShell(String targetHost, String jarPath, String jvmParam) {
-        return execShell(chmod755(SHELL_START_JAR), targetHost, jarPath, jvmParam);
+    private ShellOutDO startJarShell(String targetHost, String jarPath, String jvmParam, String dumpDir) {
+        return execShell(chmod755(SHELL_START_JAR), targetHost, jarPath, jvmParam, dumpDir);
     }
 
     /**
@@ -316,7 +329,8 @@ public class DeployShellRepository {
      * @return DeployStatusOutDO pid为空表示部署失败
      */
     private DeployStatusOutDO excelAndGetStartJarShell(String targetHost, String jarPath, String jvmParam) {
-        ShellOutDO shellOutDo = startJarShell(targetHost, jarPath, jvmParam);
+        ShellOutDO shellOutDo = startJarShell(targetHost, jarPath, jvmParam,
+                StringUtils.isEmpty(JVM_DUMP_DIR_PATH) ? DEFAULT_JVM_DUMP_DIR_PATH : JVM_DUMP_DIR_PATH);
         return DeployAssembler.createDeployStatusOutDO(shellOutDo.getMsg(), targetHost);
     }
 

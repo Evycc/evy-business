@@ -9,12 +9,13 @@ set -o nounset    #遇到不存在的变量，终止
 #######################startJar.sh说明#######################
 #需先执行buildJar.sh
 #通过sftp上传编译好的jar包到指定服务器目录->在指定服务器启动jar包,获取PID,获取执行日志
-#使用方式 sh -x startJar.sh ${目标服务器ip} ${jar包路径} ${jvm参数}
+#使用方式 sh -x startJar.sh ${目标服务器ip} ${jar包路径} ${jvm参数} ${dump目录}
 #返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
-#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms512m
+#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms512m /cdadmin/applog/default/current/dump/
 #$1 127.0.0.1
 #$2 /cdadmin/gitProject/history/test-demo/2020-08-25
 #$3 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
+#$4 /cdadmin/applog/default/current/dump/
 
 #######################函数声明#######################
 #$1 errorCode 0成功 1失败
@@ -31,6 +32,8 @@ function echoReturnMsg(){
 i=1
 #参数3 jvm参数
 paramJvm=''
+#jvm参数 dump文件保存地址,必须事先创建
+DUMP_LOG_DIR=''
 for arg in "$@"; do
     if [[ i -eq 1 ]]; then
       #参数1 目标服务器IP
@@ -38,8 +41,10 @@ for arg in "$@"; do
         elif [[ i -eq 2 ]]; then
           ##参数2 jar包路径
           paramJarPath=${arg}'/'
-            else
+            elif [[ i -eq 3 ]]; then
               paramJvm=$paramJvm${arg}' '
+              else
+                DUMP_LOG_DIR=${arg}
     fi
     ((i=++i))
 done
@@ -61,8 +66,6 @@ readonly DEFAULT_JVM_PARAM=' -XX:TieredStopAtLevel=1 -noverify '
 readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
 readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUGSLOW_SQL=2000'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
-#jvm参数 dump文件保存地址,必须事先创建
-readonly DUMP_LOG_DIR='/cdadmin/applog/current/dump/'
 readonly DUMP_JVM_PARAM='-XX:HeapDumpPath='$DUMP_LOG_DIR
 
 #######################将jar包解压到本地,拼接classpath#######################
