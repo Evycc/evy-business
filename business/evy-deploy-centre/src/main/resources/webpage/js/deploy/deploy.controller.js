@@ -1163,9 +1163,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
     }
 
     self.showMqContent = function (text) {
-        self.viewShow.showAbsoluteDiv = true;
-        self.showAbsoluteDiv.showDivTitle = '消息正文';
-        self.showAbsoluteDiv.showDivContent = text;
+        self.showMidDivText('消息正文', text);
     }
 
     self.closeAbsoluteDiv = function () {
@@ -1804,10 +1802,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         }
 
         //赋值style属性
-        srvInt = srvInt <= 0? "0%" : Math.round((srvInt / totalInt) * 10000) / 100.0 + "%";
-        dbInt = dbInt <= 0? "0%" : Math.round((dbInt / totalInt) * 10000) / 100.0 + "%";
-        httpInt = httpInt <= 0? "0%" : Math.round((httpInt / totalInt) * 10000) / 100.0 + "%";
-        mqInt = mqInt <= 0? "0%" : Math.round((mqInt / totalInt) * 10000) / 100.0 + "%";
+        srvInt = srvInt <= 0? "0%" : Math.floor(srvInt / totalInt * 100) + "%";
+        dbInt = dbInt <= 0? "0%" : Math.floor(dbInt / totalInt * 100) + "%";
+        httpInt = httpInt <= 0? "0%" : Math.floor(httpInt / totalInt * 100) + "%";
+        mqInt = mqInt <= 0? "0%" : Math.floor(mqInt / totalInt * 100) + "%";
         angular.element('#srv-ms-span').attr('style', 'width:' + srvInt);
         angular.element('#db-ms-span').attr('style', 'width:' + dbInt);
         angular.element('#http-ms-span').attr('style', 'width:' + httpInt);

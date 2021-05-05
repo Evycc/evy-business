@@ -81,7 +81,7 @@ public class TraceSlowSql {
                     String slowSql = model.getSlowSql();
                     TraceSqlPO tracesqlpo;
 
-                    if (slowSql.contains(select1) || slowSql.contains(select2)) {
+                    if (slowSql.startsWith(select1) || slowSql.startsWith(select2)) {
                         ExplainListModel explainListModel = explain(slowSql);
                         String explain = handleExplain(explainListModel);
                         String exlainContent = explainListModel.toString();
