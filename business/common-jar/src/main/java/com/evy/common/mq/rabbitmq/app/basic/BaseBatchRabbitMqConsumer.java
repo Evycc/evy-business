@@ -7,7 +7,6 @@ import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
-import org.springframework.util.SerializationUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -21,8 +20,7 @@ public class BaseBatchRabbitMqConsumer extends BaseRabbitMqConsumer {
     }
 
     @Override
-    public void doExecute(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
+    public void doExecute(Envelope envelope, AMQP.BasicProperties properties, MqSendMessage sendMessage) {
         //批次则更新结束时间
         String batchName = BatchUtils.qryTopicFromBatchName(sendMessage.getTopic());
         if (!StringUtils.isEmpty(batchName)) {
@@ -30,6 +28,6 @@ public class BaseBatchRabbitMqConsumer extends BaseRabbitMqConsumer {
                 CommandLog.error("更新批次时间失败");
             }
         }
-        super.doExecute(consumerTag, envelope, properties, body);
+        super.doExecute(envelope, properties, sendMessage);
     }
 }

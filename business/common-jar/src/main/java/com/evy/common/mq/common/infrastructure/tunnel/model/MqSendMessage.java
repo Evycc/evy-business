@@ -55,6 +55,10 @@ public class MqSendMessage implements Serializable {
      * 死信队列
      */
     private String dlxQueue;
+    /**
+     * 是否广播模式
+     */
+    private boolean isFanout = false;
 
     private MqSendMessage() {
     }
@@ -155,6 +159,14 @@ public class MqSendMessage implements Serializable {
         this.dlxQueue = dlxQueue;
     }
 
+    public boolean isFanout() {
+        return isFanout;
+    }
+
+    public void setFanout(boolean fanout) {
+        isFanout = fanout;
+    }
+
     @Override
     public String toString() {
         return "MqSendMessage{" +
@@ -169,6 +181,7 @@ public class MqSendMessage implements Serializable {
                 ", delayTime=" + delayTime +
                 ", prpoMap=" + prpoMap +
                 ", dlxQueue='" + dlxQueue + '\'' +
+                ", isFanout=" + isFanout +
                 '}';
     }
 }

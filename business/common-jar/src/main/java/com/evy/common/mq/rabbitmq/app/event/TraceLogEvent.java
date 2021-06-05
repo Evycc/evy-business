@@ -6,11 +6,8 @@ import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.evy.common.mq.rabbitmq.app.basic.BaseRabbitMqConsumer;
 import com.evy.common.utils.JsonUtils;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Envelope;
 import org.springframework.stereotype.Component;
-import org.springframework.util.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +36,7 @@ public class TraceLogEvent extends BaseRabbitMqConsumer {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected int execute(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-        MqSendMessage sendMessage = (MqSendMessage) SerializationUtils.deserialize(body);
+    protected int execute(MqSendMessage sendMessage) {
         assert sendMessage != null;
         String messageJson = String.valueOf(sendMessage.getMessage());
         Map<String, String> map = JsonUtils.convertToObject(messageJson, Map.class);

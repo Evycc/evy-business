@@ -1,6 +1,5 @@
 package com.evy.common.mq.common.app.basic;
 
-import com.evy.common.command.domain.factory.CreateFactory;
 import com.evy.common.command.infrastructure.config.BusinessProperties;
 import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.log.CommandLog;
@@ -10,20 +9,15 @@ import com.evy.common.mq.rabbitmq.app.RabbitBaseMqConsumer;
 import com.evy.common.mq.rabbitmq.app.event.TraceLogEvent;
 import com.evy.common.utils.AppContextUtils;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DefaultConsumer;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 /**
  * RabbitMQ 消费者处理

@@ -704,10 +704,6 @@ public class BusinessProperties {
              */
             private int priority = 0;
             /**
-             * 消息确认
-             */
-            private boolean autoAck = true;
-            /**
              * 自动重连
              */
             private boolean autoRecovery = true;
@@ -774,14 +770,6 @@ public class BusinessProperties {
 
             public void setPriority(int priority) {
                 this.priority = priority;
-            }
-
-            public boolean isAutoAck() {
-                return autoAck;
-            }
-
-            public void setAutoAck(boolean autoAck) {
-                this.autoAck = autoAck;
             }
 
             public boolean isAutoRecovery() {

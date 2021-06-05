@@ -2,7 +2,6 @@ package com.evy.common.mq.rabbitmq.app;
 
 import com.evy.common.log.CommandLog;
 import com.evy.common.mq.common.app.basic.BaseMqConsumerAdapter;
-import com.evy.common.mq.common.domain.factory.MqFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import org.springframework.util.StringUtils;
 
@@ -25,10 +24,10 @@ public class RabbitBaseMqConsumer extends BaseMqConsumerAdapter {
                         try {
                             //basicConsume 设置autoAck之后,如果再进行手动ack,会导致队列消失
                             if (StringUtils.isEmpty(tag)) {
-                                defaultConsumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, defaultConsumer);
+                                defaultConsumer.getChannel().basicConsume(queue, false, defaultConsumer);
                             }
                             else {
-                                defaultConsumer.getChannel().basicConsume(queue, MqFactory.AUTO_ACK, tag, defaultConsumer);
+                                defaultConsumer.getChannel().basicConsume(queue, false, tag, defaultConsumer);
                             }
                         } catch (Exception e) {
                             CommandLog.errorThrow("RabbitMQ 消费者IO异常", e);

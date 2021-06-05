@@ -6,9 +6,14 @@ import com.evy.common.mq.common.domain.factory.MqFactory;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage;
 import com.evy.common.mq.rabbitmq.app.RabbitMqSender;
 import com.evy.common.utils.AppContextUtils;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * 通过死信队列,实现RabbitMQ消息重发
@@ -16,14 +21,23 @@ import java.util.Optional;
  * @Date: 2020/6/21 10:42
  */
 public class RabbitMqRetryEvent {
-    private static final String RETRY__KEY = "rabbitmq:retry:";
+    private static final String RETRY_KEY = "rabbitmq:retry:";
     /**
      * 记录等待重发的MQ可重发次数
      */
     private static final String RETRY_COUNT_KEY = "rabbitmq:retry:count:";
+    /**
+     * 加redis锁,防重消费
+     */
+    private static final String CONSUMER_LOCK = "rabbitmq:consumer:lock:";
+    /**
+     * redis锁过期时间,1h
+     */
+    private static final Duration CONSUMER_LOCK_EXPIRE_TIME = Duration.ofHours(1L);
     private static Duration RETRY_TIME;
     private static int RETRY_COUNT;
     private static RabbitMqSender rabbitMqSender;
+    private static ReactiveRedisTemplate<String, String> template;
 
     static {
         init();
@@ -34,10 +48,13 @@ public class RabbitMqRetryEvent {
      */
     private static void init() {
         rabbitMqSender = AppContextUtils.getBean(RabbitMqSender.class);
+        ReactiveRedisConnectionFactory factory = AppContextUtils.getBean(ReactiveRedisConnectionFactory.class);
+        template = new ReactiveRedisTemplate<>(factory, RedisSerializationContext.fromSerializer(new StringRedisSerializer()));
         AppContextUtils.getAsyncProp(businessProperties -> {
             RETRY_TIME = Duration.ofSeconds(businessProperties.getMq().getRabbitmq().getConsumerRetryTime());
             RETRY_COUNT = businessProperties.getMq().getRabbitmq().getConsumerRetryCount();
-            CommandLog.info("初始化MQ重试次数:{} 重试间隔:{}s", RETRY_COUNT, RETRY_TIME);
+
+            CommandLog.info("初始化MQ重试次数:{} 重试间隔:{}s", RETRY_COUNT, RETRY_TIME.getSeconds());
         });
     }
 
@@ -49,10 +66,10 @@ public class RabbitMqRetryEvent {
     public static void waitRetry(MqSendMessage mqSendMessage) {
         CommandLog.info("waitRetry param: {}", mqSendMessage);
 
+        //更改为死信队列
         if (increRetryCount(mqSendMessage)) {
             mqSendMessage.setTopic(getTopicToMqSendMsg(mqSendMessage));
             mqSendMessage.setTag(getTagToMqSendMsg(mqSendMessage));
-            mqSendMessage.setMessageId(BusinessConstant.EMPTY_STR);
             sendRetry(mqSendMessage);
         }
     }
@@ -71,7 +88,7 @@ public class RabbitMqRetryEvent {
                     int limit = Integer.parseInt(count) + 1;
                     if (limit >= RETRY_COUNT) {
                         results[0] = false;
-                        mqSendMessage.getPrpoMap().remove(RETRY__KEY);
+                        mqSendMessage.getPrpoMap().remove(RETRY_KEY);
                     }
                     mqSendMessage.getPrpoMap().put(RETRY_COUNT_KEY, String.valueOf(limit));
                 }, () -> mqSendMessage.getPrpoMap().put(RETRY_COUNT_KEY, BusinessConstant.ZERO));
@@ -114,8 +131,8 @@ public class RabbitMqRetryEvent {
         CommandLog.info("RabbitMQ消息重试 sendRetry param: {}", mqSendMessage.getMessageId());
         CommandLog.info("重发MQ param: {}", mqSendMessage);
         //标识为消息重试
-        if (Optional.ofNullable(mqSendMessage.getPrpoMap().get(RETRY__KEY)).isEmpty()) {
-            mqSendMessage.getPrpoMap().put(RETRY__KEY, BusinessConstant.EMPTY_STR);
+        if (Optional.ofNullable(mqSendMessage.getPrpoMap().get(RETRY_KEY)).isEmpty()) {
+            mqSendMessage.getPrpoMap().put(RETRY_KEY, BusinessConstant.EMPTY_STR);
         }
         rabbitMqSender.sendDelay(mqSendMessage, RETRY_TIME);
     }
@@ -128,6 +145,29 @@ public class RabbitMqRetryEvent {
      */
     public static boolean hasRetryKey(MqSendMessage mqSendMessage) {
         CommandLog.info("hasRetryKey param: {}", mqSendMessage);
-        return Optional.ofNullable(mqSendMessage.getPrpoMap().remove(RETRY__KEY)).isPresent();
+        return Optional.ofNullable(mqSendMessage.getPrpoMap().remove(RETRY_KEY)).isPresent();
+    }
+
+    /**
+     * 消费时给messageId添加锁,只允许单应用消费
+     * @param messageId messageId
+     * @param consumer  加锁后执行操作
+     */
+    public static void consumerGetLock(String messageId, Consumer<Boolean> consumer) {
+        template.opsForValue()
+                .setIfAbsent(CONSUMER_LOCK + messageId, BusinessConstant.ONE, CONSUMER_LOCK_EXPIRE_TIME)
+                .blockOptional()
+                .ifPresent(consumer);
+    }
+
+    /**
+     * 消费后给messageId删除锁
+     * @param messageId messageId
+     */
+    public static void consumerCloseLock(String messageId, Consumer<Boolean> consumer) {
+        template.opsForValue()
+                .delete(CONSUMER_LOCK + messageId)
+                .blockOptional()
+                .ifPresent(consumer);
     }
 }
