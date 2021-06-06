@@ -1,0 +1,14 @@
+drop table if exists public_deploy_info;
+drop table if exists public_error_map;
+drop table if exists public_log_flow;
+drop table if exists service_limit_info;
+drop table if exists td_batch;
+drop table if exists td_batch_msg;
+drop table if exists td_router;
+drop table if exists trace_app_mermory_info;
+drop table if exists trace_app_thread_info;
+drop table if exists trace_http_flow;
+drop table if exists trace_mq_flow;
+drop table if exists trace_redis_health;
+drop table if exists trace_services_info;
+drop table if exists trace_slow_sql;

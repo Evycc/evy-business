@@ -34,8 +34,7 @@ public class RabbitMqConsumerAgent {
             stringBuilder.append("{long agentStartTime = System.currentTimeMillis();")
                     //Trace记录开始 START
                     //缓存当前线程traceId
-                    .append("com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage sendMessage")
-                    .append("= (com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage) org.springframework.util.SerializationUtils.deserialize($4);")
+                    .append("com.evy.common.mq.common.infrastructure.tunnel.model.MqSendMessage sendMessage = $3;")
                     .append("String traceId = sendMessage.getPrpoMap().getOrDefault(\"traceId\", \"\");")
                     //设置当前线程为DB类型的traceId
                     .append("if(traceId != null && !\"\".equals(traceId)){")
