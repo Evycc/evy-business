@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:21
  */
-public class NextDeployBuildSeqDTO extends InputDTO implements ValidatorDTO<NextDeployBuildSeqDTO> {
+public class NextDeployBuildSeqDTO extends GatewayInputDTO implements ValidatorDTO<NextDeployBuildSeqDTO> {
     /**
      * 用户标识
      */
@@ -68,6 +69,9 @@ public class NextDeployBuildSeqDTO extends InputDTO implements ValidatorDTO<Next
      */
     @NotNull(message = "switchJunit不能为空")
     private Boolean switchJunit;
+
+    public NextDeployBuildSeqDTO() {
+    }
 
     @Override
     public String toString() {

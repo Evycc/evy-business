@@ -48,6 +48,9 @@ public class QryMqTraceInfoModel extends CommandModel {
      */
     private String gmtModify;
 
+    public QryMqTraceInfoModel() {
+    }
+
     public QryMqTraceInfoModel(String topic, String reqIp, String tag, String msgId, String mqContent, String respIp, String startTimestamp, String endTimestamp, String takeUpTimestamp, String gmtModify) {
         this.topic = topic;
         this.reqIp = reqIp;
@@ -58,6 +61,46 @@ public class QryMqTraceInfoModel extends CommandModel {
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
         this.takeUpTimestamp = takeUpTimestamp;
+        this.gmtModify = gmtModify;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setReqIp(String reqIp) {
+        this.reqIp = reqIp;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
+    }
+
+    public void setMqContent(String mqContent) {
+        this.mqContent = mqContent;
+    }
+
+    public void setRespIp(String respIp) {
+        this.respIp = respIp;
+    }
+
+    public void setStartTimestamp(String startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
+
+    public void setEndTimestamp(String endTimestamp) {
+        this.endTimestamp = endTimestamp;
+    }
+
+    public void setTakeUpTimestamp(String takeUpTimestamp) {
+        this.takeUpTimestamp = takeUpTimestamp;
+    }
+
+    public void setGmtModify(String gmtModify) {
         this.gmtModify = gmtModify;
     }
 

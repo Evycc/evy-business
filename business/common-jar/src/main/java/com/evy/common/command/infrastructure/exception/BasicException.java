@@ -1,5 +1,6 @@
 package com.evy.common.command.infrastructure.exception;
 
+import com.evy.common.command.domain.factory.ErrorFactory;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 
@@ -26,7 +27,7 @@ public class BasicException extends Exception {
     public BasicException(String errorCode) {
         super(errorCode);
         setErrorCode(errorCode);
-        errorMessage = BusinessConstant.EMPTY_STR;
+        ErrorFactory.handleErrorCode(this);
     }
 
     public BasicException(String errorCode, String errorMessage, Throwable throwable) {

@@ -22,6 +22,9 @@ public class DeployInfoDTO {
     private String remarks;
     private String createDateTime;
 
+    public DeployInfoDTO() {
+    }
+
     public DeployInfoDTO(String buildSeq, String deploySeq, String userSeq, String projectName, String appName, String gitPath, String gitBrchan, String stageFlag, Integer switchJunit, Integer switchBatchDeploy, String jarPath, String jvmParam, String targetHost, String remarks, String createDateTime) {
         this.buildSeq = buildSeq;
         this.deploySeq = deploySeq;

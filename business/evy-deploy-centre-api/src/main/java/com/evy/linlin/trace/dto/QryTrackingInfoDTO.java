@@ -2,6 +2,7 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 
 import javax.validation.constraints.NotBlank;
 
@@ -9,7 +10,7 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2021/3/27 23:27
  */
-public class QryTrackingInfoDTO extends InputDTO implements ValidatorDTO<QryTrackingInfoDTO> {
+public class QryTrackingInfoDTO extends GatewayInputDTO implements ValidatorDTO<QryTrackingInfoDTO> {
     /**
      * 唯一traceId
      */

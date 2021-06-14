@@ -2,6 +2,7 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2020/10/11 20:01
  */
-public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThreadsInfoDTO> {
+public class QryThreadsInfoDTO extends GatewayInputDTO implements ValidatorDTO<QryThreadsInfoDTO> {
     /**
      * 编译流水,用于关联编译应用信息
      */
@@ -57,6 +58,30 @@ public class QryThreadsInfoDTO extends InputDTO implements ValidatorDTO<QryThrea
                 ", beginIndex=" + beginIndex +
                 ", endIndex=" + endIndex +
                 '}';
+    }
+
+    public void setBuildSeq(String buildSeq) {
+        this.buildSeq = buildSeq;
+    }
+
+    public void setUserSeq(String userSeq) {
+        this.userSeq = userSeq;
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
+    }
+
+    public void setServiceIp(String serviceIp) {
+        this.serviceIp = serviceIp;
+    }
+
+    public void setBeginIndex(Integer beginIndex) {
+        this.beginIndex = beginIndex;
+    }
+
+    public void setEndIndex(Integer endIndex) {
+        this.endIndex = endIndex;
     }
 
     public String getBuildSeq() {

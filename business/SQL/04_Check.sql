@@ -13,9 +13,9 @@ check table trace_redis_health;
 check table trace_services_info;
 check table trace_slow_sql;
 
-SELECT count(pem_id) AS '记录数为4即成功'
+SELECT count(pem_id) AS '记录数为5即成功'
 FROM public_error_map
-WHERE pem_error_code IN ('error01', 'login_err_1', 'login_err_2', 'NOT_FOUND_ERROR');
+WHERE pem_error_code IN ('ERR001', 'login_err_1', 'login_err_2', 'NOT_FOUND_ERROR', 'SERVICE_TIME_OUT');
 
 SELECT count(tr_id) AS '记录数为1即成功'
 FROM td_router

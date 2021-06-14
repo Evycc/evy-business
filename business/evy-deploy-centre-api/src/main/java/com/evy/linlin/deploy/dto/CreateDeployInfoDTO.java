@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Max;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
  * @Author: EvyLiuu
  * @Date: 2020/11/14 8:56
  */
-public class CreateDeployInfoDTO extends InputDTO implements ValidatorDTO<CreateDeployInfoDTO> {
+public class CreateDeployInfoDTO extends GatewayInputDTO implements ValidatorDTO<CreateDeployInfoDTO> {
     /**
      * 用户标识
      */
@@ -63,6 +64,9 @@ public class CreateDeployInfoDTO extends InputDTO implements ValidatorDTO<Create
     @Min(0)
     @Max(1)
     private Integer switchJunit;
+
+    public CreateDeployInfoDTO() {
+    }
 
     public CreateDeployInfoDTO(@NotBlank(message = "userSeq不能为空") @Length(max = 64, message = "userSeq长度超限") String userSeq, @NotBlank(message = "gitPath不能为空") @Length(max = 1024, message = "gitPath长度超限") String gitPath, @NotBlank(message = "brchanName不能为空") @Length(max = 100) String brchanName, @NotBlank(message = "appName不能为空") @Length(max = 100) String appName, @Length(max = 1024) String jvmParam, @NotBlank(message = "targetHost不能为空") @Length(max = 100) String targetHost, @NotNull(message = "switchBatchDeploy不能为空") @Min(0) @Max(1) Integer switchBatchDeploy, @NotNull(message = "switchJunit不能为空") @Min(0) @Max(1) Integer switchJunit) {
         this.userSeq = userSeq;

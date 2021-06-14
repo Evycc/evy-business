@@ -1,12 +1,13 @@
 package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.linlin.gateway.GatewayOutDTO;
 
 /**
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:22
  */
-public class NextDeployBuildSeqOutDTO extends OutDTO {
+public class NextDeployBuildSeqOutDTO extends GatewayOutDTO {
     /**
      * 返回编译唯一序列，用于关联一个编译记录
      */

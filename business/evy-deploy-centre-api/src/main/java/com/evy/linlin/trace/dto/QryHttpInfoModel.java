@@ -16,6 +16,9 @@ public class QryHttpInfoModel extends CommandModel {
     private String reqResult;
     private String gmtModify;
 
+    public QryHttpInfoModel() {
+    }
+
     public QryHttpInfoModel(String appIp, String reqUrl, String takeUpTime, String reqTimeStamp, String reqSuccess, String reqInput, String reqResult, String gmtModify) {
         this.appIp = appIp;
         this.reqUrl = reqUrl;
@@ -24,6 +27,38 @@ public class QryHttpInfoModel extends CommandModel {
         this.reqSuccess = reqSuccess;
         this.reqInput = reqInput;
         this.reqResult = reqResult;
+        this.gmtModify = gmtModify;
+    }
+
+    public void setAppIp(String appIp) {
+        this.appIp = appIp;
+    }
+
+    public void setReqUrl(String reqUrl) {
+        this.reqUrl = reqUrl;
+    }
+
+    public void setTakeUpTime(String takeUpTime) {
+        this.takeUpTime = takeUpTime;
+    }
+
+    public void setReqTimeStamp(String reqTimeStamp) {
+        this.reqTimeStamp = reqTimeStamp;
+    }
+
+    public void setReqSuccess(String reqSuccess) {
+        this.reqSuccess = reqSuccess;
+    }
+
+    public void setReqInput(String reqInput) {
+        this.reqInput = reqInput;
+    }
+
+    public void setReqResult(String reqResult) {
+        this.reqResult = reqResult;
+    }
+
+    public void setGmtModify(String gmtModify) {
         this.gmtModify = gmtModify;
     }
 

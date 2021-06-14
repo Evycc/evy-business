@@ -6,6 +6,7 @@ import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.utils.JsonUtils;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
@@ -211,7 +212,7 @@ public class DynamicRouteService implements CommandLineRunner {
             String[] args = StringUtils.tokenizeToStringArray(pargs, BusinessConstant.LINE);
             try {
                 for (String arg : args) {
-                    Map map = JsonUtils.convertToObject(arg, Map.class);
+                    Map<String, String> map = JsonUtils.convertToObject(arg, new TypeToken<Map<String, String>>(){}.getType());
                     predicateDefinition.setArgs(map);
                 }
                 plist.add(predicateDefinition);

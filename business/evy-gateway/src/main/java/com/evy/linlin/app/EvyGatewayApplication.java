@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * 网关启动类
+ * API网关启动类
  * @author Evyliuu
  */
 @SpringBootApplication(scanBasePackages = "com.evy.*")

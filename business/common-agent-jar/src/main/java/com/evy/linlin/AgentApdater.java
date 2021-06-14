@@ -50,6 +50,8 @@ public class AgentApdater implements ClassFileTransformer {
                     }
                 }
                 return DBUtilsAgent.agentExecute(args, slowSqlTime);
+            } else if (NettyRoutingFilterAgent.judge(clsName)) {
+                return NettyRoutingFilterAgent.agentExecute(args);
             }
         } catch (Exception exception) {
             exception.printStackTrace();

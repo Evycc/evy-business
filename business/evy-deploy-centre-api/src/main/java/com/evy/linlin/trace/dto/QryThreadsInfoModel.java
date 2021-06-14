@@ -46,6 +46,9 @@ public class QryThreadsInfoModel extends CommandModel {
     private String threadStack;
     private String gmtModify;
 
+    public QryThreadsInfoModel() {
+    }
+
     public QryThreadsInfoModel(String appIp, String threadId, String threadName, String threadStatus, String threadStartTimeMs, String threadBlockedCount, String threadBlockedTimeMs, String threadBlockedName, String threadBlockedId, String threadWaitedCount, String threadWaitedTimeMs, String threadMaxCount, String threadStack, String gmtModify) {
         this.appIp = appIp;
         this.threadId = threadId;

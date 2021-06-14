@@ -2,6 +2,7 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2021/4/5 22:28
  */
-public class QryDumpInfoDTO extends InputDTO implements ValidatorDTO<QryDumpInfoDTO> {
+public class QryDumpInfoDTO extends GatewayInputDTO implements ValidatorDTO<QryDumpInfoDTO> {
     /**
      * 编译流水,用于关联编译应用信息
      */

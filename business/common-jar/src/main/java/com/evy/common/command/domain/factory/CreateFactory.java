@@ -229,7 +229,7 @@ public class CreateFactory {
                 //请求连接超时
                 .setConnectTimeout(connTimeout)
                 //获取连接池连接的超时时间
-                .setConnectionRequestTimeout(reqTimeout)
+                .setConnectionRequestTimeout(connTimeout)
                 //响应超时
                 .setSocketTimeout(reqTimeout)
                 .build();

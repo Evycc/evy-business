@@ -1,6 +1,7 @@
 package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.linlin.gateway.GatewayOutDTO;
 
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/10/11 18:07
  */
-public class QryHttpInfoOutDTO extends OutDTO {
+public class QryHttpInfoOutDTO extends GatewayOutDTO {
     private List<QryHttpInfoModel> list;
 
     public QryHttpInfoOutDTO() {

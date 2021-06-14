@@ -1,6 +1,7 @@
 package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
+import com.evy.linlin.gateway.GatewayOutDTO;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:07
  */
-public class QryDeployInfoOutDTO extends OutDTO {
+public class QryDeployInfoOutDTO extends GatewayOutDTO {
     List<DeployInfoDTO> dtoList;
 
     public QryDeployInfoOutDTO() {

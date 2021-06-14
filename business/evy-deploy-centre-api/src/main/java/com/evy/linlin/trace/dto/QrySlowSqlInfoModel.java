@@ -10,27 +10,30 @@ public class QrySlowSqlInfoModel extends CommandModel {
     /**
      * 请求的服务器IP
      */
-    private final String appIp;
+    private String appIp;
     /**
      * 慢sql
      */
-    private final String slowSql;
+    private String slowSql;
     /**
      * sql耗时
      */
-    private final String takeTime;
+    private String takeTime;
     /**
      * sql explain完整语句
      */
-    private final String explain;
+    private String explain;
     /**
      * sql explain优化建议
      */
-    private final String explainContent;
+    private String explainContent;
     /**
      * 最后记录时间
      */
-    private final String gmtModify;
+    private String gmtModify;
+
+    public QrySlowSqlInfoModel() {
+    }
 
     public QrySlowSqlInfoModel(String appIp, String slowSql, String takeTime, String explain, String explainContent, String gmtModify) {
         this.appIp = appIp;
@@ -38,6 +41,30 @@ public class QrySlowSqlInfoModel extends CommandModel {
         this.takeTime = takeTime;
         this.explain = explain;
         this.explainContent = explainContent;
+        this.gmtModify = gmtModify;
+    }
+
+    public void setAppIp(String appIp) {
+        this.appIp = appIp;
+    }
+
+    public void setSlowSql(String slowSql) {
+        this.slowSql = slowSql;
+    }
+
+    public void setTakeTime(String takeTime) {
+        this.takeTime = takeTime;
+    }
+
+    public void setExplain(String explain) {
+        this.explain = explain;
+    }
+
+    public void setExplainContent(String explainContent) {
+        this.explainContent = explainContent;
+    }
+
+    public void setGmtModify(String gmtModify) {
         this.gmtModify = gmtModify;
     }
 

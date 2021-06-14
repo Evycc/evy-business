@@ -3,6 +3,7 @@ package com.evy.linlin.trace.dto;
 import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
+import com.evy.linlin.gateway.GatewayOutDTO;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  * @Author: EvyLiuu
  * @Date: 2021/4/5 22:29
  */
-public class QryDumpInfoOutDTO extends OutDTO {
+public class QryDumpInfoOutDTO extends GatewayOutDTO {
     private List<ThreadDumpInfoModel> deadThreadList;
     private ThreadDumpInfoModel threadInfo;
     private HeapDumpInfoModel heapDumpInfo;

@@ -2,6 +2,7 @@ package com.evy.linlin.trace.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 
 import javax.validation.constraints.NotBlank;
 
@@ -9,7 +10,7 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2021/3/13 17:42
  */
-public class ModifySrvInfoDTO extends InputDTO implements ValidatorDTO<ModifySrvInfoDTO> {
+public class ModifySrvInfoDTO extends GatewayInputDTO implements ValidatorDTO<ModifySrvInfoDTO> {
     @NotBlank(message = "服务码为空")
     private String srvCode;
     @NotBlank(message = "服务名为空")
@@ -31,6 +32,30 @@ public class ModifySrvInfoDTO extends InputDTO implements ValidatorDTO<ModifySrv
                 ", limitQps=" + limitQps +
                 ", limitFallback='" + limitFallback + '\'' +
                 '}';
+    }
+
+    public void setSrvCode(String srvCode) {
+        this.srvCode = srvCode;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public void setConsumerName(String consumerName) {
+        this.consumerName = consumerName;
+    }
+
+    public void setLimitQps(Integer limitQps) {
+        this.limitQps = limitQps;
+    }
+
+    public void setLimitFallback(String limitFallback) {
+        this.limitFallback = limitFallback;
     }
 
     public String getSrvCode() {

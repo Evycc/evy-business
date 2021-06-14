@@ -2,6 +2,7 @@ package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
 import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
+import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotBlank;
  * @Author: EvyLiuu
  * @Date: 2020/9/26 23:04
  */
-public class QryDeployInfoDTO extends InputDTO implements ValidatorDTO<QryDeployInfoDTO> {
+public class QryDeployInfoDTO extends GatewayInputDTO implements ValidatorDTO<QryDeployInfoDTO> {
     /**
      * 用户标识
      */
@@ -23,6 +24,9 @@ public class QryDeployInfoDTO extends InputDTO implements ValidatorDTO<QryDeploy
      */
     @Length(max = 64, message = "deploySeq长度超限")
     private String deploySeq;
+
+    public QryDeployInfoDTO() {
+    }
 
     @Override
     public String toString() {

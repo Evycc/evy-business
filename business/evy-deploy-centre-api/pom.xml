@@ -15,8 +15,9 @@
         <!-- 公共工具jar包 -->
         <dependency>
             <groupId>com.evy.linlin</groupId>
-            <artifactId>common-jar</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>evy-gateway-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

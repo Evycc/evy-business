@@ -518,7 +518,7 @@ public class BusinessProperties {
          */
         private int connTimeOut = 2000;
         /**
-         * http请求超时时间，单位ms，默认30s
+         * http请求、网关服务调用全局超时时间，单位ms，默认30s，详见com.evy.common.command.domain.factory.CreateFactory#httpClient()
          */
         private int reqTimeOut = 30000;
 

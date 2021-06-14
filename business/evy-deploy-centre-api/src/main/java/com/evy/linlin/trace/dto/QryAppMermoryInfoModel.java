@@ -60,6 +60,9 @@ public class QryAppMermoryInfoModel extends CommandModel {
      */
     private String gmtModify;
 
+    public QryAppMermoryInfoModel() {
+    }
+
     public QryAppMermoryInfoModel(String appIp, String cpuCount, String cpuLoadPercentage, String sysMermoryKb, String sysAvailMermoryKb, String sysUseMermoryKb, String appHeapMaxMermoryKb, String appHeapMinMermoryKb, String appHeapUseMermoryKb, String appNoHeapMaxMermoryKb, String appNoHeapMinMermoryKb, String appNoHeapUseMermoryKb, String gmtModify) {
         this.appIp = appIp;
         this.cpuCount = cpuCount;
@@ -93,6 +96,58 @@ public class QryAppMermoryInfoModel extends CommandModel {
                 ", appNoHeapUseMermoryKb='" + appNoHeapUseMermoryKb + '\'' +
                 ", gmtModify='" + gmtModify + '\'' +
                 '}';
+    }
+
+    public void setAppIp(String appIp) {
+        this.appIp = appIp;
+    }
+
+    public void setCpuCount(String cpuCount) {
+        this.cpuCount = cpuCount;
+    }
+
+    public void setCpuLoadPercentage(String cpuLoadPercentage) {
+        this.cpuLoadPercentage = cpuLoadPercentage;
+    }
+
+    public void setSysMermoryKb(String sysMermoryKb) {
+        this.sysMermoryKb = sysMermoryKb;
+    }
+
+    public void setSysAvailMermoryKb(String sysAvailMermoryKb) {
+        this.sysAvailMermoryKb = sysAvailMermoryKb;
+    }
+
+    public void setSysUseMermoryKb(String sysUseMermoryKb) {
+        this.sysUseMermoryKb = sysUseMermoryKb;
+    }
+
+    public void setAppHeapMaxMermoryKb(String appHeapMaxMermoryKb) {
+        this.appHeapMaxMermoryKb = appHeapMaxMermoryKb;
+    }
+
+    public void setAppHeapMinMermoryKb(String appHeapMinMermoryKb) {
+        this.appHeapMinMermoryKb = appHeapMinMermoryKb;
+    }
+
+    public void setAppHeapUseMermoryKb(String appHeapUseMermoryKb) {
+        this.appHeapUseMermoryKb = appHeapUseMermoryKb;
+    }
+
+    public void setAppNoHeapMaxMermoryKb(String appNoHeapMaxMermoryKb) {
+        this.appNoHeapMaxMermoryKb = appNoHeapMaxMermoryKb;
+    }
+
+    public void setAppNoHeapMinMermoryKb(String appNoHeapMinMermoryKb) {
+        this.appNoHeapMinMermoryKb = appNoHeapMinMermoryKb;
+    }
+
+    public void setAppNoHeapUseMermoryKb(String appNoHeapUseMermoryKb) {
+        this.appNoHeapUseMermoryKb = appNoHeapUseMermoryKb;
+    }
+
+    public void setGmtModify(String gmtModify) {
+        this.gmtModify = gmtModify;
     }
 
     public String getAppIp() {

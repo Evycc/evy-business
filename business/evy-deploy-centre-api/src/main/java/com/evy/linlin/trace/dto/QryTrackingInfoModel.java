@@ -38,6 +38,9 @@ public class QryTrackingInfoModel {
      */
     private String appName;
 
+    public QryTrackingInfoModel() {
+    }
+
     public QryTrackingInfoModel(String qryTraceId, String reqType, String takeTimeMs, String remarks, Long order, Boolean isProvider, String appName) {
         this.qryTraceId = qryTraceId;
         this.reqType = reqType;

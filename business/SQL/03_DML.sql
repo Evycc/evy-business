@@ -1,7 +1,8 @@
-INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('error01', '系统繁忙');
+INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('ERR001', '系统繁忙');
 INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('login_err_1', '密码错误');
 INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('login_err_2', '登录异常:其他错误');
 INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('NOT_FOUND_ERROR', '未查到记录');
+INSERT INTO public_error_map (pem_error_code, pem_error_msg) VALUES ('SERVICE_TIME_OUT', '服务调用超时');
 
 INSERT INTO td_router (tr_router_id, tr_router_uri, tr_predicate_name, tr_predicate_args, tr_filters_name, tr_filters_args, tr_pattern, tr_order) VALUES ('route_evy_deploy_centre', 'lb://EVY-DEPLOY-CENTRE', 'Path', '{"patterns":"/evy-deploy-centre/**"}', 'StripPrefix', '{"parts":"1"}', '/evy-deploy-centre/**', '0');
 

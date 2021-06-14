@@ -10,6 +10,7 @@ import com.evy.linlin.gateway.filter.repository.po.ServiceInfoPO;
 import com.evy.linlin.gateway.filter.repository.po.ServiceLimitInfoPO;
 import com.evy.linlin.gateway.filter.tunnel.ServiceInfoModel;
 import com.evy.linlin.gateway.filter.tunnel.ServiceLimitInfoModel;
+import org.springframework.cloud.gateway.config.HttpClientProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -121,16 +123,10 @@ public class ServiceFilter implements GatewayFilter, Ordered {
         try {
             //取出post请求的body参数
             //已在过滤器进行参数过滤，参数为空返回404
-            Map<String, String> map = exchange.getAttribute(CACHE_REQUEST_BODY_OBJECT_KEY);
-            CommandLog.info("服务码化路由 url:{} body:{}", exchange.getRequest().getURI(), map);
-            String srvCode = String.valueOf(map.get(BODY_HEAD_SERVICE_CODE));
-            //带方法的服务
-            //支持通过srvCode : 服务码#req_path的方式进行调用
-            String[] srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
-            srvCode = srvAndMethod[0];
-
+            String[] srvAndMethod = getSrvCode(exchange);
+            String srvCode = srvAndMethod[0];
             //取出报文中serviceCode,进行服务鉴权,没有则直接返回错误
-            if (!CollectionUtils.isEmpty(map) && !buildServiceNotFoundResponse(response, srvCode)) {
+            if (!buildServiceNotFoundResponse(response, srvCode)) {
                 String method = srvAndMethod.length > BusinessConstant.ONE_NUM ? srvAndMethod[1] : BusinessConstant.EMPTY_STR;
 
                 //服务限流过滤
@@ -147,6 +143,25 @@ public class ServiceFilter implements GatewayFilter, Ordered {
         }
 
         return response.setComplete();
+    }
+
+    public static void modifyProperties(HttpClientProperties properties, Integer timeout) {
+        properties.setResponseTimeout(Duration.ofMillis(timeout));
+    }
+
+    public static String[] getSrvCode(ServerWebExchange exchange) {
+        String[] srvAndMethod = new String[0];
+        Map<String, String> map = exchange.getAttribute(CACHE_REQUEST_BODY_OBJECT_KEY);
+        CommandLog.info("服务码化路由 url:{} body:{}", exchange.getRequest().getURI(), map);
+        if (Objects.nonNull(map)) {
+            String srvCode = String.valueOf(map.get(BODY_HEAD_SERVICE_CODE));
+            //带方法的服务
+            //支持通过srvCode : 服务码#req_path的方式进行调用
+            srvAndMethod = srvCode.split(BusinessConstant.SHARE_STR, -1);
+        }
+
+        CommandLog.info("获取服务码:{}", srvAndMethod);
+        return srvAndMethod;
     }
 
     @Override
