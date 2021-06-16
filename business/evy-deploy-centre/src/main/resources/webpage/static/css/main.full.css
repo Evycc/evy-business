@@ -61,6 +61,10 @@ body a {
     block-size: 44px;
     z-index: 1;
     font-weight: bold;
+
+    /*毛玻璃*/
+    backdrop-filter: saturate(180%) blur(20px);
+    background-color: rgba(255,255,255,0.72);
 }
 
 .head-nav-login {
