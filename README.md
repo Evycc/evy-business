@@ -1,4 +1,4 @@
-# evy-deploy-centre自动化部署中心
+# evy-deploy-centre持续集成中心
 ## 项目简介
 - 通过简单的配置，实现对SpringBoot应用的自动化部署能力
 - 提供应用健康信息收集（服务器应用内存、Cpu、线程等信息）
@@ -111,3 +111,42 @@ public class AutoDeployAppService extends AutoDeployService {
 
 # common-agent-jar
 ## Jvm级Agent包,与common-jar搭配使用，链路跟踪基于该jar包
+
+# 自动化部署注意事项
+## 只支持Spring Boot应用，通过jar启动
+
+# 部署指南
+## 服务端（持续集成平台evy-deploy-centre）
+1. 新建cdadmin用户(cdadmin用户需要有对/cdadmin目录的操作权限)
+2. 服务器需要先安装jdk、maven，并设置环境变量
+3. 配置ssh，将id_rsa.pub追加到authorized_keys文件中
+4. ssh远程执行命令环境变量加载
+```
+vi /cdadmin/.bashrc
+#添加行
+. /etc/profile
+```
+5. 应用启动main类需命名为 com.evy.linlin.start.EvyStartApp
+6. 安装ssh
+```
+#目标文件为 /home/cdadmin/.ssh/id_rsa
+ssh-keygent
+#需要配置到目标服务器的 /cdadmin/.ssh/authorized_keys 中
+/home/cdadmin/.ssh/id_rsa.pub
+vi /etc/ssh/ssh_config 
+
+#ssh新机器时,弹出Are you sure you want to continue connecting,影响ssh脚本执行,设置为不提示
+StrictHostKeyChecking no
+UserKnownHostsFile=/dev/null
+
+```
+
+## 客户端（需要使用持续集成进行管理的应用）
+1. 服务器需要先安装jdk，并设置环境变量
+2. 新建cdadmin用户(cdadmin用户需要有对/cdadmin目录的操作权限)
+3. 配置ssh
+```
+#目标文件为 /home/cdadmin/.ssh/id_rsa
+ssh-keygent
+将服务端服务器的id_rsa.pub 配置到 /cdadmin/.ssh/authorized_keys 中
+```
