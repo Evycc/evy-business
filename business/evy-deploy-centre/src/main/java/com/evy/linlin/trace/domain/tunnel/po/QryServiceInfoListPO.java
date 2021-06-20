@@ -13,6 +13,7 @@ public class QryServiceInfoListPO {
     private String tsiProviderNames;
     private String tsiConsumerNames;
     private String gmtModify;
+    private String tsiTimeout;
 
     public String getTsiServiceBeanName() {
         return tsiServiceBeanName;
@@ -46,6 +47,10 @@ public class QryServiceInfoListPO {
         return gmtModify;
     }
 
+    public String getTsiTimeout() {
+        return tsiTimeout;
+    }
+
     @Override
     public String toString() {
         return "QryServiceInfoListPO{" +
@@ -57,6 +62,7 @@ public class QryServiceInfoListPO {
                 ", tsiProviderNames='" + tsiProviderNames + '\'' +
                 ", tsiConsumerNames='" + tsiConsumerNames + '\'' +
                 ", gmtModify='" + gmtModify + '\'' +
+                ", tsiTimeout='" + tsiTimeout + '\'' +
                 '}';
     }
 }

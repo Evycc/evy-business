@@ -43,11 +43,12 @@ public class QryServiceInfoModel extends CommandModel {
     private String gmtModify;
     private Integer limitQps;
     private String limitFallback;
+    private Integer srvTimeout;
 
     public QryServiceInfoModel() {
     }
 
-    public QryServiceInfoModel(String serviceBeanName, String serviceName, String servicePath, String providerName, List<String> consumerName, List<String> providerList, List<String> consumerList, String gmtModify, Integer limitQps, String limitFallback) {
+    public QryServiceInfoModel(String serviceBeanName, String serviceName, String servicePath, String providerName, List<String> consumerName, List<String> providerList, List<String> consumerList, String gmtModify, Integer limitQps, String limitFallback, Integer srvTimeout) {
         this.serviceBeanName = serviceBeanName;
         this.serviceName = serviceName;
         this.servicePath = servicePath;
@@ -58,6 +59,7 @@ public class QryServiceInfoModel extends CommandModel {
         this.gmtModify = gmtModify;
         this.limitQps = limitQps;
         this.limitFallback = limitFallback;
+        this.srvTimeout = srvTimeout;
     }
 
     @Override
@@ -73,6 +75,7 @@ public class QryServiceInfoModel extends CommandModel {
                 ", gmtModify='" + gmtModify + '\'' +
                 ", limitQps=" + limitQps +
                 ", limitFallback='" + limitFallback + '\'' +
+                ", srvTimeout=" + srvTimeout +
                 '}';
     }
 
@@ -154,5 +157,13 @@ public class QryServiceInfoModel extends CommandModel {
 
     public void setLimitFallback(String limitFallback) {
         this.limitFallback = limitFallback;
+    }
+
+    public Integer getSrvTimeout() {
+        return srvTimeout;
+    }
+
+    public void setSrvTimeout(Integer srvTimeout) {
+        this.srvTimeout = srvTimeout;
     }
 }

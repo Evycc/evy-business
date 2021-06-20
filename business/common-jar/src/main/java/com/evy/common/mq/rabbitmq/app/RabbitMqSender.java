@@ -136,6 +136,10 @@ public class RabbitMqSender implements MqSender {
                 mqSendMessage.setSendTime(DateUtils.now().format(DateUtils.PATTERN1));
             }
 
+            if (StringUtils.isEmpty(mqSendMessage.getPrpoMap().get(MqFactory.SEND_HOST))) {
+                mqSendMessage.getPrpoMap().put(MqFactory.SEND_HOST, BusinessConstant.VM_HOST);
+            }
+
             //MessageProperties
             AMQP.BasicProperties basicProperties = new AMQP.BasicProperties()
                     .builder()

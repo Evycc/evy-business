@@ -11,6 +11,7 @@ import com.evy.common.trace.infrastructure.tunnel.po.TraceMqListPO;
 import com.evy.common.trace.infrastructure.tunnel.po.TraceMqPO;
 import com.evy.common.utils.AppContextUtils;
 import com.evy.common.web.utils.UdpUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +59,9 @@ public class TraceMqInfo {
                     topic = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_EXCHANGE, BusinessConstant.EMPTY_STR);
                     tag = mqSendMessage.getPrpoMap().getOrDefault(MqFactory.X_DEAD_LETTER_ROUTING_KEY, BusinessConstant.EMPTY_STR);
                 }
-                MQ_MODELS.offer(TraceMqModel.create(BusinessConstant.VM_HOST, topic,
-                        tag, mqSendMessage.getMessageId(), String.valueOf(mqSendMessage.getMessage())));
+                MQ_MODELS.offer(TraceMqModel.create(StringUtils.isEmpty(mqSendMessage.getPrpoMap().get(MqFactory.SEND_HOST))
+                                ? BusinessConstant.VM_HOST : mqSendMessage.getPrpoMap().get(MqFactory.SEND_HOST),
+                        topic, tag, mqSendMessage.getMessageId(), String.valueOf(mqSendMessage.getMessage())));
 
             }
         } catch (Exception e) {

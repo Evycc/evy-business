@@ -11,14 +11,16 @@ public class ModifySrvInfoDo {
     private String consumerName;
     private Integer qps;
     private String fallback;
+    private Integer srvTimeout;
 
-    public ModifySrvInfoDo(String srvCode, String serviceName, String providerName, String consumerName, Integer qps, String fallback) {
+    public ModifySrvInfoDo(String srvCode, String serviceName, String providerName, String consumerName, Integer qps, String fallback, Integer srvTimeout) {
         this.srvCode = srvCode;
         this.serviceName = serviceName;
         this.providerName = providerName;
         this.consumerName = consumerName;
         this.qps = qps;
         this.fallback = fallback;
+        this.srvTimeout = srvTimeout;
     }
 
     public String getSrvCode() {
@@ -43,5 +45,9 @@ public class ModifySrvInfoDo {
 
     public String getFallback() {
         return fallback;
+    }
+
+    public Integer getSrvTimeout() {
+        return srvTimeout;
     }
 }

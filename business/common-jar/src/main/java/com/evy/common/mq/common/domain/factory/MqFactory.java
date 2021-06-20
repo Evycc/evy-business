@@ -68,6 +68,10 @@ public class MqFactory {
      * 死信routing key
      */
     public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
+    /**
+     * 发送MQ时记录发布者IP
+     */
+    public static final String SEND_HOST = "SEND_HOST";
 
     public MqFactory(BusinessProperties businessProperties) {
         rabbitmqUser = businessProperties.getMq().getRabbitmq().getUser();

@@ -195,6 +195,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         consumerName: '',
         limitQps: '',
         limitFallback: '',
+        srvTimeout: ''
     }
     self.constSrvInfo = {
         srvCode: '',
@@ -757,7 +758,8 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         self.constSrvInfo.providerName = srvInfo.providerName;
         self.srvModifyForm.srvCode = srvInfo.serviceBeanName;
         self.srvModifyForm.serviceName = srvInfo.serviceName;
-        self.srvModifyForm.providerName = srvInfo.providerName;
+        self.srvModifyForm.srvTimeout = srvInfo.srvTimeout;
+
         let tempConsumerName = '';
         for (let i =0; i < srvInfo.consumerName.length; i++) {
             if (tempConsumerName !== '') {

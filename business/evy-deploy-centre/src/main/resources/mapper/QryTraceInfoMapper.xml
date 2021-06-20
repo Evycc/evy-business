@@ -168,7 +168,8 @@
         tsi_consumer as tsiConsumer,
         tsi_provider_names as tsiProviderNames,
         tsi_consumer_names as tsiConsumerNames,
-        gmt_modify as gmtModify
+        gmt_modify as gmtModify,
+        tsi_timeout as tsiTimeout
         FROM trace_services_info
         <where>
             <foreach collection="appIps" separator=" or " item="ip" index="i">
@@ -217,10 +218,11 @@
     </select>
 
     <insert id="addSrvInfo" parameterType="com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO">
-        INSERT INTO trace_services_info(tsi_service_bean_name, tsi_provider, tsi_consumer)
-        VALUES (#{srvCode}, #{providerName}, #{consumerName})
+        INSERT INTO trace_services_info(tsi_service_bean_name, tsi_provider, tsi_consumer, tsi_timeout)
+        VALUES (#{srvCode}, #{providerName}, #{consumerName}, #{srvTimeout})
         ON DUPLICATE KEY UPDATE
-            tsi_consumer = values(tsi_consumer);
+            tsi_consumer = values(tsi_consumer),
+            tsi_timeout = values(tsi_timeout);
     </insert>
 
     <select id="qrySrvCodeOne" parameterType="com.evy.linlin.trace.domain.tunnel.po.SrvInfoPO"

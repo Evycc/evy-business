@@ -734,6 +734,12 @@
                            ng-mouseleave="main.InputMouseLevelEvent('srvModifyId-6')">
                 </div>
                 <div class="form-cell deploy-form-cell">
+                    <span class="title-span left-span">超时时间</span>
+                    <input id="srvModifyId-7" type="text" placeholder="超时时间" class="main-input-text-style"
+                           ng-model="main.srvModifyForm.srvTimeout" ng-mouseenter="main.InputMouseEnterEvent('srvModifyId-7')"
+                           ng-mouseleave="main.InputMouseLevelEvent('srvModifyId-7')">
+                </div>
+                <div class="form-cell deploy-form-cell">
                     <button class="login-btn deploy-info-btn popover-options submit-btn btn ng-binding" type="submit"
                             style="margin-right: 178px;"
                             aria-label="提交" ng-click="main.SubmitSrvModifyInfo($event)">

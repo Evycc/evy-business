@@ -21,6 +21,7 @@ public class ModifySrvInfoDTO extends GatewayInputDTO implements ValidatorDTO<Mo
     private String consumerName;
     private Integer limitQps;
     private String limitFallback;
+    private Integer srvTimeout;
 
     @Override
     public String toString() {
@@ -31,6 +32,7 @@ public class ModifySrvInfoDTO extends GatewayInputDTO implements ValidatorDTO<Mo
                 ", consumerName='" + consumerName + '\'' +
                 ", limitQps=" + limitQps +
                 ", limitFallback='" + limitFallback + '\'' +
+                ", srvTimeout=" + srvTimeout +
                 '}';
     }
 
@@ -80,5 +82,13 @@ public class ModifySrvInfoDTO extends GatewayInputDTO implements ValidatorDTO<Mo
 
     public String getLimitFallback() {
         return limitFallback;
+    }
+
+    public Integer getSrvTimeout() {
+        return srvTimeout;
+    }
+
+    public void setSrvTimeout(Integer srvTimeout) {
+        this.srvTimeout = srvTimeout;
     }
 }

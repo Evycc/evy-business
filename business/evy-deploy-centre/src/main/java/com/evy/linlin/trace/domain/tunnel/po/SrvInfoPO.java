@@ -11,14 +11,16 @@ public class SrvInfoPO {
     private String consumerName;
     private Integer qps;
     private String fallback;
+    private Integer srvTimeout;
 
-    public SrvInfoPO(String srvCode, String srvName, String providerName, String consumerName, Integer qps, String fallback) {
+    public SrvInfoPO(String srvCode, String srvName, String providerName, String consumerName, Integer qps, String fallback, Integer srvTimeout) {
         this.srvCode = srvCode;
         this.srvName = srvName;
         this.providerName = providerName;
         this.consumerName = consumerName;
         this.qps = qps;
         this.fallback = fallback;
+        this.srvTimeout = srvTimeout;
     }
 
     public String getSrvCode() {
@@ -45,6 +47,10 @@ public class SrvInfoPO {
         return fallback;
     }
 
+    public Integer getSrvTimeout() {
+        return srvTimeout;
+    }
+
     @Override
     public String toString() {
         return "SrvInfoPO{" +
@@ -54,6 +60,7 @@ public class SrvInfoPO {
                 ", consumerName='" + consumerName + '\'' +
                 ", qps=" + qps +
                 ", fallback='" + fallback + '\'' +
+                ", srvTimeout=" + srvTimeout +
                 '}';
     }
 }

@@ -44,7 +44,7 @@ public class QryTraceAssembler {
      */
     public static ModifySrvInfoDo dtoConvertDo(ModifySrvInfoDTO dto) {
         return new ModifySrvInfoDo(dto.getSrvCode(), dto.getServiceName(), dto.getProviderName(),
-                dto.getConsumerName(), dto.getLimitQps(), dto.getLimitFallback());
+                dto.getConsumerName(), dto.getLimitQps(), dto.getLimitFallback(), dto.getSrvTimeout());
     }
 
     /**
@@ -133,7 +133,7 @@ public class QryTraceAssembler {
      */
     public static SrvInfoPO doConvertPo(CreateNewSrvInfoDo infoDo) {
         return new SrvInfoPO(infoDo.getSrvCode(), null, infoDo.getProviderName(),
-                infoDo.getConsumerName(), -1, null);
+                infoDo.getConsumerName(), -1, null, 30000);
     }
 
     /**
@@ -144,7 +144,8 @@ public class QryTraceAssembler {
      */
     public static SrvInfoPO doConvertPo(ModifySrvInfoDo infoDo) {
         return new SrvInfoPO(infoDo.getSrvCode(), infoDo.getServiceName(), infoDo.getProviderName(), infoDo.getConsumerName(),
-                Objects.isNull(infoDo.getQps()) ? -1 : infoDo.getQps(), infoDo.getFallback());
+                Objects.isNull(infoDo.getQps()) ? -1 : infoDo.getQps(), infoDo.getFallback(),
+                Objects.isNull(infoDo.getSrvTimeout()) ? 30000 : infoDo.getSrvTimeout());
     }
 
     /**
@@ -253,7 +254,8 @@ public class QryTraceAssembler {
                     return new QryServiceInfoModel(
                             qryServiceInfoListPo.getTsiServiceBeanName(), qryServiceInfoListPo.getTsiServiceName(),
                             qryServiceInfoListPo.getTsiServicePath(), qryServiceInfoListPo.getTsiProvider(),
-                            consumers, providerNames, consumerNames, qryServiceInfoListPo.getGmtModify(), null, BusinessConstant.EMPTY_STR
+                            consumers, providerNames, consumerNames, qryServiceInfoListPo.getGmtModify(), null, BusinessConstant.EMPTY_STR,
+                            Integer.parseInt(qryServiceInfoListPo.getTsiTimeout())
                     );
                 })
                 .collect(Collectors.toList());
