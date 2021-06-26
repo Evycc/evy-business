@@ -7,10 +7,7 @@ import com.evy.common.log.CommandLog;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -112,7 +109,7 @@ public class CommandUtils {
      * @return  解密后字符串
      */
     public static String decodeEnc(String pass){
-        if (pass.startsWith(BusinessConstant.ENC_PRE_STR)) {
+        if (Objects.nonNull(pass) && pass.startsWith(BusinessConstant.ENC_PRE_STR)) {
             //解密ENC开头的密码
             pass = pass.substring(4, pass.length() -1);
             pass = CommandUtils.decode(pass);

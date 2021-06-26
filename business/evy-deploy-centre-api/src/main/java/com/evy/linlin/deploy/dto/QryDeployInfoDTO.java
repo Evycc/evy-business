@@ -1,7 +1,6 @@
 package com.evy.linlin.deploy.dto;
 
 import com.evy.common.command.app.validator.ValidatorDTO;
-import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import com.evy.linlin.gateway.GatewayInputDTO;
 import org.hibernate.validator.constraints.Length;
 

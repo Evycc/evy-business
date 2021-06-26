@@ -1,8 +1,9 @@
 package com.evy.linlin;
 
-import javassist.*;
-
-import java.time.Duration;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
 
 /**
  * SpringCloud最后调用的Filter，对properties进行修改，用于控制服务超时时间

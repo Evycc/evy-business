@@ -6,7 +6,6 @@ import com.evy.common.command.infrastructure.constant.BeanNameConstant;
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.command.infrastructure.constant.ErrorConstant;
 import com.evy.common.command.infrastructure.exception.BasicException;
-import com.evy.common.command.infrastructure.tunnel.po.ErrorInfoPO;
 import com.evy.common.database.DBUtils;
 import com.evy.common.log.CommandLog;
 import com.evy.common.trace.TraceLogUtils;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * 提供Fegin远程服务调用功能，通过指定服务码进行调用

@@ -1,6 +1,5 @@
 package com.evy.linlin.deploy.dto;
 
-import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.linlin.gateway.GatewayOutDTO;
 
 import java.util.List;

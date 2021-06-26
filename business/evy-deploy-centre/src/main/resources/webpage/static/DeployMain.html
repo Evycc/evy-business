@@ -274,6 +274,8 @@
                     <div>
                         <input type="submit" class="deploy-info-btn popover-options submit-btn btn select-branch-btn"
                                value="{{main.cur.deploySeq == branchModel.deploySeq ? '当前分支' : '选取分支'}}"
+                               ng-class="{true : 'deploy-info-btn popover-options submit-btn btn select-branch-btn select-btn-style',
+                                false : 'deploy-info-btn popover-options submit-btn btn select-branch-btn'}[main.cur.deploySeq == branchModel.deploySeq]"
                                ng-click="main.selectBranchSubmit(branchModel.deploySeq)">
                     </div>
                 </div>
@@ -568,7 +570,7 @@
                     <li class="main-font-color">/</li>
                     <li>{{v.endTimestamp}}</li>
                     <li class="main-font-color">/</li>
-                    <li>{{v.takeUpTimestamp}}</li>
+                    <li>{{v.takeUpTimestamp}}ms</li>
                     <li class="main-font-color">/</li>
                     <li>{{v.gmtModify}}</li>
                 </ul>
@@ -595,7 +597,7 @@
                     <li class="main-font-color">/</li>
                     <li class="six_ul_style">{{v.slowSql}}</li>
                     <li class="main-font-color">/</li>
-                    <li class="six_ul_style">{{v.takeTime}}</li>
+                    <li class="six_ul_style">{{v.takeTime}}ms</li>
                     <li class="main-font-color">/</li>
                     <li class="six_ul_style">{{v.explain}}</li>
                     <li class="main-font-color">/</li>

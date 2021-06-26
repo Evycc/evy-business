@@ -1,9 +1,6 @@
 package com.evy.linlin.app;
 
-import com.evy.common.command.infrastructure.tunnel.dto.InputDTO;
 import com.evy.common.trace.TraceUtils;
-import com.evy.common.utils.AppContextUtils;
-import com.evy.common.utils.CommandUtils;
 import com.evy.linlin.gateway.filter.ServiceFilter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,15 +9,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.cloud.openfeign.FeignClientBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**

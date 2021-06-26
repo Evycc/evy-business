@@ -1,6 +1,5 @@
 package com.evy.linlin.trace.dto;
 
-import com.evy.common.command.infrastructure.tunnel.dto.OutDTO;
 import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
 import com.evy.linlin.gateway.GatewayOutDTO;

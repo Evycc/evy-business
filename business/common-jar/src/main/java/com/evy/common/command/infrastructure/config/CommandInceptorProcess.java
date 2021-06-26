@@ -9,9 +9,11 @@ import com.evy.common.mq.common.infrastructure.tunnel.anno.AnnoMqConsumer;
 import com.evy.common.mq.common.infrastructure.tunnel.anno.AnnoMqConsumer.AnnoMqConsumerModel;
 import com.evy.common.mq.common.infrastructure.tunnel.model.MqConsumerModel;
 import com.evy.common.trace.service.TraceService;
+import com.evy.common.utils.CommandUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.List;
 public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorAdapter {
     @Override
     public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        decodeRedisPass(bean);
         //存在@AnnoCommandInceptor，则添加指定拦截器
         addCommandInceptor(bean);
         //存在@MqConsumer，添加rabbitmq consumer
@@ -34,6 +37,13 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
         TraceService.addControllerCls(beanName, bean);
 
         return super.postProcessAfterInstantiation(bean, beanName);
+    }
+
+    private void decodeRedisPass(Object bean) {
+        if (bean.getClass() == RedisProperties.class) {
+            String pass = ((RedisProperties) bean).getPassword();
+            ((RedisProperties) bean).setPassword(CommandUtils.decodeEnc(pass));
+        }
     }
 
     /**
