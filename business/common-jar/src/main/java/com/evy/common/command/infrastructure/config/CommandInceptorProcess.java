@@ -13,7 +13,7 @@ import com.evy.common.utils.CommandUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,9 +40,9 @@ public class CommandInceptorProcess extends InstantiationAwareBeanPostProcessorA
     }
 
     private void decodeRedisPass(Object bean) {
-        if (bean.getClass() == RedisProperties.class) {
-            String pass = ((RedisProperties) bean).getPassword();
-            ((RedisProperties) bean).setPassword(CommandUtils.decodeEnc(pass));
+        if (bean.getClass() == LettuceConnectionFactory.class) {
+            ((LettuceConnectionFactory) bean).getStandaloneConfiguration()
+                    .setPassword(CommandUtils.decodeEnc(((LettuceConnectionFactory) bean).getPassword()));
         }
     }
 
