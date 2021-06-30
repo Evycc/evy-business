@@ -53,6 +53,11 @@ function sshSearchPort() {
       if [[ -n "$port" ]]; then
         echo "$port";
         return 0;
+        else
+          port=$(ssh $serverUser@"$targetHost" "netstat -nap | grep $targetPid|grep LISTEN|awk -F' ' '{print \$4}'|awk -F':' '{print \$2}'");
+          if [[ -n "$port" ]]; then
+            echo "$port";
+            return 0;
       fi
       #休眠后发起重试,最多重试3次
       sleep 6s
