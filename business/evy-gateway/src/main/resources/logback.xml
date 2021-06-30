@@ -80,7 +80,7 @@
     <logger name="org.hibernate.validator" level="ERROR"/>
 
     <logger name="com" level="INFO" additivity="false">
-        <appender-ref ref="log_history_file"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 
     <root level="DEBUG">
