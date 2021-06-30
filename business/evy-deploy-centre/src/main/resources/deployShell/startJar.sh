@@ -11,11 +11,12 @@ set -o nounset    #遇到不存在的变量，终止
 #通过sftp上传编译好的jar包到指定服务器目录->在指定服务器启动jar包,获取PID,获取执行日志
 #使用方式 sh -x startJar.sh ${目标服务器ip} ${jar包路径} ${jvm参数} ${dump目录}
 #返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
-#例: sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 /cdadmin/applog/default/current/dump/ -Xms512m
-#$1 127.0.0.1
-#$2 /cdadmin/gitProject/history/test-demo/2020-08-25
-#$3 /cdadmin/applog/default/current/dump/
-#$4 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
+#例: sh -x startJar.sh 192.168.152.128 evy-registry-center /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m /cdadmin/applog/default/current/dump/
+#$1 目标服务器host  127.0.0.1
+#$2 应用名         evy-registry-center
+#$3 jar包路径      /cdadmin/gitProject/history/test-demo/2020-08-25
+#$4 dump路径       /cdadmin/applog/default/current/dump/
+#$5 jvm参数        -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
 
 #######################函数声明#######################
 #$1 errorCode 0成功 1失败
@@ -30,18 +31,23 @@ function echoReturnMsg(){
 
 #######################全局变量#######################
 i=1
-#参数3 jvm参数
+#参数4 jvm参数
 paramJvm=''
 #jvm参数 dump文件保存地址,必须事先创建
 DUMP_LOG_DIR=''
+#应用名
+APP_NAME=''
 for arg in "$@"; do
     if [[ i -eq 1 ]]; then
       #参数1 目标服务器IP
       paramTargetIp=${arg}
         elif [[ i -eq 2 ]]; then
+          ##参数2 应用名
+          APP_NAME=${arg}'/'
+        elif [[ i -eq 3 ]]; then
           ##参数2 jar包路径
           paramJarPath=${arg}'/'
-            elif [[ i -eq 3 ]]; then
+            elif [[ i -eq 4 ]]; then
               DUMP_LOG_DIR=${arg}
               else
                 paramJvm=$paramJvm${arg}' '
@@ -51,20 +57,21 @@ done
 paramJvm=$paramJvm' -DAppLocalhost='$paramTargetIp' '
 
 readonly serverUser='cdadmin'
-readonly targetPath='/cdadmin/jar/'
+readonly rootPath='/cdadmin/jar/';
+readonly targetPath=$rootPath$APP_NAME'/'
 readonly shPath='/cdadmin/'
 readonly shFileName='targetStartJar.sh'
 readonly startLog='startLog'
 readonly pidLog='pidLog'
 readonly jarPath=$(ls $paramJarPath*jar*)
 readonly jarFileName=$(echo $jarPath|awk -F'/' '{print $NF}')
-readonly targetClassPath1='/cdadmin/jar/localClass/classes/'
-readonly targetClassPath2='/cdadmin/jar/localClass/lib/'
-classpathParam='/cdadmin/jar/localClass/classes'
+readonly targetClassPath1=$targetPath'localClass/classes/'
+readonly targetClassPath2=$targetPath'localClass/lib/'
+classpathParam=$targetPath'localClass/classes'
 readonly DEFAULT_JVM_PARAM=' -XX:TieredStopAtLevel=1 -noverify '
 #jvm参数 agent jar配置
-readonly AGENT_JVM_PARAM='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar'
-readonly AGENT_JVM_PARAM_DEBUG='-javaagent:/cdadmin/jar/common-agent-jar-1.0-SNAPSHOT.jar=DEBUGSLOW_SQL=2000'
+readonly AGENT_JVM_PARAM='-javaagent:'$targetPath'common-agent-jar-1.0-SNAPSHOT.jar'
+readonly AGENT_JVM_PARAM_DEBUG='-javaagent:'$targetPath'common-agent-jar-1.0-SNAPSHOT.jar=DEBUGSLOW_SQL=2000'
 readonly AGENT_LOCAL_PATH='/cdadmin/common-agent-jar-1.0-SNAPSHOT.jar'
 readonly DUMP_JVM_PARAM='-XX:HeapDumpPath='$DUMP_LOG_DIR
 

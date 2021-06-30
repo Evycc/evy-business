@@ -211,6 +211,7 @@ public class DeployShellRepository {
                     throw new BasicException(DeployErrorConstant.DEPLOY_ERROR_1, "请先编译应用后进行部署" + buildSeq);
                 }
                 String targetHost = deployQryOutPo.getTargetHost();
+                String appName = deployQryOutPo.getAppName();
                 String jvmParam = StringUtils.isEmpty(deployQryOutPo.getJvmParam()) ?
                         BusinessConstant.WHITE_EMPTY_STR.concat(JVM_PARAM_DEFAULT) :
                         deployQryOutPo.getJvmParam().concat(BusinessConstant.WHITE_EMPTY_STR + JVM_PARAM_DEFAULT);
@@ -222,13 +223,13 @@ public class DeployShellRepository {
                         //并行部署
                         for (String host : targetHosts) {
                             EXECUTOR_SERVICE.submit(() -> {
-                                deployStatusOutDoList.add(excelAndGetStartJarShell(host, jarPath, jvmParam));
+                                deployStatusOutDoList.add(excelAndGetStartJarShell(host, appName, jarPath, jvmParam));
                             });
                         }
                     } else {
                         //串行部署
                         for (String host : targetHosts) {
-                            DeployStatusOutDO deployStatusOutDo = excelAndGetStartJarShell(host, jarPath, jvmParam);
+                            DeployStatusOutDO deployStatusOutDo = excelAndGetStartJarShell(host, appName, jarPath, jvmParam);
                             deployStatusOutDoList.add(deployStatusOutDo);
                             if (!checkGetStartJarShell(deployStatusOutDo)) {
                                 //PID为空则认为部署失败，直接返回
@@ -238,7 +239,7 @@ public class DeployShellRepository {
                     }
                 } else {
                     //单服务器
-                    deployStatusOutDoList.add(excelAndGetStartJarShell(targetHost, jarPath, jvmParam));
+                    deployStatusOutDoList.add(excelAndGetStartJarShell(targetHost, appName, jarPath, jvmParam));
                 }
 
                 //部署成功标记
@@ -313,23 +314,24 @@ public class DeployShellRepository {
 
     /**
      * 启用startJar.sh<br/>
-     * sh -x startJar.sh 192.168.152.128 /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m /cdadmin/applog/default/current/dump/<br/>
+     * sh -x startJar.sh 192.168.152.128 evy-registry-center /cdadmin/gitProject/history/test-demo/2020-08-30 -Xms=512m /cdadmin/applog/default/current/dump/<br/>
      * 返回远程服务器启动pid 如: {"errorCode":"0","msg":"5464"}
      */
-    private ShellOutDO startJarShell(String targetHost, String jarPath, String jvmParam, String dumpDir) {
-        return execShell(chmod755(SHELL_START_JAR), targetHost, jarPath, jvmParam, dumpDir);
+    private ShellOutDO startJarShell(String targetHost, String appName, String jarPath, String jvmParam, String dumpDir) {
+        return execShell(chmod755(SHELL_START_JAR), targetHost, appName, jarPath, jvmParam, dumpDir);
     }
 
     /**
      * 执行startJar.sh,并返回DeployStatusOutDO
      *
      * @param targetHost 目标服务器host
+     * @param appName 应用名
      * @param jarPath    jar包路径
      * @param jvmParam   jvm参数
      * @return DeployStatusOutDO pid为空表示部署失败
      */
-    private DeployStatusOutDO excelAndGetStartJarShell(String targetHost, String jarPath, String jvmParam) {
-        ShellOutDO shellOutDo = startJarShell(targetHost, jarPath, jvmParam,
+    private DeployStatusOutDO excelAndGetStartJarShell(String targetHost, String appName, String jarPath, String jvmParam) {
+        ShellOutDO shellOutDo = startJarShell(targetHost, appName, jarPath, jvmParam,
                 StringUtils.isEmpty(JVM_DUMP_DIR_PATH) ? DEFAULT_JVM_DUMP_DIR_PATH : JVM_DUMP_DIR_PATH);
         return DeployAssembler.createDeployStatusOutDO(shellOutDo.getMsg(), targetHost);
     }
@@ -453,7 +455,7 @@ public class DeployShellRepository {
                     }
                 }
 
-                json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+                json = baos.toString(StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
             CommandLog.errorThrow("DeployShellRepository#readInputStream读取异常", e);
