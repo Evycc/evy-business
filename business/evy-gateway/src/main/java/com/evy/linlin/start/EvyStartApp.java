@@ -22,16 +22,16 @@ import java.util.Map;
 @EnableFeignClients(basePackages = "com.evy.*")
 @EnableDiscoveryClient
 @RestController
-public class EvyGatewayApplication implements CommandLineRunner {
+public class EvyStartApp implements CommandLineRunner {
     private final ServiceFilter serviceFilter;
 
-    public EvyGatewayApplication(ServiceFilter serviceFilter) {
+    public EvyStartApp(ServiceFilter serviceFilter) {
         this.serviceFilter = serviceFilter;
     }
 
     public static void main(String[] args) {
         try {
-            SpringApplication.run(EvyGatewayApplication.class, args);
+            SpringApplication.run(EvyStartApp.class, args);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
