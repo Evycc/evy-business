@@ -47,7 +47,7 @@ readonly pidLog='pidLog'
 sleep 6s
 #若还是存在进程,则直接强行停止
 #(pgrep java|while read -r p; do kill -9 "$p"; done || true)
-(ps -ef|grep java|grep "$appName"|awk -F' ' '{print $2}'|while read -r p; do kill $p; done || true)
+(ps -ef|grep java|grep "$appName"|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done || true)
 
 #######################启动jar#######################
 #后台启动 jar包方式启动
