@@ -217,6 +217,9 @@ body a {
 
 #main-deploy-view {
     margin: 0;
+
+    width: 100%;
+    position: absolute;
 }
 
 .deploy-list {
@@ -240,14 +243,17 @@ body a {
 #deploy-info-view {
     margin: 20px;
     border-radius: 7px;
-    width: 80%;
+    width: auto;
     height: auto;
     background: rgba(233, 236, 239, 0.4);
 
     padding: 20px;
-    min-width: 1200px;
+    min-width: 80%;
     max-height: 800px;
     overflow-y: auto;
+
+    position: absolute;
+    left: 190px;
 }
 
 #deploy-info-view::-webkit-scrollbar {

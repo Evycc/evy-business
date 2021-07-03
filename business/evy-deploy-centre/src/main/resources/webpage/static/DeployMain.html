@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="description" content="Evy持续集成中心,提供SpringBoot应用快速部署、应用监控、服务治理功能">
     <meta name="keywords" content="Evy,SpringBoot,持续集成,服务治理,应用监控">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <link rel="preload" as="font" href="fonts/SFUIText-Light.woff" type="font/woff">
     <link rel="preload" as="font" href="fonts/SFUIText-Light.woff" type="font/woff">
     <link rel="preload" as="font" href="fonts/SFUIText-Light.woff" type="font/woff">
@@ -342,16 +343,16 @@
                     <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
                             aria-label="开启Junit测试" disabled="disabled">
                         <label>
-                            <input type="checkbox" ng-model="main.lastDeployForm.switchBatchDeploy"/>
+                            <input type="checkbox" ng-model="main.lastDeployForm.switchJunit"/>
                         </label>
                     </button>
                 </div>
                 <div class="form-cell deploy-form-cell">
                     <span class="title-span left-span">分批部署</span>
                     <button class="login-btn deploy-info-btn popover-options deploy-checkbox-btn" type="submit"
-                            aria-label="开启Junit测试" disabled="disabled">
+                            aria-label="分批部署" disabled="disabled">
                         <label>
-                            <input type="checkbox" ng-model="main.lastDeployForm.switchJunit"/>
+                            <input type="checkbox" ng-model="main.lastDeployForm.switchBatchDeploy"/>
                         </label>
                     </button>
                 </div>
