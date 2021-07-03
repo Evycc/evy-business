@@ -15,26 +15,23 @@ CREATE TABLE `trace_slow_sql`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE慢SQL记录表';
 
-CREATE TABLE `trace_services_info`
-(
-    `tsi_id`                bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `tsi_service_bean_name` varchar(60)         DEFAULT NULL COMMENT '服务名bean名称,单个,手动维护',
-    `tsi_service_name`      varchar(60)         DEFAULT NULL COMMENT '服务名,单个,应用启动时更新',
-    `tsi_service_path`      varchar(600)        DEFAULT NULL COMMENT '服务路径,格式:方法名@路径,通过|分割,多个,应用启动时更新',
-    `tsi_provider`          varchar(60)         DEFAULT NULL COMMENT '服务服务者应用名,单个,手动维护',
-    `tsi_consumer`          varchar(60)         DEFAULT NULL COMMENT '服务消费者应用名,通过|分割,多个,手动维护',
-    `tsi_provider_names`    varchar(240)        DEFAULT NULL COMMENT '服务发布者应用名@IP,多个,通过|分割,应用启动时更新',
-    `tsi_consumer_names`    varchar(240)        DEFAULT NULL COMMENT '服务消费者应用名@IP,多个,通过|分割,应用启动时更新',
-    `gmt_create`            datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `gmt_modify`            datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-    PRIMARY KEY (`tsi_id`),
-    UNIQUE KEY `tsi_service_bean_name` (`tsi_service_bean_name`, `tsi_provider`),
-    KEY `tsi_index1_p` (`tsi_provider`),
-    KEY `tsi_index2_m` (`tsi_consumer`)
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 1000007481
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_服务鉴权信息表';
+CREATE TABLE `trace_services_info` (
+                                       `tsi_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                                       `tsi_service_bean_name` varchar(60) DEFAULT NULL COMMENT '服务名bean名称,单个,手动维护',
+                                       `tsi_service_name` varchar(60) DEFAULT NULL COMMENT '服务名,单个,应用启动时更新',
+                                       `tsi_service_path` varchar(600) DEFAULT NULL COMMENT '服务路径,格式:方法名@路径,通过|分割,多个,应用启动时更新',
+                                       `tsi_provider` varchar(60) DEFAULT NULL COMMENT '服务服务者应用名,单个,手动维护',
+                                       `tsi_consumer` varchar(60) DEFAULT NULL COMMENT '服务消费者应用名,通过|分割,多个,手动维护',
+                                       `tsi_provider_names` varchar(240) DEFAULT NULL COMMENT '服务发布者应用名@IP,多个,通过|分割,应用启动时更新',
+                                       `tsi_consumer_names` varchar(240) DEFAULT NULL COMMENT '服务消费者应用名@IP,多个,通过|分割,应用启动时更新',
+                                       `tsi_timeout` int(11) DEFAULT '30000' COMMENT '服务调用超时时间,单位ms,默认30s',
+                                       `gmt_modify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+                                       `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                       PRIMARY KEY (`tsi_id`),
+                                       UNIQUE KEY `tsi_service_bean_name` (`tsi_service_bean_name`,`tsi_provider`),
+                                       KEY `tsi_index1_p` (`tsi_provider`),
+                                       KEY `tsi_index2_m` (`tsi_consumer`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000007965 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='TRACE_服务鉴权信息表'
 
 CREATE TABLE `trace_redis_health`
 (
