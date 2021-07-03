@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `trace_services_info` (
                                        UNIQUE KEY `tsi_service_bean_name` (`tsi_service_bean_name`,`tsi_provider`),
                                        KEY `tsi_index1_p` (`tsi_provider`),
                                        KEY `tsi_index2_m` (`tsi_consumer`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000007965 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='TRACE_服务鉴权信息表'
+) ENGINE=InnoDB AUTO_INCREMENT=1000007965 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='TRACE_服务鉴权信息表';
 
 CREATE TABLE IF NOT EXISTS `trace_redis_health`
 (
