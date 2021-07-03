@@ -1742,10 +1742,10 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
         }
 
         //赋值style属性
-        srvInt = srvInt <= 0? "0%" : Math.round((srvInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
-        dbInt = dbInt <= 0? "0%" : Math.round((dbInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
-        httpInt = httpInt <= 0? "0%" : Math.round((httpInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
-        mqInt = mqInt <= 0? "0%" : Math.round((mqInt / self.curTraceListResult.length) * 10000) / 100.0 + "%";
+        srvInt = srvInt <= 0? "0%" : Math.floor(srvInt / self.curTraceListResult.length * 100) + "%";
+        dbInt = dbInt <= 0? "0%" : Math.floor(dbInt / self.curTraceListResult.length * 100) + "%";
+        httpInt = httpInt <= 0? "0%" : Math.floor(httpInt / self.curTraceListResult.length * 100) + "%";
+        mqInt = mqInt <= 0? "0%" : Math.floor(mqInt / self.curTraceListResult.length * 100) + "%";
         angular.element('#srv-span').attr('style', 'width:' + srvInt);
         angular.element('#db-span').attr('style', 'width:' + dbInt);
         angular.element('#http-span').attr('style', 'width:' + httpInt);
