@@ -141,7 +141,7 @@ public class TraceRedisInfo {
                     //存在密码
                     host = temp[0];
                     port = temp[1];
-                    password = temp[1];
+                    password = temp[2];
                 } else {
                     continue;
                 }
