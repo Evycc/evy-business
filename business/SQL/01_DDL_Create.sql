@@ -1,4 +1,4 @@
-CREATE TABLE `trace_slow_sql`
+CREATE TABLE IF NOT EXISTS `trace_slow_sql`
 (
     `tss_id`              bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tss_req_ip`          varchar(15)         DEFAULT NULL COMMENT '请求机器IP',
@@ -15,7 +15,7 @@ CREATE TABLE `trace_slow_sql`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE慢SQL记录表';
 
-CREATE TABLE `trace_services_info` (
+CREATE TABLE IF NOT EXISTS `trace_services_info` (
                                        `tsi_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
                                        `tsi_service_bean_name` varchar(60) DEFAULT NULL COMMENT '服务名bean名称,单个,手动维护',
                                        `tsi_service_name` varchar(60) DEFAULT NULL COMMENT '服务名,单个,应用启动时更新',
@@ -33,7 +33,7 @@ CREATE TABLE `trace_services_info` (
                                        KEY `tsi_index2_m` (`tsi_consumer`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000007965 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='TRACE_服务鉴权信息表'
 
-CREATE TABLE `trace_redis_health`
+CREATE TABLE IF NOT EXISTS `trace_redis_health`
 (
     `trh_id`                         bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `trh_app_ip`                     varchar(24)         DEFAULT NULL COMMENT '应用机器ip',
@@ -73,7 +73,7 @@ CREATE TABLE `trace_redis_health`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_Redis健康监控表';
 
-CREATE TABLE `trace_mq_flow`
+CREATE TABLE IF NOT EXISTS `trace_mq_flow`
 (
     `tmf_id`                        bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tmf_topic`                     varchar(24)         DEFAULT NULL COMMENT 'topic',
@@ -95,7 +95,7 @@ CREATE TABLE `trace_mq_flow`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_MQ链路表';
 
-CREATE TABLE `trace_http_flow`
+CREATE TABLE IF NOT EXISTS `trace_http_flow`
 (
     `thf_id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `thf_req_ip`        varchar(15)         DEFAULT NULL COMMENT '请求方机器IP',
@@ -115,7 +115,7 @@ CREATE TABLE `trace_http_flow`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_HTTP请求记录表';
 
-CREATE TABLE `trace_app_thread_info`
+CREATE TABLE IF NOT EXISTS `trace_app_thread_info`
 (
     `tati_id`                   bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tati_app_ip`               varchar(15)          DEFAULT NULL COMMENT '应用ip',
@@ -141,7 +141,7 @@ CREATE TABLE `trace_app_thread_info`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_应用线程信息表';
 
-CREATE TABLE `trace_app_mermory_info`
+CREATE TABLE IF NOT EXISTS `trace_app_mermory_info`
 (
     `tami_id`                     bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tami_app_ip`                 varchar(15)         DEFAULT NULL COMMENT '应用ip',
@@ -165,7 +165,7 @@ CREATE TABLE `trace_app_mermory_info`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='TRACE_应用内存信息表';
 
-CREATE TABLE `td_router`
+CREATE TABLE IF NOT EXISTS `td_router`
 (
     `tr_id`             bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tr_router_id`      varchar(30) NOT NULL COMMENT '路由器(RouteDefinition)id',
@@ -185,7 +185,7 @@ CREATE TABLE `td_router`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='网关动态路由信息表';
 
-CREATE TABLE `td_batch_msg`
+CREATE TABLE IF NOT EXISTS `td_batch_msg`
 (
     `tbs_id`           bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tbs_batch_name`   varchar(30) NOT NULL COMMENT '批次接口名',
@@ -201,7 +201,7 @@ CREATE TABLE `td_batch_msg`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='批次执行信息表';
 
-CREATE TABLE `public_deploy_info`
+CREATE TABLE IF NOT EXISTS `public_deploy_info`
 (
     `pdi_id`                  bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `pdi_deploy_seq`          varchar(64)         DEFAULT NULL COMMENT '部署配置信息唯一序列,一对多pdi_seq',
@@ -228,7 +228,7 @@ CREATE TABLE `public_deploy_info`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='部署信息表';
 
-CREATE TABLE `public_error_map`
+CREATE TABLE IF NOT EXISTS `public_error_map`
 (
     `pem_id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `pem_error_code` varchar(20)         DEFAULT NULL COMMENT '错误码,唯一',
@@ -242,7 +242,7 @@ CREATE TABLE `public_error_map`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='错误码表';
 
-CREATE TABLE `public_log_flow`
+CREATE TABLE IF NOT EXISTS `public_log_flow`
 (
     `plf_id`         bigint(20)  NOT NULL AUTO_INCREMENT COMMENT '主键',
     `plf_srcSendNo`  varchar(64)          DEFAULT NULL COMMENT '交易流水',
@@ -262,7 +262,7 @@ CREATE TABLE `public_log_flow`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='公共流水表';
 
-CREATE TABLE `service_limit_info`
+CREATE TABLE IF NOT EXISTS `service_limit_info`
 (
     `sli_id`                bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `sli_service_bean_name` varchar(60)         DEFAULT NULL COMMENT '服务名bean名称,对应trace_services_info#tsi_service_bean_name',
@@ -279,7 +279,7 @@ CREATE TABLE `service_limit_info`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='服务限流信息表';
 
-CREATE TABLE `td_batch`
+CREATE TABLE IF NOT EXISTS `td_batch`
 (
     `tdb_id`          bigint(10)  NOT NULL AUTO_INCREMENT COMMENT '主键',
     `tdb_batch_name`  varchar(30) NOT NULL COMMENT '批次接口名',
