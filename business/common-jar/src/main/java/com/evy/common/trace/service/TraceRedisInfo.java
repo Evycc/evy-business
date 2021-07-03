@@ -145,7 +145,7 @@ public class TraceRedisInfo {
                 } else {
                     continue;
                 }
-                RedisConnection redisConnection = CreateFactory.returnRedisConn(host, Integer.parseInt(port), password);
+                RedisConnection redisConnection = CreateFactory.returnRedisConn(host, Integer.parseInt(port), CommandUtils.decodeEnc(password));
                 if (Objects.nonNull(redisConnection) && !redisConnection.isClosed()) {
                     REDIS_CONN_MAP.put(buildRedisMapKey(host, port), redisConnection);
                     REDIS_HOST_PASS.put(buildRedisMapKey(host, port), password);
@@ -337,7 +337,7 @@ public class TraceRedisInfo {
                             LettuceConnection redisConnection = (LettuceConnection) REDIS_SENTINEL_CONN_MAP.get(buildRedisMapKey(strings[0], String.valueOf(strings[1])));
                             try {
                                 if (Objects.isNull(redisConnection) || redisConnection.isClosed()) {
-                                    redisConnection = CreateFactory.returnRedisConn(strings[0], Integer.parseInt(strings[1]), null);
+                                    redisConnection = CreateFactory.returnRedisConn(strings[0], Integer.parseInt(strings[1]), REDIS_HOST_PASS.get(host + port));
                                 }
                                 configPath = Objects.requireNonNull(redisConnection.serverCommands().info("server")).getProperty(CONFIG_PATH);
                             } catch (Exception e) {
