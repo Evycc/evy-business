@@ -58,7 +58,7 @@ function sshSearchPort() {
           if [[ -n "$port" ]]; then
             echo "$port";
             return 0;
-          fi 
+          fi
       fi
       #休眠后发起重试,最多重试3次
       sleep 6s
