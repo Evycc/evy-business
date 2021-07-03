@@ -112,7 +112,7 @@ if [[ -f $AGENT_LOCAL_PATH ]]; then
 fi
 
 #######################从目标服务器启动jar#######################
-ssh $serverUser@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $DUMP_JVM_PARAM$DEFAULT_JVM_PARAM$paramJvm $classpathParam"
+ssh $serverUser@"$paramTargetIp" "chmod 775 $targetPath$shFileName; chmod 775 $targetPath$jarFileName; sh -vx $targetPath$shFileName $targetPath $jarFileName $APP_NAME $DUMP_JVM_PARAM$DEFAULT_JVM_PARAM$paramJvm $classpathParam"
 
 #######################从目标服务器传回jar启动日志及pid#######################
 sleep 3s

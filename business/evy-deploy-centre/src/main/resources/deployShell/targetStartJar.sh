@@ -10,15 +10,16 @@ set -o nounset    #遇到不存在的变量，终止
 #需要先在目标服务器配置ssh环境变量: 取home目录/root/.bashrc 添加行 . /etc/profile
 #通过startJar.sh,ssh到远程服务器执行该脚本
 #启动Jar,输出日志到startLog文件,输出pid到pidLog文件
-#使用方式 sh -x targetStartJar.sh ${jar路径} ${jar包名} ${jvm参数}
+#使用方式 sh -x targetStartJar.sh ${jar路径} ${jar包名} ${应用名} ${jvm参数}
 #例:
 #$1 /cdadmin/jar/
 #$2 test.jar
-#$3 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
+#$3 evy-registry-center
+#$4 -javaagent:common-agent-jar-1.0-SNAPSHOT.jar=DEBUG
 
 #######################入参#######################
 i=1
-#参数3 jvm参数
+#参数4 jvm参数
 paramJvm=''
 for arg in "$@"; do
     if [[ i -eq 1 ]]; then
@@ -27,6 +28,8 @@ for arg in "$@"; do
         elif [[ i -eq 2 ]]; then
           ##参数2 jar包名
           paramJarFileName=${arg}'/'
+            elif [[ i -eq 3 ]]; then
+              appName=${arg}
             else
               paramJvm=$paramJvm${arg}' '
     fi
@@ -39,7 +42,8 @@ readonly pidLog='pidLog'
 
 #######################停止java进程#######################
 #第一次先执行kill等待程序停止
-(pgrep java|while read -r p; do kill "$p"; done || true)
+#(pgrep java|while read -r p; do kill "$p"; done || true)
+(ps -ef|grep java|grep "$appName"|awk -F' ' '{print $2}'|while read -r p; do kill -9 $p; done)
 sleep 6s
 #若还是存在进程,则直接强行停止
 (pgrep java|while read -r p; do kill -9 "$p"; done || true)
