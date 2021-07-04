@@ -35,7 +35,7 @@ public class TraceLogUtils {
     /**
      * 当前应用名
      */
-    private static final String APP_NAME = getAppName();
+    public static final String APP_NAME = getAppName();
 
     /**
      * 获取应用名

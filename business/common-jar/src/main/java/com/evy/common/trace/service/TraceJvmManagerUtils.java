@@ -2,6 +2,7 @@ package com.evy.common.trace.service;
 
 import com.evy.common.command.infrastructure.constant.BusinessConstant;
 import com.evy.common.log.CommandLog;
+import com.evy.common.trace.TraceLogUtils;
 import com.evy.common.trace.infrastructure.tunnel.model.HeapDumpInfoModel;
 import com.evy.common.trace.infrastructure.tunnel.model.ThreadDumpInfoModel;
 import com.evy.common.utils.DateUtils;
@@ -27,7 +28,7 @@ public class TraceJvmManagerUtils {
     private static final String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
     private static final String HEAD_DUMP_FILE_SUFFIX = "jdk.management.heapdump.allowAnyFileSuffix";
     private static final String DUMP_FILE_SAVE_PATH_JVM_PARAM = "HeapDumpPath";
-    private static final String DUMP_FILE_SAVE_PATH = "/applog/current/dump/";
+    private static final String DUMP_FILE_SAVE_PATH = "/applog/" + TraceLogUtils.APP_NAME + "/current/dump/";
     private static final String FILE_SUFFIX_NAME = ".hprof";
     private static final String DUMP_FILE_PATH = System.getProperty(DUMP_FILE_SAVE_PATH_JVM_PARAM, DUMP_FILE_SAVE_PATH);
     /**
