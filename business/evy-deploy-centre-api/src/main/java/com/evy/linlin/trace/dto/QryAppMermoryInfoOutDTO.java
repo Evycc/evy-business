@@ -22,11 +22,4 @@ public class QryAppMermoryInfoOutDTO extends GatewayOutDTO {
     public void setOutMap(Map<String, List<QryAppMermoryInfoModel>> outMap) {
         this.outMap = outMap;
     }
-
-    @Override
-    public String toString() {
-        return "QryAppMermoryInfoOutDTO{" +
-                "outMap=" + outMap +
-                '}';
-    }
 }

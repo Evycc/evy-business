@@ -110,16 +110,24 @@ public class UdpUtils {
                 EXECUTOR_SERVICE_PRODUCER.execute(() -> {
                     DatagramSocket socket = SOCKET_SERVER_MAP.get(port);
                     DatagramPacket datagramPacket = new DatagramPacket(new byte[MESSAGE_LENGTH], MESSAGE_LENGTH);
+                    byte[][] data = new byte[1][1];
                     while (!socket.isClosed()) {
                         try {
                             socket.receive(datagramPacket);
                             InetAddress ip = datagramPacket.getAddress();
-                            byte[] data = datagramPacket.getData();
+                            data[0] = datagramPacket.getData();
                             datagramPacket.setData(new byte[MESSAGE_LENGTH]);
                             CommandLog.info("<=== UDP接收到信息,发送端IP: {}", ip.getHostAddress());
                             if (async) {
-                                EXECUTOR_SERVICE_CONSUMER.execute(() -> consumer.accept(data));
+                                EXECUTOR_SERVICE_CONSUMER.execute(() -> {
+                                    consumer.accept(data[0]);
+                                    data[0] = null;
+                                });
+                            } else {
+                                consumer.accept(data[0]);
+                                data[0] = null;
                             }
+
                         } catch (IOException e) {
                             CommandLog.errorThrow("<=== UDP接收信息异常", e);
                         }
@@ -229,6 +237,9 @@ public class UdpUtils {
                     datagramPacket.setData(new byte[MESSAGE_LENGTH]);
                     result = true;
                     usedTime = System.currentTimeMillis();
+
+                    //数据清理
+                    bytes = null;
                 } catch (IOException e) {
                     CommandLog.errorThrow("UDP发送异常", e);
                 }

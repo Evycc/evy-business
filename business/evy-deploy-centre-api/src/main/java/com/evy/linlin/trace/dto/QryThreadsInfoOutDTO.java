@@ -15,14 +15,6 @@ public class QryThreadsInfoOutDTO extends GatewayOutDTO {
     public QryThreadsInfoOutDTO() {
     }
 
-    @Override
-    public String toString() {
-        return "QryThreadsInfoOutDTO{" +
-                "list=" + list +
-                ", total=" + total +
-                '}';
-    }
-
     public List<QryThreadsInfoModel> getList() {
         return list;
     }

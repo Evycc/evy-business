@@ -14,13 +14,6 @@ public class QrySlowSqlInfoOutDTO extends GatewayOutDTO {
     public QrySlowSqlInfoOutDTO() {
     }
 
-    @Override
-    public String toString() {
-        return "QrySlowSqlInfoOutDTO{" +
-                "qrySlowSqlInfoList=" + qrySlowSqlInfoList +
-                '}';
-    }
-
     public List<QrySlowSqlInfoModel> getQrySlowSqlInfoList() {
         return qrySlowSqlInfoList;
     }
