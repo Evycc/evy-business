@@ -7,6 +7,8 @@
 - 提供基于SpringCloud Gateway的服务网关能力
 
 ## 功能演示网站
+http://47.107.85.187:8081/
+tester/tester
 
 ## 功能简介
 1. 自动化部署及版本回滚
@@ -118,7 +120,7 @@ public class AutoDeployAppService extends AutoDeployService {
 # 部署指南
 ## 服务端（持续集成平台evy-deploy-centre）
 1. 新建cdadmin用户(cdadmin用户需要有对/cdadmin目录的操作权限)
-2. 服务器需要先安装jdk、maven，并设置环境变量
+2. 服务器需要先安装git、jdk、maven，并设置环境变量
 3. 配置ssh，将id_rsa.pub追加到authorized_keys文件中
 4. ssh远程执行命令环境变量加载
 ```
