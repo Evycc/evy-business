@@ -1937,7 +1937,7 @@ app.controller('DeployMainController', ['$scope', 'DeployMainService', '$compile
                 //服务器最大内存
                 sysMemoryTotal = sysMemoryTotal < parseInt(outMap[ip][i].sysMermoryKb) ? parseInt(outMap[ip][i].sysMermoryKb) : sysMemoryTotal;
                 //服务器系统可用内存集合
-                sysAvailMemoryList.push(parseInt(outMap[ip][i].sysAvailMermoryKb) /1024/1024);
+                sysAvailMemoryList.push((parseInt(outMap[ip][i].sysMermoryKb) - parseInt(outMap[ip][i].sysAvailMermoryKb)) /1024/1024);
                 //应用占用内存集合
                 appUseMemoryList.push(parseInt(outMap[ip][i].sysUseMermoryKb) /1024/1024);
                 //应用堆最大内存
