@@ -138,7 +138,7 @@ public class QryTraceInfoRepository {
                         } else {
                             List<QryAppHttpReqListPO> temp = new ArrayList<>();
                             for (QryAppHttpReqListPO qryAppHttpReqListPo : qryAppHttpReqListPos) {
-                                if (qryAppHttpReqListPo.getThfUrl().contains(path)) {
+                                if (path.contains(qryAppHttpReqListPo.getThfUrl())) {
                                     temp.add(qryAppHttpReqListPo);
                                 }
                             }
