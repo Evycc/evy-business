@@ -27,10 +27,15 @@ import java.util.Objects;
 public class TraceJvmManagerUtils {
     private static final String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
     private static final String HEAD_DUMP_FILE_SUFFIX = "jdk.management.heapdump.allowAnyFileSuffix";
-    private static final String DUMP_FILE_SAVE_PATH_JVM_PARAM = "HeapDumpPath";
+    private static final String DUMP_FILE_SAVE_PATH_JVM_PARAM = "-XX:HeapDumpPath";
     private static final String DUMP_FILE_SAVE_PATH = "/applog/" + TraceLogUtils.APP_NAME + "/current/dump/";
     private static final String FILE_SUFFIX_NAME = ".hprof";
-    private static final String DUMP_FILE_PATH = System.getProperty(DUMP_FILE_SAVE_PATH_JVM_PARAM, DUMP_FILE_SAVE_PATH);
+    private static final String DUMP_FILE_PATH = System.getProperty(
+            //寻找jvm参数HeapDumpPath指定目录
+            ManagementFactory.getRuntimeMXBean().getInputArguments()
+                    .stream().filter(arg -> arg.contains(DUMP_FILE_SAVE_PATH_JVM_PARAM))
+                    .findFirst().orElse(DUMP_FILE_SAVE_PATH_JVM_PARAM).substring(16),
+            DUMP_FILE_SAVE_PATH);
     /**
      * 通过该类进行head dump
      */
